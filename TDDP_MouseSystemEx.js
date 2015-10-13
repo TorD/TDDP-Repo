@@ -1,17 +1,17 @@
 //=============================================================================
 // TDDP_MouseSystem.js
-// Version: 1.5.6
+// Version: 1.5.7
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystem = "1.5.6";
+Imported.TDDP_MouseSystem = "1.5.7";
 
 var TDDP = TDDP || {};
-TDDP.MouseSystem = "1.5.6";
+TDDP.MouseSystem = "1.5.7";
 
 //=============================================================================
 /*:
- * @plugindesc 1.5.6 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
+ * @plugindesc 1.5.7 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -173,183 +173,21 @@ TDDP.MouseSystem = "1.5.6";
  * Introduction / Table of contents
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * TDDP - MouseSystem is a collection of methods for modifying mouse-based
- * interaction in your games. You can set custom mouse cursors, show icons
- * beside the mouse when hovering over events, and more.
+ * interaction in your games. You can set custom mouse cursors, show icons beside
+ * the mouse when hovering over events, activate events by mouse, and more.
  *
- * Table of contents
- * -----------------
- * • Notetags - General how to use
- * • Custom Mouse Cursor - How to use
- * • Changing Custom Mouse Cursor during gameplay - How to use
- * • Highlight Menu Items On Hover - How to use
- * • Mouse Hover Icons - How to use
- * • Mouse Icon Tags - How to use
- * • Interact To Activate - How to use
- * • Click Switch - How to use
- * ~
- * • Changelog
- * • Terms & Conditions
+ * For updates and easy to use documentation, please go to the plugin's website:
+ * http://mvplugins.tordamian.com/plugins/mouse-system/
  *
- * ==============================================================================
- * Notetags - General how to use
- * ==============================================================================
- * Notetags can be placed two places:
- * • In an event's Note box, in which case they will act for all pages of that
- *   event
- * • In a Comment event command anywhere on an event's page, in which case they
- *   will act only when that page is active. Page notetags will override the
- *   event's Note notetag if the property they affect is the same.
- *
- * ==============================================================================
- * Custom Mouse Cursor - How to use
- * ==============================================================================
- * To use custom mouse cursors, you first have to create the folder set in the
- * Custom Cursors Folder option, which by default is: img/cursors/
- *
- * Next you set the "Use Custom Cursor?" option to the value true.
- * By default the plugin will then look for the file "default.png" in the
- * "img/cursors/" folder; you can the image in the "Custom Cursor Image"
- * option and the cursors folder in the "Custom Cursors Folder" option.
- *
- * The images used for custom cursors can be up to 128x128 pixels, but for
- * browser compatibility reasons a maximum resolution of 32x32 is recommended.
- *
- * ==============================================================================
- * Changing Custom Mouse Cursor during gameplay - How to use
- * ==============================================================================
- * You can change the custom mouse cursor graphic during gameplay in several
- * ways.
- *
- * Using notetags on events:
- * -------------------------
- * To change the custom cursor when the mouse is hovering over an event, use
- * the following notetag:
- *
- *      hover_cursor filename.png;
- *
- * This will swap to the "filename.png" image file when the mouse hovers over
- * the event. You can omit the file extension(.png), in which case the plugin
- * will assume the .png extension. This means the above example could also be
- * written as
- *
- *      hover_cursor filename;
- *
- * The notetag can be placed in a Comment box on an event page, in which case
- * it only acts for that page. If you place it in the event's Note box, then it
- * acts for all pages of the event, but can be overridden on a per-page basis
- * using a Comment box.
- *
- * Using plugin command
- * --------------------
- * You can use plugin commands to change the custom mouse cursor image and
- * reset it to the default "Custom Mouse Image" option. The commands are:
- *
- *      SetCustomCursor filename.png
- *
- *      ResetCustomCursor
- *
- * ==============================================================================
- * Highlight Menu Items On Hover - How to use
- * ==============================================================================
- * If you set the Highlight On Hover option to true the default operation of
- * the mouse changes to automatically highlight a menu item when the mouse is
- * over it, and you then only have to click it once to activate it.
- * The default mouse functionality necessitates one click to highlight a menu
- * item and then another click to select it.
- *
- * Hover SE Cooldown option
- * ------------------------
- * This adds a cooldown (in frames) between each time the Cursor sound effect
- * from the System tab in the database is played. This is set to 4 by default
- * so as to not play too many instances of the sound effect at once when moving
- * the mouse over multiple menu items quickly in a row, which sounds jarring.
- *
- * ==============================================================================
- * Mouse Hover Icons - How to use
- * ==============================================================================
- * This lets you show an icon next to the mouse cursor when hovering over events
- * that contain the required notetag. To show an icon you have two choices: use
- * an icon index directly, or a Mouse Icon Tag (see below). To specify an icon
- * index directly, you use the following notetag:
- *
- *      hover_icon 5;
- *
- * Where 5 is the wanted icon index.
- *
- * There are also two modifier notetags you can use in event page comments to
- * override the default settings you set in the plugin options. They are:
- *
- *      hide_cursor!
- *          This command will hide the mouse cursor when it's over this event.
- *
- *      icon_offset 0 0;
- *          This will offset the icon's X and Y positions in pixels, overriding
- *          the default settings you set in the plugin options.
- *
- * ==============================================================================
- * Mouse Icon Tags
- * ==============================================================================
- * These settings act as convenient tags you can use instead of icon indexes
- * when using the Mouse Hover Icons notetag. Example use with notetag:
- *
- *      hover_icon quest;
- *
- * Using these for icons that are used repeatedly means that it's easier to
- * change the icon for these events later on by just changing the corresponding
- * Mouse Icon Tags.
- *
- * Setting up tags is easy. The values look like this:
- *
- *      quest: 5
- *
- * Anything before the colon : becomes the tag to be used in the notetag; the
- * number after it is the icon index to use.
- *
- * ==============================================================================
- * Interact To Activate - How to use
- * ==============================================================================
- * These notetags let the player interact with the event using the mouse cursor
- * instead of the player character.
- *
- * There are three options:
- * • click_activate!
- *      Triggers the event by clicking on it
- * • hover_activate!
- *      Triggers the event when the mouse hovers over the event
- * • leave_activate!
- *      Triggers the event when the mouse leaves the event
- *
- * This lets the player click and activate an event regardless of where they are
- * on the map. The player character won't move to the event when the event
- * contains the customizable notetag that enables this.
- *
- * The three notetags listed above can be customized in the options under the
- * Interact To Activate heading. They are:
- * • Click Notetag
- * • Hover Notetag
- * • Leave Notetag
- *
- * You should choose a notetag which you won't normally write in a comment
- * meant only for your own benefit, so using underscores and an exclamation
- * mark can be useful to make sure you don't accidentally type out the notetag.
- *
- * ==============================================================================
- * Click Switch - How to use
- * ==============================================================================
- * You can use the following notetag command to make an event set its
- * Self Switch to a given value when the user clicks/taps on it:
- *
- *      click_switch A true;
- *
- * Where A is the Self Switch to manipulate and true is the true/false value.
- * The notetag can be typed in the Note field and event Comments, just like the
- * others in this plugin.
- *
- * ==============================================================================
- *
+ * There you can also download a PDF of the documentation for offline use, and
+ * having the documentation in one cleanly presented place means you can always
+ * be sure it's the most recent available.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Changelog:
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * • 1.5.7  Code documentation updates, internal structure changes and
+ *          optimization. SetCustomCursor and ResetCustomCursor now work as
+ *          intended.
  * • 1.5.6  All anon funcs are now registered on the TDDP_MouseSystem object for
  *          future compatibility.
  * • 1.5.5  Fixed problem with parsing comments; removed restriction on multiline
@@ -376,6 +214,12 @@ TDDP.MouseSystem = "1.5.6";
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Terms & Conditions
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Free to use both for non-commercial and commercial projects.
+ * A big thank you to Degica (www.degica.com) for making this plugin free to use
+ * commercially for everyone!
+ *
+ * Terms and License details:
+ *
  * http://creativecommons.org/licenses/by/4.0/
  *
  * You are free to:
@@ -402,11 +246,9 @@ TDDP.MouseSystem = "1.5.6";
 var TDDP_MouseSystem = {};
 (function() {
     "use strict";
-    //=============================================================================
-    // TDDP_MouseSystem._ext
-    //
-    // Get default file extension from filename if none
-    //=============================================================================
+    /**
+    * Return .png if no file extension present in filename
+    */
     TDDP_MouseSystem._ext = function(filename) {
         if (String(filename).split(".").length > 1) {
             return filename;
@@ -415,30 +257,29 @@ var TDDP_MouseSystem = {};
             return filename + ".png";
         }
     }
-    // TDDP_MouseSystem.TDDP_MouseSystem._ext = TDDP_MouseSystem._ext;
     //=============================================================================
     // Setting up parameters
     //=============================================================================
     var parameters = PluginManager.parameters('TDDP_MouseSystem');
-    TDDP_MouseSystem.show_text_cursor        = String(parameters['Show Text Cursor']) || false;
-    TDDP_MouseSystem.change_gold_cursor      = String(parameters['Change Gold Cursor']) || false;
-    TDDP_MouseSystem.change_item_cursor      = String(parameters['Change Items Cursor']) || false;
-    TDDP_MouseSystem.change_weapon_cursor    = String(parameters['Change Weapons Cursor']) || false;
-    TDDP_MouseSystem.change_armor_cursor     = String(parameters['Change Armors Cursor']) || false;
-    TDDP_MouseSystem.transfer_player_cursor  = String(parameters['Transfer Cursor']) || false;
-    TDDP_MouseSystem.transfer_player_icon    = String(parameters['Transfer Icon']) || false;
-    TDDP_MouseSystem.highlight_on_hover      = Boolean(parameters['Highlight On Hover'] === 'true' || false);
-    TDDP_MouseSystem.audio_cooldown_on_hover = Number(parameters['Hover SE Cooldown'] || 4)
-    TDDP_MouseSystem.hide_cursor             = Boolean(parameters['Hide Cursor']        === 'true' || false);
-    TDDP_MouseSystem.icon_offset_x           = Number(parameters['Icon Offset X']);
-    TDDP_MouseSystem.icon_offset_y           = Number(parameters['Icon Offset Y']);
-    TDDP_MouseSystem.click_to_activate_note  = String(parameters['Click Notetag']);
-    TDDP_MouseSystem.hover_to_activate_note  = String(parameters['Hover Notetag']);
-    TDDP_MouseSystem.leave_to_activate_note  = String(parameters['Leave Notetag']);
-    TDDP_MouseSystem.use_custom_cursor       = Boolean(parameters['Use Custom Cursor?'] === 'true' || false);
-    TDDP_MouseSystem.custom_cursor_image     = TDDP_MouseSystem._ext(String(parameters['Custom Cursor Image']));
-    TDDP_MouseSystem.custom_cursor_path      = String(parameters['Custom Cursors Folder']);
-    TDDP_MouseSystem.mouse_icon_tags         = {}
+    TDDP_MouseSystem.showTextCursor       = String(parameters['Show Text Cursor']) || false;
+    TDDP_MouseSystem.changeGoldCursor     = String(parameters['Change Gold Cursor']) || false;
+    TDDP_MouseSystem.changeItemCursor     = String(parameters['Change Items Cursor']) || false;
+    TDDP_MouseSystem.changeWeaponCursor   = String(parameters['Change Weapons Cursor']) || false;
+    TDDP_MouseSystem.changeArmorCursor    = String(parameters['Change Armors Cursor']) || false;
+    TDDP_MouseSystem.transferPlayerCursor = String(parameters['Transfer Cursor']) || false;
+    TDDP_MouseSystem.highlightOnHover     = Boolean(parameters['Highlight On Hover'] === 'true' || false);
+    TDDP_MouseSystem.audioCooldownOnHover = Number(parameters['Hover SE Cooldown'] || 4)
+    TDDP_MouseSystem.hideCursor           = Boolean(parameters['Hide Cursor']        === 'true' || false);
+    TDDP_MouseSystem.iconOffsetX          = Number(parameters['Icon Offset X']);
+    TDDP_MouseSystem.iconOffsetY          = Number(parameters['Icon Offset Y']);
+    TDDP_MouseSystem.clickToActivateNote  = String(parameters['Click Notetag']);
+    TDDP_MouseSystem.hoverToActivateNote  = String(parameters['Hover Notetag']);
+    TDDP_MouseSystem.leaveToActivateNote  = String(parameters['Leave Notetag']);
+    TDDP_MouseSystem.useCustomCursor      = Boolean(parameters['Use Custom Cursor?'] === 'true' || false);
+    TDDP_MouseSystem.cursorImage          = TDDP_MouseSystem._ext(String(parameters['Custom Cursor Image']));
+    TDDP_MouseSystem.defaultCursorImage   = TDDP_MouseSystem.cursorImage;
+    TDDP_MouseSystem.customCursorPath     = String(parameters['Custom Cursors Folder']);
+    TDDP_MouseSystem.mouseIconTags        = {}
     // Add all mouse icon tags
     for(var i = 1; i <= 15; ++i) {
         var tag = parameters['Icon Tag ' + i]
@@ -446,13 +287,15 @@ var TDDP_MouseSystem = {};
         tag = tag.split(":");
         var key = tag[0];
         var val = tag[1].replace(' ', '');
-        TDDP_MouseSystem.mouse_icon_tags[key] = val;
+        TDDP_MouseSystem.mouseIconTags[key] = val;
     }
     //=============================================================================
     // Game_Interpreter - register plugin commands
     //=============================================================================
-    var Game_Interpreter_pluginCommand =
-        Game_Interpreter.prototype.pluginCommand;
+    /**
+    * Alias and extend pluginCommand
+    */
+    var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function(command, args) {
         Game_Interpreter_pluginCommand.call(this, command, args)
         if (command === 'SetCustomCursor') TDDP_MouseSystem._setCustomCursor(args);
@@ -461,68 +304,100 @@ var TDDP_MouseSystem = {};
     //=============================================================================
     // Helper functions
     //=============================================================================
+    /**
+    * Show custom cursor
+    */
     TDDP_MouseSystem._showCustomCursor = function(filename) {
+        var filename = filename || TDDP_MouseSystem.cursorImage;
         // The Math part after the ? in the url part is to force HTML to refresh the cursor value, since otherwise
         // the cursor gets stuck until click if the player moves it to certain areas on the window border, not
         // respecting the document style.
-        document.body.style.cursor = ['url(', TDDP_MouseSystem.custom_cursor_path, filename, '?', Math.floor(Graphics.frameCount / 110),'), default'].join("");
+        document.body.style.cursor = ['url(', TDDP_MouseSystem.customCursorPath, TDDP_MouseSystem._ext(filename), '?', Math.floor(Graphics.frameCount / 110),'), default'].join("");
     }
+    /**
+    * Set new default custom cursor
+    */
     TDDP_MouseSystem._setCustomCursor = function(filename) {
-        TouchInput.customMouseCursor = filename || TDDP_MouseSystem.custom_cursor_image;
-        TDDP_MouseSystem._showCustomCursor(TouchInput.customMouseCursor);
+        TDDP_MouseSystem.cursorImage = filename;
+        TDDP_MouseSystem._showCustomCursor(TouchInput.cursorImage);
     }
+    /**
+    * Reset custom cursor to parameter setting defaults
+    */
     TDDP_MouseSystem._resetCustomCursor = function() {
-        TDDP_MouseSystem._setCustomCursor();
+        TDDP_MouseSystem._setCustomCursor(TDDP_MouseSystem.defaultCursorImage);
     }
+    /**
+    * Show the mouse cursor
+    */
     TDDP_MouseSystem._showMouseCursor = function() {
-        if (TDDP_MouseSystem.use_custom_cursor) {
-            TDDP_MouseSystem._showCustomCursor(TouchInput.customMouseCursor || TDDP_MouseSystem.custom_cursor_image);
+        if (TDDP_MouseSystem.useCustomCursor) {
+            TDDP_MouseSystem._showCustomCursor();
         } else {
             document.body.style.cursor = 'inherit';
         }
     }
-
-    TDDP_MouseSystem._hideMouseCursor = function() { document.body.style.cursor = 'none'; }
-
-    // Return only comment objects from a page's list objects
+    /**
+    * Hide the mouse cursor
+    */
+    TDDP_MouseSystem._hideMouseCursor = function() {
+        document.body.style.cursor = 'none';
+    }
+    /**
+    * Return Comments from event page. Multiline comments require an additional check (408)
+    */
     TDDP_MouseSystem._filterComments = function(pageListObject) {
         var comments = (pageListObject.code == 108 || pageListObject.code == 408) ? true : false;
         return comments;
     }
-
+    /**
+    * Return Show Text messages from event page
+    */
     TDDP_MouseSystem._filterMessages = function(pageListObject) {
         return pageListObject.code == 401;
     }
-
+    /**
+    * Return Transfer Player events from event page
+    */
     TDDP_MouseSystem._filterTransferPlayer = function(pageListObject) {
         return pageListObject.code == 201;
     }
-
+    /**
+    * Return Change Gold events from event page
+    */
     TDDP_MouseSystem._filterChangeGold = function(pageListObject) {
         return pageListObject.code == 125;
     }
-
+    /**
+    * Return Change Items events from event page
+    */
     TDDP_MouseSystem._filterChangeItems = function(pageListObject) {
         return pageListObject.code == 126;
     }
-
+    /**
+    * Return Change Weapons events from event page
+    */
     TDDP_MouseSystem._filterChangeWeapons = function(pageListObject) {
         return pageListObject.code == 127;
     }
-
+    /**
+    * Return Change Armors events from event page
+    */
     TDDP_MouseSystem._filterChangeArmors = function(pageListObject) {
         return pageListObject.code == 128;
     }
-
+    /**
+    * Check if current scene is of the type Scene_Map
+    */
     TDDP_MouseSystem._isSceneMap = function() {
         return (SceneManager._scene instanceof Scene_Map);
     }
-
-    // Find a given notetag either in a game_event's Note box or Comment
-    // boxes on current page.
+    /**
+    * Find a given notetag either in a game_event's Note box or Comment box on current active page
+    */
     TDDP_MouseSystem._findInEventNotetags = function(game_event, notetag, onMatch) {
         if (!game_event.page()) return false;
-        var comments = game_event.page().list.filter(TDDP_MouseSystem._filterComments);
+        var comments   = game_event.page().list.filter(TDDP_MouseSystem._filterComments);
         var result     = null;
         var foundMatch = false;
         var matchInString = function(string) {
@@ -531,7 +406,7 @@ var TDDP_MouseSystem = {};
                 foundMatch = true;
             }
         }
-        // First see if there's a relevant page comment
+        // First see if there's a relevant page comment, has higher priority
         if (comments.length > 0) {
             comments.forEach(function(comment) {
                 if (foundMatch) return;
@@ -546,51 +421,64 @@ var TDDP_MouseSystem = {};
         }
         if (foundMatch){ onMatch.call(game_event, result); }
     }
+    /**
+    * Array of pairs of cursors and filters to run to check if they should be used
+    */
+    TDDP_MouseSystem.autoCursorFilters = [
+        // The order is the priority; the first match stops further lookup
+        [TDDP_MouseSystem.transferPlayerCursor,    TDDP_MouseSystem._filterTransferPlayer],
+        [TDDP_MouseSystem.changeGoldCursor,        TDDP_MouseSystem._filterChangeGold],
+        [TDDP_MouseSystem.changeItemCursor,        TDDP_MouseSystem._filterChangeItems],
+        [TDDP_MouseSystem.changeWeaponCursor,      TDDP_MouseSystem._filterChangeWeapons],
+        [TDDP_MouseSystem.changeArmorCursor,       TDDP_MouseSystem._filterChangeArmors],
+        [TDDP_MouseSystem.showTextCursor,          TDDP_MouseSystem._filterMessages]
+    ]
+    /**
+    * Function to check whether conditions are prime to check for events under the mouse
+    */
+    TDDP_MouseSystem.conditionsValidForMouseHoverCheck = function() {
+        return (SceneManager.isCurrentSceneStarted() && TDDP_MouseSystem._isSceneMap() &&
+            $gameMap !== null &&
+            $dataMap !== null &&
+            !$gameMap._interpreter.isRunning());
+    }
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // START - Highlight On Hover option
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if (TDDP_MouseSystem.highlight_on_hover){
-        //=============================================================================
-        // TouchInput
-        //
-        // Changes:
-        // * _onMouseMove (Overwrite)
-        //      Always triggers instead of only on _mousePressed
-        //=============================================================================
+    if (TDDP_MouseSystem.highlightOnHover){
+        //=========================================================================
+        // TouchInput modifications
+        //=========================================================================
+        /**
+        * Removing the check for whether _mousePressed is active to facilitate hover events
+        */
         TouchInput._onMouseMove = function(event) {
-            // Checking for _mousePressed removed
             var x = Graphics.pageToCanvasX(event.pageX);
             var y = Graphics.pageToCanvasY(event.pageY);
             this._onMove(x, y);
         };
-
-        //=============================================================================
-        // Window_Selectable
-        //
-        // New:
-        // * processMouseMoved()
-        //      Checks if mouse is moved and within window, and calls onTouch(false) if
-        //      so, to move the menu highlight
-        // * cursorIsWithinWindow()
-        //      Checks if mouse cursor is within local window boundaries
-        //
-        // Changes:
-        // * update (Aliased)
-        //      Added call to processMouseMoved()
-        //=============================================================================
-        var _Window_Selectable_update =
-            Window_Selectable.prototype.update;
+        //=========================================================================
+        // Window_Selectable modifications
+        //=========================================================================
+        /**
+        * Aliased update function, adds processMouseMoved() call
+        */
+        var _Window_Selectable_update = Window_Selectable.prototype.update;
         Window_Selectable.prototype.update = function() {
             this.processMouseMoved();
             _Window_Selectable_update.call(this);
         };
-
+        /**
+        * Check if conditions are right for calling onTouch when using mouse movement (for hover activation)
+        */
         Window_Selectable.prototype.processMouseMoved = function() {
             if (this.isOpenAndActive() && TouchInput.isMoved() && this.cursorIsWithinWindow()) {
                 this.onTouch(false);
             }
         };
-
+        /**
+        * Check if cursor is within window
+        */
         Window_Selectable.prototype.cursorIsWithinWindow = function() {
             var _x = this.canvasToLocalX(TouchInput.x);
             var _y = this.canvasToLocalY(TouchInput.y);
@@ -603,29 +491,23 @@ var TDDP_MouseSystem = {};
         }
 
         //=============================================================================
-        // SoundManager
-        //
-        // New:
-        // * _lastPlayCursor
-        //      Static "class" variable to keep last played cursor frameCount
-        //
-        // Changes:
-        // * playCursor (Aliased)
-        //      Added functionality for cooldown on playing the playCursor SE
+        // SoundManager modifications
         //=============================================================================
-
-        // Static var to keep track of last played cursor SE frame
-        SoundManager._lastPlayCursor = 0;
-
-        var _SoundManager_playCursor =
-            SoundManager.playCursor;
+        /*
+        * Static var to keep track of last played cursor SE frame
+        */
+        SoundManager._lastPlayCursorFrame = 0;
+        /**
+        * Aliased function to add check for whether playCursor should play, based on cooldown setting
+        */
+        var _SoundManager_playCursor = SoundManager.playCursor;
         SoundManager.playCursor = function() {
-            var _canPlay = SoundManager._lastPlayCursor > Graphics.frameCount
-                || Graphics.frameCount > SoundManager._lastPlayCursor + TDDP_MouseSystem.audio_cooldown_on_hover;
+            var _canPlay = SoundManager._lastPlayCursorFrame > Graphics.frameCount
+                || Graphics.frameCount > SoundManager._lastPlayCursorFrame + TDDP_MouseSystem.audioCooldownOnHover;
 
             if (_canPlay) {
                 _SoundManager_playCursor.call(this);
-                SoundManager._lastPlayCursor = Graphics.frameCount;
+                SoundManager._lastPlayCursorFrame = Graphics.frameCount;
             }
         };
     }
@@ -633,35 +515,37 @@ var TDDP_MouseSystem = {};
     // END - Highlight On Hover option
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //=============================================================================
-    // TouchInput
-    //
-    // New:
-    // • TouchInput.cursorIcon
-    //      New Sprite for containing the cursor icon to draw when hovering over
-    //      events on the map with the right notetag.
-    // • _checkForEventUnderMouse()
-    // • _updateCursorIcon()
-    // • _hideCursorIcon()
-    // • _activateClickEvents()
-    //
-    // Changes:
-    // • _onMouseMove()
-    //      Call to _checkForEventUnderMouse() on move, as well as reposition
-    //      cursorIcon if shown.
+    // TouchInput modifications
     //=============================================================================
-    TouchInput.cursorIcon           = new Sprite();
-    TouchInput.cursorIcon.drawIcon  = Window_Base.prototype.drawIcon;
-    TouchInput.cursorIcon.bitmap    = new Bitmap(Window_Base._iconWidth, Window_Base._iconHeight);
-    TouchInput.cursorIcon.contents  = TouchInput.cursorIcon.bitmap;
-    TouchInput.cursorIcon.iconIndex = null;
-
+    /**
+    * Alias and extend initialize() with _setupCursorIconObject()
+    */
+    var _TouchInput_initialize = TouchInput.initialize;
+    TouchInput.initialize = function() {
+        this._setupCursorIconObject();
+        _TouchInput_initialize.call(this);
+    };
+    /**
+    * Setup cursorIcon object
+    */
+    TouchInput._setupCursorIconObject = function() {
+        this.cursorIcon           = new Sprite();
+        this.cursorIcon.drawIcon  = Window_Base.prototype.drawIcon;
+        this.cursorIcon.bitmap    = new Bitmap(Window_Base._iconWidth, Window_Base._iconHeight);
+        this.cursorIcon.contents  = this.cursorIcon.bitmap;
+        this.cursorIcon.iconIndex = null;
+    }
+    /**
+    * Alias and extend _onMouseMove() to use new function _checkCursorStatus()
+    */
     var _TouchInput_onMouseMove = TouchInput._onMouseMove;
     TouchInput._onMouseMove = function(event) {
         _TouchInput_onMouseMove.call(this, event);
-
         this._checkCursorStatus(event.pageX, event.pageY);
     };
-
+    /**
+    * Check cursor's status and whether to alter cursor
+    */
     TouchInput._checkCursorStatus = function(pageX, pageY) {
         // Check for events under mouse and perform actions, and get event in result
         var overEvent = this._checkForEventUnderMouse(pageX, pageY);
@@ -676,13 +560,15 @@ var TDDP_MouseSystem = {};
         this._activeEvent = overEvent;
         if (this.cursorIcon.iconIndex) {
             this.cursorIcon.x = Graphics.pageToCanvasX(pageX) +
-                (this.cursorIcon.customOffsetX !== null ? this.cursorIcon.customOffsetX : TDDP_MouseSystem.icon_offset_x);
+                (this.cursorIcon.customOffsetX !== null ? this.cursorIcon.customOffsetX : TDDP_MouseSystem.iconOffsetX);
             this.cursorIcon.y = Graphics.pageToCanvasY(pageY) +
-                (this.cursorIcon.customOffsetY !== null ? this.cursorIcon.customOffsetY : TDDP_MouseSystem.icon_offset_y);
+                (this.cursorIcon.customOffsetY !== null ? this.cursorIcon.customOffsetY : TDDP_MouseSystem.iconOffsetY);
             this.cursorIcon.visible = true;
         }
     }
-
+    /**
+    * Alias and extend update() to store last event coords for checking if cursor has left an event
+    */
     var _TouchInput_update = TouchInput.update;
     TouchInput.update = function() {
         _TouchInput_update.call(this);
@@ -692,9 +578,11 @@ var TDDP_MouseSystem = {};
         this._lastEventPageX = this._curEventPageX;
         this._lastEventPageY = this._curEventPageY;
     }
-
+    /**
+    * Perform check for event under mouse and perform functions depending on parsed notetag properties
+    */
     TouchInput._checkForEventUnderMouse = function(pageX, pageY) {
-        if (SceneManager.isCurrentSceneStarted() && TDDP_MouseSystem._isSceneMap() && $gameMap !== null && $dataMap !== null && !$gameMessage.hasText()) {
+        if (TDDP_MouseSystem.conditionsValidForMouseHoverCheck()) {
             var x = $gameMap.canvasToMapX(Graphics.pageToCanvasX(pageX));
             var y = $gameMap.canvasToMapY(Graphics.pageToCanvasY(pageY));
             this._curEventPageX = pageX;
@@ -704,7 +592,7 @@ var TDDP_MouseSystem = {};
                 var game_event = _events[_events.length - 1]; // Get topmost event
                 if (game_event.TDDP_MS.hoverIcon) {
                     TouchInput._updateCursorIcon(game_event.TDDP_MS.hoverIcon);
-                    if (TDDP_MouseSystem.hide_cursor) TDDP_MouseSystem._hideMouseCursor();
+                    if (TDDP_MouseSystem.hideCursor) TDDP_MouseSystem._hideMouseCursor();
                 } else {
                     TouchInput._hideCursorIcon();
                 };
@@ -718,11 +606,11 @@ var TDDP_MouseSystem = {};
                     TouchInput.cursorIcon.customOffsetX = game_event.TDDP_MS.customOffsetX;
                     TouchInput.cursorIcon.customOffsetY = game_event.TDDP_MS.customOffsetY;
                 };
-                if (TDDP_MouseSystem.use_custom_cursor) {
+                if (TDDP_MouseSystem.useCustomCursor) {
                     if (game_event.TDDP_MS.customCursor) {
                         TDDP_MouseSystem._showCustomCursor(game_event.TDDP_MS.customCursor);
                     } else {
-                        TDDP_MouseSystem._resetCustomCursor();
+                        TDDP_MouseSystem._showCustomCursor();
                     }
                 };
                 if (game_event.TDDP_MS.hoverSwitch) {
@@ -736,7 +624,9 @@ var TDDP_MouseSystem = {};
         TDDP_MouseSystem._showMouseCursor();
         return false;
     };
-
+    /**
+    * Update the cursor icon
+    */
     TouchInput._updateCursorIcon = function(iconIndex) {
         if (this.cursorIcon.iconIndex != iconIndex) {
             this.cursorIcon.iconIndex = iconIndex;
@@ -745,19 +635,25 @@ var TDDP_MouseSystem = {};
             this.cursorIcon.visible = false;
         }
     };
-
+    /**
+    * Hide the cursor icon
+    */
     TouchInput._hideCursorIcon = function() {
         this.cursorIcon.iconIndex     = null;
         this.cursorIcon.visible       = false;
         this.cursorIcon.customOffsetX = null;
         this.cursorIcon.customOffsetY = null;
     }
-
+    /**
+    * Alias and extend _onTrigger() to only fire if we're not activating on click
+    */
     var _TouchInput_onTrigger = TouchInput._onTrigger;
     TouchInput._onTrigger = function(x, y) {
         if (!TouchInput._activateClickEvents(x, y)) _TouchInput_onTrigger.call(this, x, y);
     };
-
+    /**
+    * Activate click events if valid and return true if so
+    */
     TouchInput._activateClickEvents = function(x, y) {
         var found_click_event = false;
         if (SceneManager.isCurrentSceneStarted() && $gameMap !== null && $dataMap !== null && !$gameMessage.isBusy()) {
@@ -779,48 +675,39 @@ var TDDP_MouseSystem = {};
         return found_click_event;
     }
     //=============================================================================
-    // Spriteset_Map
-    //
-    // New:
-    // • createCursor()
-    //      Draws Sprite container for the TouchInput.cursorIcon Sprite
-    //
-    // Changes:
-    // • createScreenSprites()
-    //      Added call to new createCursor() function
+    // Spriteset_Map modifications
     //=============================================================================
-    var _Spriteset_Map_createScreenSprites =
-        Spriteset_Map.prototype.createScreenSprites;
+    /**
+    * Alias and extend createScreenSprites() to also create cursor icon holder sprite
+    */
+    var _Spriteset_Map_createScreenSprites = Spriteset_Map.prototype.createScreenSprites;
     Spriteset_Map.prototype.createScreenSprites = function() {
         _Spriteset_Map_createScreenSprites.call(this);
-        this.createCursor();
+        this.createCursorIconSprite();
     };
-    Spriteset_Map.prototype.createCursor = function() {
-        this._cursorSprite = new Sprite();
-        this._cursorSprite.setFrame(0, 0, Graphics.width, Graphics.height);
-        this._cursorSprite.z = 10;
-        this._cursorSprite.addChild(TouchInput.cursorIcon);
-        this.addChild(this._cursorSprite);
+    /**
+    * Create a container sprite for the cursor icon
+    */
+    Spriteset_Map.prototype.createCursorIconSprite = function() {
+        this._cursorIconSprite = new Sprite();
+        this._cursorIconSprite.setFrame(0, 0, Graphics.width, Graphics.height);
+        this._cursorIconSprite.addChild(TouchInput.cursorIcon);
+        this.addChild(this._cursorIconSprite);
     };
     //=============================================================================
-    // Game_Event
-    //
-    // New:
-    // • setupMouseSystemProperties()
-    //      Caches TDDP MouseSystem specific notetag variables
-    //
-    // Changes:
-    // • initMembers()
-    //      Adding TDDP_MS object with params for caching of notetag data.
-    // • setupPage()
-    //      Calls new function setupMouseSystemProperties()
+    // Game_Event modifications
     //=============================================================================
-    var _Game_Event_setupPage =
-        Game_Event.prototype.setupPage;
+    /**
+    * Alias and extend setupPage() to also setup mouse system properties
+    */
+    var _Game_Event_setupPage = Game_Event.prototype.setupPage;
     Game_Event.prototype.setupPage = function() {
         _Game_Event_setupPage.call(this);
         this.setupMouseSystemProperties();
     };
+    /**
+    * Setup mouse system properties on events, for storing notetag parsing on page updates
+    */
     Game_Event.prototype.setupMouseSystemProperties = function() {
         this.TDDP_MS               = {};
         this.TDDP_MS.hoverIcon     = false;
@@ -836,18 +723,18 @@ var TDDP_MouseSystem = {};
         TDDP_MouseSystem._findInEventNotetags(this, /hover_icon\s(.*?);/, function(result) {
             if (!result) return;
             result = result[result.length - 1];
-            if (TDDP_MouseSystem.mouse_icon_tags[result]) {
-                result = TDDP_MouseSystem.mouse_icon_tags[result];
+            if (TDDP_MouseSystem.mouseIconTags[result]) {
+                result = TDDP_MouseSystem.mouseIconTags[result];
             }
             this.TDDP_MS.hoverIcon = Number(result);
         });
-        TDDP_MouseSystem._findInEventNotetags(this, TDDP_MouseSystem.click_to_activate_note, function() {
+        TDDP_MouseSystem._findInEventNotetags(this, TDDP_MouseSystem.clickToActivateNote, function() {
             this.TDDP_MS.clickActivate = true;
         });
-        TDDP_MouseSystem._findInEventNotetags(this, TDDP_MouseSystem.hover_to_activate_note, function() {
+        TDDP_MouseSystem._findInEventNotetags(this, TDDP_MouseSystem.hoverToActivateNote, function() {
             this.TDDP_MS.hoverActivate = true;
         });
-        TDDP_MouseSystem._findInEventNotetags(this, TDDP_MouseSystem.leave_to_activate_note, function() {
+        TDDP_MouseSystem._findInEventNotetags(this, TDDP_MouseSystem.leaveToActivateNote, function() {
             this.TDDP_MS.leaveActivate = true;
         });
         TDDP_MouseSystem._findInEventNotetags(this, 'hide_cursor!', function() {
@@ -858,7 +745,7 @@ var TDDP_MouseSystem = {};
             this.TDDP_MS.customOffsetY = Number(result[2]);
         });
         TDDP_MouseSystem._findInEventNotetags(this, /hover_cursor\s(.*?);/, function(result) {
-            this.TDDP_MS.customCursor = TDDP_MouseSystem._ext(result[result.length - 1]);
+            this.TDDP_MS.customCursor = result[result.length - 1];
         });
         TDDP_MouseSystem._findInEventNotetags(this, /click_switch\s(.*?)\s(.*?);/, function(result) {
             this.TDDP_MS.clickSwitch = {};
@@ -870,26 +757,17 @@ var TDDP_MouseSystem = {};
             this.TDDP_MS.hoverSwitch.key = String(result[1]);
             this.TDDP_MS.hoverSwitch.val = String(result[2]);
         });
-        // Auto cursor checks
+        // Auto cursor checks, only if there's a page
         if (!this.page()) return false;
-        var auto_filters = [
-            // The order is the priority; the first match stops further lookup
-            [TDDP_MouseSystem.transfer_player_cursor,    TDDP_MouseSystem._filterTransferPlayer],
-            [TDDP_MouseSystem.change_gold_cursor,        TDDP_MouseSystem._filterChangeGold],
-            [TDDP_MouseSystem.change_item_cursor,        TDDP_MouseSystem._filterChangeItems],
-            [TDDP_MouseSystem.change_weapon_cursor,      TDDP_MouseSystem._filterChangeWeapons],
-            [TDDP_MouseSystem.change_armor_cursor,       TDDP_MouseSystem._filterChangeArmors],
-            [TDDP_MouseSystem.show_text_cursor,          TDDP_MouseSystem._filterMessages]
-        ]
-        for (var i=0, max=auto_filters.length; i < max; i++) {
+        for (var i=0, max=TDDP_MouseSystem.autoCursorFilters.length; i < max; i++) {
             if (this.TDDP_MS.customCursor) break;
-            var entry = auto_filters[i];
+            var entry = TDDP_MouseSystem.autoCursorFilters[i];
             var cursor = entry[0];
             var filter = entry[1];
             if (typeof cursor == "string") {
                 var matches = this.page().list.filter(filter);
                 if (matches.length > 0) {
-                    this.TDDP_MS.customCursor = TDDP_MouseSystem._ext(cursor);
+                    this.TDDP_MS.customCursor = cursor;
                 }
             }
 
