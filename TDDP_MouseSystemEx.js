@@ -111,7 +111,7 @@ TDDP.MouseSystem = "1.5.8";
  *
  * @param Icon Tag 1
  * @desc Set up an icon tag shortcut to be used with the Mouse Hover Icons notetag. See plugin Help for more information.
- * @default skull: 1
+ * @default quest: 191
  *
  * @param Icon Tag 2
  * @desc Set up an icon tag shortcut to be used with the Mouse Hover Icons notetag. See plugin Help for more information.
