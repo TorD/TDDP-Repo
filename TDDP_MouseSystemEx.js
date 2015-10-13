@@ -260,7 +260,7 @@ var TDDP_MouseSystem = {};
     //=============================================================================
     // Setting up parameters
     //=============================================================================
-    var parameters = PluginManager.parameters('TDDP_MouseSystem');
+    var parameters = PluginManager.parameters('TDDP_MouseSystemEx');
     TDDP_MouseSystem.showTextCursor       = String(parameters['Show Text Cursor']) || false;
     TDDP_MouseSystem.changeGoldCursor     = String(parameters['Change Gold Cursor']) || false;
     TDDP_MouseSystem.changeItemCursor     = String(parameters['Change Items Cursor']) || false;
