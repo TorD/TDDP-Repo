@@ -177,7 +177,7 @@ TDDP.MouseSystem = "1.5.7";
  * the mouse when hovering over events, activate events by mouse, and more.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/mouse-system/
+ * http://mvplugins.tordamian.com/plugins/mouse-system-ex/
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
