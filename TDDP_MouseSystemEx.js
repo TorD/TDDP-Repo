@@ -1,17 +1,17 @@
 //=============================================================================
 // TDDP_MouseSystem.js
-// Version: 1.5.7
+// Version: 1.5.8
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystem = "1.5.7";
+Imported.TDDP_MouseSystem = "1.5.8";
 
 var TDDP = TDDP || {};
-TDDP.MouseSystem = "1.5.7";
+TDDP.MouseSystem = "1.5.8";
 
 //=============================================================================
 /*:
- * @plugindesc 1.5.7 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
+ * @plugindesc 1.5.8 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -111,7 +111,7 @@ TDDP.MouseSystem = "1.5.7";
  *
  * @param Icon Tag 1
  * @desc Set up an icon tag shortcut to be used with the Mouse Hover Icons notetag. See plugin Help for more information.
- * @default quest: 191
+ * @default skull: 1
  *
  * @param Icon Tag 2
  * @desc Set up an icon tag shortcut to be used with the Mouse Hover Icons notetag. See plugin Help for more information.
@@ -185,6 +185,10 @@ TDDP.MouseSystem = "1.5.7";
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Changelog:
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * • 1.5.8  Added local and web mode checks to updating the mouse cursor, since
+ *          local node webkit solution requires a forceful refresh due to a bug
+ *          where we can't properly check if the mouse left and re-entered the
+ *          window.
  * • 1.5.7  Code documentation updates, internal structure changes and
  *          optimization. SetCustomCursor and ResetCustomCursor now work as
  *          intended.
@@ -279,7 +283,11 @@ var TDDP_MouseSystem = {};
     TDDP_MouseSystem.cursorImage          = TDDP_MouseSystem._ext(String(parameters['Custom Cursor Image']));
     TDDP_MouseSystem.defaultCursorImage   = TDDP_MouseSystem.cursorImage;
     TDDP_MouseSystem.customCursorPath     = String(parameters['Custom Cursors Folder']);
+
     TDDP_MouseSystem.mouseIconTags        = {}
+    TDDP_MouseSystem._cursorFilenameInUse = null;   // Helper to compare changes
+    TDDP_MouseSystem._lastUpdateFrame     = 0;      // Last frame cursor got updated
+
     // Add all mouse icon tags
     for(var i = 1; i <= 15; ++i) {
         var tag = parameters['Icon Tag ' + i]
@@ -308,31 +316,46 @@ var TDDP_MouseSystem = {};
     * Show custom cursor
     */
     TDDP_MouseSystem._showCustomCursor = function(filename) {
-        var filename = filename || TDDP_MouseSystem.cursorImage;
-        // The Math part after the ? in the url part is to force HTML to refresh the cursor value, since otherwise
-        // the cursor gets stuck until click if the player moves it to certain areas on the window border, not
-        // respecting the document style.
-        document.body.style.cursor = ['url(', TDDP_MouseSystem.customCursorPath, TDDP_MouseSystem._ext(filename), '?', Math.floor(Graphics.frameCount / 110),'), default'].join("");
+        var filename = filename || this.cursorImage;
+        var forceRefreshAppend = '';
+        if(Utils.isNwjs()) {
+            // Local mode
+            if (filename == this._cursorFilenameInUse && (Graphics.frameCount - this._lastUpdateFrame) < 30) return;
+            // If local mode, we need to manually refresh the cursor constantly to make sure it updates even if cursor has left window and returned.
+            // We do this by appending a randomized number behind the filename to force refresh
+            forceRefreshAppend = '?' + Math.floor(Math.random() * 100000000);
+        } else {
+            // Web mode
+            if(filename == this._cursorFilenameInUse) return;
+            var overlay = document.getElementById('TDDP_MS_CURSOR_DUMMY');
+            if (overlay) document.body.removeChild(overlay);
+            overlay = document.createElement('div');
+            overlay.id = 'TDDP_MS_CURSOR_DUMMY';
+            document.body.appendChild(overlay);
+        }
+        this._cursorFilenameInUse = filename;
+        this._lastUpdateFrame = Graphics.frameCount;
+        document.body.style.cursor = ['url(', this.customCursorPath, this._ext(filename), forceRefreshAppend, '), default'].join("");
     }
     /**
     * Set new default custom cursor
     */
     TDDP_MouseSystem._setCustomCursor = function(filename) {
-        TDDP_MouseSystem.cursorImage = filename;
-        TDDP_MouseSystem._showCustomCursor(TouchInput.cursorImage);
+        this.cursorImage = filename;
+        this._showCustomCursor(TouchInput.cursorImage);
     }
     /**
     * Reset custom cursor to parameter setting defaults
     */
     TDDP_MouseSystem._resetCustomCursor = function() {
-        TDDP_MouseSystem._setCustomCursor(TDDP_MouseSystem.defaultCursorImage);
+        this._setCustomCursor(this.defaultCursorImage);
     }
     /**
     * Show the mouse cursor
     */
     TDDP_MouseSystem._showMouseCursor = function() {
-        if (TDDP_MouseSystem.useCustomCursor) {
-            TDDP_MouseSystem._showCustomCursor();
+        if (this.useCustomCursor) {
+            this._showCustomCursor();
         } else {
             document.body.style.cursor = 'inherit';
         }
@@ -397,7 +420,7 @@ var TDDP_MouseSystem = {};
     */
     TDDP_MouseSystem._findInEventNotetags = function(game_event, notetag, onMatch) {
         if (!game_event.page()) return false;
-        var comments   = game_event.page().list.filter(TDDP_MouseSystem._filterComments);
+        var comments   = game_event.page().list.filter(this._filterComments);
         var result     = null;
         var foundMatch = false;
         var matchInString = function(string) {
@@ -437,7 +460,7 @@ var TDDP_MouseSystem = {};
     * Function to check whether conditions are prime to check for events under the mouse
     */
     TDDP_MouseSystem.conditionsValidForMouseHoverCheck = function() {
-        return (SceneManager.isCurrentSceneStarted() && TDDP_MouseSystem._isSceneMap() &&
+        return (SceneManager.isCurrentSceneStarted() && this._isSceneMap() &&
             $gameMap !== null &&
             $dataMap !== null &&
             !$gameMap._interpreter.isRunning());
