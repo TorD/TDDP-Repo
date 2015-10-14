@@ -40,13 +40,16 @@ TDDP.PreloadManager = "0.8.0";
  * interaction, this is a necessity to ensure the right files are ready and
  * preloaded.
  *
+ * For the updates and easy to use documentation, please go to the plugin's
+ * official website:
+ * http://mvplugins.tordamian.com/plugins/preload-manager/
+ *
  * Table of contents
  * -----------------
  * 1. Installation
  * 2. Advanced Configuration
  * 3. Changelog
  * 4. Terms & Conditions
- * 5. Support
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * 1. Installation
@@ -68,39 +71,14 @@ TDDP.PreloadManager = "0.8.0";
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * • 0.8.0  Initial public release.
  *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 4. Terms & Conditions
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * http://creativecommons.org/licenses/by/4.0/
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Terms & Conditions
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * This plugin is free for both non-commercial and commercial use. Please see
+ * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
  *
- * You are free to:
- * ----------------
- * • Share — copy and redistribute the material in any medium or format
- * • Adapt — remix, transform, and build upon the material
- *
- * for any purpose, even commercially.
- *
- * The licensor cannot revoke these freedoms as long as you follow the license
- * terms.
- *
- * Under the following terms:
- * --------------------------
- * Attribution — You must give appropriate credit, provide a link to the
- * license, and indicate if changes were made. You may do so in any reasonable
- * manner, but not in any way that suggests the licensor endorses you or your
- * use.
- *
- * No additional restrictions — You may not apply legal terms or technological
- * measures that legally restrict others from doing anything the license
- * permits.
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 5. Support
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * You can find me on forums.rpgmakerweb.com with the handle Galenmereth
- *
- * This plugin also has a support topic at the following address:
- * <insert later>
+ * A big thank you to Degica for making this plugin free for commercial use for
+ * everyone!
  */
 /*
 * =============================================================================

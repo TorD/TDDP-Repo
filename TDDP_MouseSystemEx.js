@@ -218,32 +218,11 @@ TDDP.MouseSystem = "1.5.8";
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Terms & Conditions
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Free to use both for non-commercial and commercial projects.
- * A big thank you to Degica (www.degica.com) for making this plugin free to use
- * commercially for everyone!
+ * This plugin is free for both non-commercial and commercial use. Please see
+ * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
  *
- * Terms and License details:
- *
- * http://creativecommons.org/licenses/by/4.0/
- *
- * You are free to:
- * ----------------
- * • Share — copy and redistribute the material in any medium or format
- * • Adapt — remix, transform, and build upon the material
- *
- * for any purpose, even commercially.
- *
- * The licensor cannot revoke these freedoms as long as you follow the license
- * terms.
- *
- * Under the following terms:
- * --------------------------
- * Attribution — You must give appropriate credit, provide a link to the license,
- * and indicate if changes were made. You may do so in any reasonable manner, but
- * not in any way that suggests the licensor endorses you or your use.
- *
- * No additional restrictions — You may not apply legal terms or technological
- * measures that legally restrict others from doing anything the license permits.
+ * A big thank you to Degica for making this plugin free for commercial use for
+ * everyone!
  */
 //=============================================================================
 // All anonymous/helper functions are registered on this object for the convenience of other plugins.
