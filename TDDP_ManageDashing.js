@@ -25,7 +25,7 @@
  * plugin options.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/minis/disable-script-calls/
+ * http://mvplugins.tordamian.com/plugins/manage-dashing/
  *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Changelog:
