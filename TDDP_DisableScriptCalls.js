@@ -30,8 +30,7 @@
  * This plugin is free for both non-commercial and commercial use. Please see
  * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
  */
- */
- var TDDP_DisableScriptCalls = {};
+var TDDP_DisableScriptCalls = {};
 (function() {
     "use strict";
     var parameters = PluginManager.parameters('TDDP_DisableScriptCalls');
