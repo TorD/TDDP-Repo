@@ -88,7 +88,7 @@ TDDP.MouseSystem = "1.5.8";
  *
  * @param ---Mouse Icons---
  * @desc This is a heading, no need to touch it.
- * @default --------------------------------
+ * @default
  *
  * @param Hide Cursor
  * @desc Hide the default mouse cursor when an icon is shown.
@@ -107,7 +107,7 @@ TDDP.MouseSystem = "1.5.8";
  *
  * @param ---Mouse Icon Tags---
  * @desc This is a heading, no need to touch it.
- * @default --------------------------------
+ * @default
  *
  * @param Icon Tag 1
  * @desc Set up an icon tag shortcut to be used with the Mouse Hover Icons notetag. See plugin Help for more information.
