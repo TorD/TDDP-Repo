@@ -234,6 +234,7 @@ var PreloadManager;
     }
 
     PreloadManager.preloadAudio = function(type, audioObject) {
+        if (!audioObject) return;
         if(audioObject.constructor === Array) {
             for(var i = 0, max = audioObject.length; i < max; i++) {
                 this.preloadAudio(type, audioObject[i]);
