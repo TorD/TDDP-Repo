@@ -1,12 +1,12 @@
 //=============================================================================
 // TDDP_BindPicturesToMap.js
-// Version: 1.0.3
+// Version: 1.0.4
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_BindPicturesToMap = "1.0.3";
+Imported.TDDP_BindPicturesToMap = "1.0.4";
 //=============================================================================
 /*:
- * @plugindesc 1.0.3 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
+ * @plugindesc 1.0.4 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
  *
  * @author Tor Damian Design / Galenmereth
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
@@ -19,6 +19,10 @@ Imported.TDDP_BindPicturesToMap = "1.0.3";
  *
  * For updates and easy to use documentation, please go to the plugin's website:
  * http://mvplugins.tordamian.com/plugins/bind-pictures-to-map/
+ *
+ * There you can also download a PDF of the documentation for offline use, and
+ * having the documentation in one cleanly presented place means you can always
+ * be sure it's the most recent available.
  *
  * Table of contents
  * -----------------
@@ -45,11 +49,6 @@ Imported.TDDP_BindPicturesToMap = "1.0.3";
  * Installation & Compatibility
  * ============================================================================
  * This plugin should optimally be placed at the bottom of your plugin list.
- *
- * As it makes a few substantial changes to Spriteset_Map, Sprite_Picture and
- * Game_Picture, it is possible it will be incompatible with other plugins that
- * change these objects too. Please let me know if you find any problems
- * by contacting "Galenmereth" on http://forums.rpgmakerweb.com/
  *
  * ============================================================================
  * Available Layers
@@ -439,18 +438,22 @@ Imported.TDDP_BindPicturesToMap = "1.0.3";
     Game_Picture.prototype.updateMove = function() {
         _Game_Picture_updateMove.call(this);
         if(this._bindToMap) {
-            this._x = this._originX - Math.abs($gameMap.displayX() * $gameMap.tileWidth());
-            this._y = this._originY - Math.abs($gameMap.displayY() * $gameMap.tileHeight());
-            if(!this._useHorizontalRepeat &&
-                    $gameMap.displayX() * $gameMap.tileWidth() > this._originX + this._width) {
-                this._x += ($gameMap.width() * $gameMap.tileWidth());
-            } else {
+            var mw = ($gameMap.width() * $gameMap.tileWidth());
+            var mh = ($gameMap.height() * $gameMap.tileHeight());
+            var dx = Math.abs($gameMap.displayX());
+            var dy = Math.abs($gameMap.displayY());
+            var ox = dx * $gameMap.tileWidth();
+            var oy = dy * $gameMap.tileHeight();
+            this._x = this._originX - ox;
+            this._y = this._originY - oy;
+            if (this._useHorizontalRepeat && ox >= mw) {
+                this._x += mw;
+            }else {
                 this._x += this._mapOffsX;
             }
-            if(!this._useVerticalRepeat &&
-                    $gameMap.displayY() * $gameMap.tileHeight() > this._originY + this._height) {
-                this._y += ($gameMap.height() * $gameMap.tileHeight());
-            } else {
+            if (this._useVerticalRepeat && oy >= mh) {
+                this._y += mh;
+            }else {
                 this._y += this._mapOffsY;
             }
         }
@@ -462,13 +465,13 @@ Imported.TDDP_BindPicturesToMap = "1.0.3";
     * Fix to displayX's returned decimal value to hinder JS rounding errors
     */
     Game_Map.prototype.displayX = function() {
-        return Math.ceil10(this._displayX, -3);
+        return Math.ceil10(this._displayX, -8);
     };
     /**
     * Fix to displayY's returned decimal value to hinder JS rounding errors
     */
     Game_Map.prototype.displayY = function() {
-        return Math.ceil10(this._displayY, -3);
+        return Math.ceil10(this._displayY, -8);
     };
     //=============================================================================
     // Math additions
