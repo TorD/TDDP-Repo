@@ -171,7 +171,7 @@ Imported.TDDP_MouseSystemEx = "1.5.8";
  * @default key: 195
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * Introduction / Table of contents
+ * Information
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * TDDP - MouseSystem is a collection of methods for modifying mouse-based
  * interaction in your games. You can set custom mouse cursors, show icons beside
@@ -183,39 +183,6 @@ Imported.TDDP_MouseSystemEx = "1.5.8";
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
  * be sure it's the most recent available.
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Changelog:
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * • 1.5.8  Added local and web mode checks to updating the mouse cursor, since
- *          local node webkit solution requires a forceful refresh due to a bug
- *          where we can't properly check if the mouse left and re-entered the
- *          window.
- * • 1.5.7  Code documentation updates, internal structure changes and
- *          optimization. SetCustomCursor and ResetCustomCursor now work as
- *          intended.
- * • 1.5.6  All anon funcs are now registered on the TDDP_MouseSystemEx object for
- *          future compatibility.
- * • 1.5.5  Fixed problem with parsing comments; removed restriction on multiline
- *          comments.
- * • 1.5.4  Added more auto hover cursors and optimized lookup for them
- * • 1.5.3  Fixed issue where custom mouse cursor updated in menus based on map
- * • 1.5.2  Fixed issue where custom cursor and mouse icons didn't update if
- *          mouse moved over another event without any space in between them.
- * • 1.5.1  Not checking for events under mouse while $gameMessage has text
- *          on wait.
- * • 1.5.0  Notetag for click_switch SWITCH true/false; implemented
- * • 1.4.0  Merged in the Highlight Menu Item On Hover functionality from
- *          another script of mine, now a part of this one permanently.
- * • 1.3.0  Added support to change custom cursor on hover or with a Plugin
- *          Command. Vastly optimized fetching of notetag data by extending
- *          Game_Event instead of when hovering over events.
- * • 1.2.0  Added support for a custom cursor with options.
- * • 1.1.0  Added support for the Note field for events, which acts globally
- *          for all pages.
- * • 1.0.3  Added hide_icon! notetag and icon_offset 0 0; notetags and help.
- * • 1.0.2  Fixed bug with icon bitmap not being cleared due to typo.
- * • 1.0.1  Added Mouse Icon Tags.
- * • 1.0.0  Stable release.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Terms & Conditions
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
