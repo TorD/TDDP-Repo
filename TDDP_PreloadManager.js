@@ -126,15 +126,6 @@ TDDP.bootPreloadImages = {
       "subfolder/myOtherFile"
     ]
     */
-    system: [
-        "MainMenuContentBG",
-        "MainMenuContentSeparator",
-        "main_menu/tab",
-        // Window_Message
-        "window_message/nameplate",
-        // Window_Inventory
-        "window_inventory/gridSlot",
-    ]
 }
 /*
 *
