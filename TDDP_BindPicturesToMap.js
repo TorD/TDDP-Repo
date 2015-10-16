@@ -1,15 +1,12 @@
 //=============================================================================
 // TDDP_BindPicturesToMap.js
-// Version: 1.0.2
+// Version: 1.0.3
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_BindPicturesToMap = "1.0.2";
-
-var TDDP = TDDP || {};
-TDDP.BindPicturesToMap = "1.0.2";
+Imported.TDDP_BindPicturesToMap = "1.0.3";
 //=============================================================================
 /*:
- * @plugindesc 1.0.2 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
+ * @plugindesc 1.0.3 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
  *
  * @author Tor Damian Design / Galenmereth
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
@@ -19,6 +16,9 @@ TDDP.BindPicturesToMap = "1.0.2";
  * the movement of the map rather than to the camera. You can also change what
  * "layer" a picture is drawn to, like below characters, or even below the
  * parallax layer.
+ *
+ * For updates and easy to use documentation, please go to the plugin's website:
+ * http://mvplugins.tordamian.com/plugins/bind-pictures-to-map/
  *
  * Table of contents
  * -----------------
@@ -88,12 +88,12 @@ TDDP.BindPicturesToMap = "1.0.2";
  * you provided a layer name. The picture_number must be a number corresponding
  * to the number of the picture in the Show Picture dialogue that you wish to
  * change.
- * 
+ *
  * Examples of use:
- * 
+ *
  *      BindPictureToMap 5
  *          This would bind picture #5 to move with the map.
- *      
+ *
  *      BindPictureToMap 5 bottom
  *          This would bind picture #5 to move with the map and also change
  *          its layer so that it is drawn on the bottom layer.
@@ -104,18 +104,18 @@ TDDP.BindPicturesToMap = "1.0.2";
  * ----------------------------------------------------------------------------
  * This unbinds a given picture from the map, and optionally changes its layer
  * if you provided a layer name.
- * 
+ *
  * Examples of use:
- * 
+ *
  *      UnbindPictureToMap 5
  *          This would unbind picture #5 so that it moves like default with the
  *          screen.
- *      
+ *
  *      UnbindPictureToMap 5 top
  *          This would unbind picture #5 so that it moves like default with the
  *          screen and also change its layer so that it is drawn on the top
  *          layer.
- * 
+ *
  *
  * ----------------------------------------------------------------------------
  * ChangePictureLayer picture_number layer_name
@@ -123,7 +123,7 @@ TDDP.BindPicturesToMap = "1.0.2";
  * This will change the given picture number to the given layer_name.
  *
  * Example of use:
- * 
+ *
  *      ChangePictureLayer 5 below_characters
  *          This would change the layer of picture #5 to below characters.
  *
@@ -146,35 +146,18 @@ TDDP.BindPicturesToMap = "1.0.2";
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Changelog:
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * • 1.0.3  Bugfix: Fixed decimal rounding errors from Game_Map's display X and
+ *          Y coords for non-standard resolutions. Made pictures that bind to
+ *          map have their xy coords start relative to map's start xy coords.
  * • 1.0.2  Bugfix: Savegames not working due to persistent bitmap object on
  *          Game_Picture object.
  * • 1.0.1  Looping maps supported
  * • 1.0.0  Stable release, does not support looping maps yet.
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Terms & Conditions
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * http://creativecommons.org/licenses/by/4.0/
- * 
- * You are free to:
- * ----------------
- * • Share — copy and redistribute the material in any medium or format
- * • Adapt — remix, transform, and build upon the material
- *
- * for any purpose, even commercially.
- * 
- * The licensor cannot revoke these freedoms as long as you follow the license
- * terms.
- *
- * Under the following terms:
- * --------------------------
- * Attribution — You must give appropriate credit, provide a link to the
- * license, and indicate if changes were made. You may do so in any reasonable
- * manner, but not in any way that suggests the licensor endorses you or your
- * use.
- *
- * No additional restrictions — You may not apply legal terms or technological
- * measures that legally restrict others from doing anything the license
- * permits.
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * This plugin is free for both non-commercial and commercial use. Please see
+ * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
  */
 (function() {
     "use strict";
@@ -255,12 +238,19 @@ TDDP.BindPicturesToMap = "1.0.2";
         this.createTilemap();
         this.createPicturesLayer('below_characters', this._tilemap);
         this.createCharacters();
-        this.createPicturesLayer('above_characters', this);
+        this.createPicturesLayer('above_characters', this._tilemap, 8);
         this.createShadow();
         this.createPicturesLayer('below_weather', this._tilemap, 8);
-        this.createDestination();
         this.createWeather();
         this.createPicturesLayer('top', this);
+        this.createDestination();
+    };
+
+    // Modified
+    Spriteset_Map.prototype.createDestination = function() {
+        this._destinationSprite = new Sprite_Destination();
+        this._destinationSprite.z = 9;
+        this._pictureContainer['top'].addChild(this._destinationSprite);
     };
 
     // NEW
@@ -391,31 +381,41 @@ TDDP.BindPicturesToMap = "1.0.2";
             this._layer = 'top';
         }
     };
-
+    /**
+    * Get current layer object
+    */
     Game_Picture.prototype.layer = function() {
         if(!SceneManager._scene._spriteset) return null;
         return SceneManager._scene._spriteset._pictureContainer[this._layer];
     }
-
+    /**
+    * Extensions to show function to set additional properties
+    */
     var _Game_Picture_show =
             Game_Picture.prototype.show;
     Game_Picture.prototype.show = function(name, origin, x, y, scaleX,
                                            scaleY, opacity, blendMode) {
+
         _Game_Picture_show.call(this, name, origin, x, y, scaleX,
                                 scaleY, opacity, blendMode);
 
-        // Fetch temp bitmap to calculate sizes
         this._offsetX = this._offsetY = 0;
+        // Map offsets for resolutions that offset the map's drawing start. Used only when binding pictures to map
+        this._mapOffsX = Math.max(SceneManager._screenWidth - ($gameMap.width() * $gameMap.tileWidth()), 0);
+        this._mapOffsY = Math.max(SceneManager._screenHeight - ($gameMap.height() * $gameMap.tileHeight()), 0);
         this._originX = this._x;
         this._originY = this._y;
+        // Fetch temp bitmap to calculate sizes
         var bitmap = ImageManager.loadPicture(this._name);
         bitmap.addLoadListener(this.setDimensions.bind(this, bitmap));
     };
-
+    /**
+    * Set dimensions based on temp bitmap
+    */
     Game_Picture.prototype.setDimensions = function(bitmap) {
         this._width = bitmap.width;
         this._height = bitmap.height;
-        
+
         // Clear bitmap
         bitmap = null;
 
@@ -424,14 +424,16 @@ TDDP.BindPicturesToMap = "1.0.2";
         this._verSpacing = $gameMap.height() * $gameMap.tileHeight();
 
         // Check if we need horizontal and vertical repeating
-        this._useHorizontalRepeat = this._width + Graphics.width > this._horSpacing && this._width < this._horSpacing;
-        this._useVerticalRepeat = this._height + Graphics.height > this._verSpacing && this._height < this._verSpacing;
-        
+        this._useHorizontalRepeat = this._width < this._horSpacing * 2;//this._width + Graphics.width > this._horSpacing && this._width < this._horSpacing;
+        this._useVerticalRepeat = this._height < this._verSpacing * 2;//this._height + Graphics.height > this._verSpacing && this._height < this._verSpacing;
+
         // Set requested bitmap width based on repeating
         this._bitmapWidth = this._useHorizontalRepeat ? this._horSpacing * 2 : this._width;
         this._bitmapHeight = this._useVerticalRepeat ? this._verSpacing * 2 : this._height;
     }
-
+    /**
+    * Extensions to updateMove when binding pictures to map
+    */
     var _Game_Picture_updateMove =
             Game_Picture.prototype.updateMove;
     Game_Picture.prototype.updateMove = function() {
@@ -442,12 +444,67 @@ TDDP.BindPicturesToMap = "1.0.2";
             if(!this._useHorizontalRepeat &&
                     $gameMap.displayX() * $gameMap.tileWidth() > this._originX + this._width) {
                 this._x += ($gameMap.width() * $gameMap.tileWidth());
+            } else {
+                this._x += this._mapOffsX;
             }
             if(!this._useVerticalRepeat &&
                     $gameMap.displayY() * $gameMap.tileHeight() > this._originY + this._height) {
                 this._y += ($gameMap.height() * $gameMap.tileHeight());
+            } else {
+                this._y += this._mapOffsY;
             }
         }
     };
+    //=============================================================================
+    // Game_Picture
+    //=============================================================================
+    /**
+    * Fix to displayX's returned decimal value to hinder JS rounding errors
+    */
+    Game_Map.prototype.displayX = function() {
+        return Math.ceil10(this._displayX, -3);
+    };
+    /**
+    * Fix to displayY's returned decimal value to hinder JS rounding errors
+    */
+    Game_Map.prototype.displayY = function() {
+        return Math.ceil10(this._displayY, -3);
+    };
+    //=============================================================================
+    // Math additions
+    //=============================================================================
+    /**
+    * Decimal adjustment of a number.
+    *
+    * @param {String}  type  The type of adjustment.
+    * @param {Number}  value The number.
+    * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
+    * @returns {Number} The adjusted value.
+    */
+    function decimalAdjust(type, value, exp) {
+        // If the exp is undefined or zero...
+        if (typeof exp === 'undefined' || +exp === 0) {
+            return Math[type](value);
+        }
+        value = +value;
+        exp = +exp;
+        // If the value is not a number or the exp is not an integer...
+        if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+            return NaN;
+        }
+        // Shift
+        value = value.toString().split('e');
+        value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+        // Shift back
+        value = value.toString().split('e');
+        return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+    }
+
+    // Decimal ceil
+    if (!Math.ceil10) {
+        Math.ceil10 = function(value, exp) {
+            return decimalAdjust('ceil', value, exp);
+        };
+    }
 
 })();
