@@ -169,7 +169,7 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
         _Game_Interpreter_pluginCommand.call(this, command, args)
         var args = args || [];
         if (command === 'BindPictureToMap')         this.bindPictureToMap(args[0], true, args[1]);
-        if (command === 'UnbindPictureToMap')       this.bindPictureToMap(args[0], false, args[1]);
+        if (command === 'UnbindPictureFromMap')       this.bindPictureToMap(args[0], false, args[1]);
         if (command === 'ChangePictureLayer')       this.changePictureLayer(args[0], args[1]);
         if (command === 'START_BindPicturesToMap')  this.bindAllPicturesToMap(args);
         if (command === 'STOP_BindPicturesToMap')   this.stopBindAllPicturesToMap();
