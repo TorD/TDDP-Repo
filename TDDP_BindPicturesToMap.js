@@ -10,7 +10,7 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
  *
  * @author Tor Damian Design / Galenmereth
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * Introduction & Table of contents
+ * Information
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * The Bind Pictures To Map plugin lets you bind the movement of pictures to
  * the movement of the map rather than to the camera. You can also change what
@@ -23,135 +23,6 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
  * be sure it's the most recent available.
- *
- * Table of contents
- * -----------------
- * • Installation & Compatibility
- * • Available Layers
- *      • bottom
- *      • below_tilemap
- *      • below_characters
- *      • above_characters
- *      • below_weather
- *      • top
- * • Plugin Commands - How to use
- *      • BindPictureToMap
- *      • ChangePictureLayer
- *      • START_BindPicturesToMap
- *      • STOP_BindPicturesToMap
- * • Changelog
- * • Terms & Conditions
- *
- * If you need help please contact "Galenmereth" on
- * http://forums.rpgmakerweb.com/
- *
- * ============================================================================
- * Installation & Compatibility
- * ============================================================================
- * This plugin should optimally be placed at the bottom of your plugin list.
- *
- * ============================================================================
- * Available Layers
- * ============================================================================
- * These are the layers you can use for the layer_name option in the
- * Plugin Commands:
- *
- * • bottom
- *      Below all layers including the parallax picture layer.
- *
- * • below_tilemap
- *      Below the tilemap / world, but above parallax picture layer.
- *
- * • below_characters
- *      Below characters and events, but above the tilemap/world itself.
- *
- * • above_characters
- *      Above characters and events, but below shadows.
- *
- * • below_weather
- *      Above shadows as well as characters and events.
- *
- * • top
- *      Default for pictures. It's above everything, including weather.
- *
- * ============================================================================
- * Plugin Commands - How to use
- * ============================================================================
- * These are the supported Plugin Commands you can use. See the section
- * "Available Layers" above for a list of all the layer names you can use.
- *
- * ----------------------------------------------------------------------------
- * BindPictureToMap picture_number optional_layer_name
- * ----------------------------------------------------------------------------
- * This binds a given picture to the map, and optionally changes its layer if
- * you provided a layer name. The picture_number must be a number corresponding
- * to the number of the picture in the Show Picture dialogue that you wish to
- * change.
- *
- * Examples of use:
- *
- *      BindPictureToMap 5
- *          This would bind picture #5 to move with the map.
- *
- *      BindPictureToMap 5 bottom
- *          This would bind picture #5 to move with the map and also change
- *          its layer so that it is drawn on the bottom layer.
- *
- *
- * ----------------------------------------------------------------------------
- * UnbindPictureToMap picture_number optional_layer_name
- * ----------------------------------------------------------------------------
- * This unbinds a given picture from the map, and optionally changes its layer
- * if you provided a layer name.
- *
- * Examples of use:
- *
- *      UnbindPictureToMap 5
- *          This would unbind picture #5 so that it moves like default with the
- *          screen.
- *
- *      UnbindPictureToMap 5 top
- *          This would unbind picture #5 so that it moves like default with the
- *          screen and also change its layer so that it is drawn on the top
- *          layer.
- *
- *
- * ----------------------------------------------------------------------------
- * ChangePictureLayer picture_number layer_name
- * ----------------------------------------------------------------------------
- * This will change the given picture number to the given layer_name.
- *
- * Example of use:
- *
- *      ChangePictureLayer 5 below_characters
- *          This would change the layer of picture #5 to below characters.
- *
- *
- * ----------------------------------------------------------------------------
- * START_BindPicturesToMap optional_layer_name
- * ----------------------------------------------------------------------------
- * This will bind all images subsequently shown using the Show Picture dialogue
- * to the optionally given layer name.
- * IMPORTANT: You MUST call STOP_BindPicturesToMap when you no longer want this
- * to take effect. See below.
- *
- *
- * ----------------------------------------------------------------------------
- * STOP_BindPicturesToMap
- * ----------------------------------------------------------------------------
- * This must be called after a START_BindPicturesToMap command to stop new
- * Show Picture dialogues to bind their pictures to the map.
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Changelog:
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * • 1.0.3  Bugfix: Fixed decimal rounding errors from Game_Map's display X and
- *          Y coords for non-standard resolutions. Made pictures that bind to
- *          map have their xy coords start relative to map's start xy coords.
- * • 1.0.2  Bugfix: Savegames not working due to persistent bitmap object on
- *          Game_Picture object.
- * • 1.0.1  Looping maps supported
- * • 1.0.0  Stable release, does not support looping maps yet.
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * Terms & Conditions
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
