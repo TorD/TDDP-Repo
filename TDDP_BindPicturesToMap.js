@@ -18,7 +18,7 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
  * parallax layer.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/bind-pictures-to-map/
+ * http://mvplugins.tordamian.com/?p=54
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always

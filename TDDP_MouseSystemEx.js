@@ -178,7 +178,7 @@ Imported.TDDP_MouseSystemEx = "1.5.9";
  * the mouse when hovering over events, activate events by mouse, and more.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/mouse-system-ex/
+ * http://mvplugins.tordamian.com/?p=26
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always

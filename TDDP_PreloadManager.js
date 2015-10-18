@@ -23,7 +23,7 @@ TDDP.PreloadManager = "0.8.0";
  * @default false
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * Introduction / Table of contents
+ * Information
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * TDDP PreloadManager lets you preload resources on both boot (before the
  * game title screen displays) and on map load (in between map transfers) to
@@ -41,35 +41,13 @@ TDDP.PreloadManager = "0.8.0";
  * preloaded.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/preload-manager/
+ * http://mvplugins.tordamian.com/?p=29
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
  * be sure it's the most recent available.
- *
- * Table of contents
- * -----------------
- * 1. Installation
- * 2. Advanced Configuration
- * 3. Terms & Conditions
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 1. Installation
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Drag and drop plugin .js file into your project's js/plugins folder, then
- * enable it in the editor interface.
- *
- * Make sure this plugin is placed at the top for maximum compatibility.
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 2. Advanced Configuration
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * There is an advanced configuration section if you open the plugin .js file
- * in a text editor. Look for BOOT PRELOAD CONFIG -- ADVANCED USERS. This lets
- * you define resources to preload on boot manually.
- *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 3. Terms & Conditions
+ * Terms & Conditions
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * This plugin is free for both non-commercial and commercial use. Please see
  * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.

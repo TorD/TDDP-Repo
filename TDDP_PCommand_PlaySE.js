@@ -18,7 +18,7 @@ Imported.TDDP_PCommand_PlaySE = "1.0.0";
  * the mouse when hovering over events, activate events by mouse, and more.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/minis/plugin-command-play-se/
+ * http://mvplugins.tordamian.com/?p=64
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
@@ -28,9 +28,6 @@ Imported.TDDP_PCommand_PlaySE = "1.0.0";
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * This plugin is free for both non-commercial and commercial use. Please see
  * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
- *
- * A big thank you to Degica for making this plugin free for commercial use for
- * everyone!
  */
 (function(){
     //=============================================================================

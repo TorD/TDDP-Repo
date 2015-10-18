@@ -18,7 +18,7 @@
  * individual Script calls to still be called. Useful for debugging / testing.
  *
  * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/plugins/minis/disable-script-calls/
+ * http://mvplugins.tordamian.com/?p=290
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
@@ -28,6 +28,9 @@
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * This plugin is free for both non-commercial and commercial use. Please see
  * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
+ *
+ * A big thank you to Degica for making this plugin free for commercial use for
+ * everyone!
  */
 var TDDP_DisableScriptCalls = {};
 (function() {
