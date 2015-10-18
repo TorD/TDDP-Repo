@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.5.8
+// Version: 1.5.9
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.5.8";
+Imported.TDDP_MouseSystemEx = "1.5.9";
 
 //=============================================================================
 /*:
- * @plugindesc 1.5.8 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
+ * @plugindesc 1.5.9 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
  *
  * @author Tor Damian Design / Galenmereth
  *
