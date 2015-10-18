@@ -64,7 +64,7 @@ Imported.TDDP_MouseSystemEx = "1.5.8";
  * @desc Audio cooldown (in frames) between playing Cursor SE when Highlight On Hover is set to true. Default 4.
  * @default 4
  *
- * @param ---Interact To Activate---
+ * @param ---Customizeable Notetags---
  * @desc These are options for activating events by mouse interaction instead of player character.
  * @default
  *
