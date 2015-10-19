@@ -307,10 +307,6 @@ var TDDP_MouseSystemEx = {};
         xhr.overrideMimeType('application/json');
         xhr.onload = function() {
             if (xhr.status < 400) {
-                // To ensure all the cursors get prefetched by browsers, we create a dummy div to hold all the styles
-                var dummyLoaderElement = document.createElement('div');
-                dummyLoaderElement.id = 'TDDP_MS_CursorDummy';
-                document.body.appendChild(dummyLoaderElement);
                 // Next we iterate the cached cursor list
                 var classPrefix = TDDP_MouseSystemEx._cssClassPrefix;
                 var cachedCursors = JSON.parse(xhr.responseText);
@@ -321,8 +317,11 @@ var TDDP_MouseSystemEx = {};
                     var cursorPath = TDDP_MouseSystemEx.customCursorPath + cursor;
                     var sheet = window.document.styleSheets[0];
                     sheet.insertRule('.' + classPrefix + cursorName + ' { cursor: url(../' + cursorPath + '), default; }', sheet.cssRules.length);
-                    // Add style to dummy div
-                    dummyLoaderElement.className += classPrefix + cursorName + ' ';
+                    // To ensure all the cursors get prefetched by browsers, we create dummy divs to hold all the styles...
+                    var dummyLoaderElement = document.createElement('div');
+                    dummyLoaderElement.id = classPrefix + "_dummy";
+                    document.body.appendChild(dummyLoaderElement);
+                    dummyLoaderElement.className = classPrefix + cursorName;
                 }
             }
         };
