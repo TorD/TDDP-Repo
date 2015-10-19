@@ -697,7 +697,7 @@ var TDDP_MouseSystemEx = {};
         this.TDDP_MS.customCursor    = false;
         this.TDDP_MS.clickSwitch     = false;
         this.TDDP_MS.hoverSwitch     = false;
-        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_icon\s(.*?);/, function(result) {
+        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_icon\s(.*?);/i, function(result) {
             if (!result) return;
             result = result[result.length - 1];
             if (TDDP_MouseSystemEx.mouseIconTags[result]) {
@@ -720,20 +720,20 @@ var TDDP_MouseSystemEx = {};
         TDDP_MouseSystemEx._findInEventNotetags(this, 'hide_cursor!', function() {
             this.TDDP_MS.hideCursor = true;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /icon_offset\s(.*?)\s(.*?);/, function(result) {
+        TDDP_MouseSystemEx._findInEventNotetags(this, /icon_offset\s(.*?)\s(.*?);/i, function(result) {
             this.TDDP_MS.customOffsetX = Number(result[1]);
             this.TDDP_MS.customOffsetY = Number(result[2]);
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_cursor\s(.*?);/, function(result) {
+        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_cursor\s(.*?);/i, function(result) {
             this.TDDP_MS.customCursor = result[result.length - 1];
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /click_switch\s(.*?)\s(.*?);/, function(result) {
+        TDDP_MouseSystemEx._findInEventNotetags(this, /click_switch\s(.*?)\s(.*?);/i, function(result) {
             this.TDDP_MS.clickSwitch = {};
             this.TDDP_MS.clickSwitch.key = String(result[1]);
             this.TDDP_MS.clickSwitch.val = String(result[2]);
 
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_switch\s(.*?)\s(.*?);/, function(result) {
+        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_switch\s(.*?)\s(.*?);/i, function(result) {
             this.TDDP_MS.hoverSwitch = {};
             this.TDDP_MS.hoverSwitch.key = String(result[1]);
             this.TDDP_MS.hoverSwitch.val = String(result[2]);
