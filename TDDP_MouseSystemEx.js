@@ -30,7 +30,7 @@ Imported.TDDP_MouseSystemEx = "1.6.0";
  * @default img/cursors/
  *
  * @param ---Auto Change Cursors---
- * @desc Options for automatically changing the mouse cursor when hovering over events with certain event commands in them.
+ * @desc Options for automatically changing the mouse cursor when hovering over events with the given event commands in them.
  * @default
  *
  * @param Show Text Cursor
@@ -52,7 +52,7 @@ Imported.TDDP_MouseSystemEx = "1.6.0";
  * @desc Automatically show this custom cursor image when hovering over events with Change Armors commands in them.
  *
  * @param ---Auto Change Icons---
- * @desc Options for automatically changing the icon next to the mouse when hovering over events with certain event commands in them.
+ * @desc Options for automatically showing an icon when hovering over events with the given event commands in them.
  * @default
  *
  * @param Show Text Icon
