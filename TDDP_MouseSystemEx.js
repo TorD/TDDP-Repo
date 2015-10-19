@@ -281,6 +281,7 @@ var TDDP_MouseSystemEx = {};
     * Pre-cache all custom cursors when in test mode
     */
     // Check if playtest; if so, store file. If not, read stored
+    TDDP_MouseSystemEx._indexFilename = "_index.json";
     if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
         var fs = require('fs');
         // Find that relative local path, using MV's own methods
@@ -290,9 +291,11 @@ var TDDP_MouseSystemEx = {};
         }
         path = decodeURIComponent(path);
         // Read dir
-        var files = fs.readdirSync(path);
+        var files = fs.readdirSync(path).filter(function(v) {
+            if(v != TDDP_MouseSystemEx._indexFilename && v[1]) return v;
+        });
         // Store in json
-        fs.writeFile(path + 'cursors.json', JSON.stringify(files), 'utf8', _loadAndSetupCustomCursorCSS);
+        fs.writeFile(path + TDDP_MouseSystemEx._indexFilename, JSON.stringify(files), 'utf8', _loadAndSetupCustomCursorCSS);
     } else {
         // Read stored file
         _loadAndSetupCustomCursorCSS();
@@ -302,25 +305,27 @@ var TDDP_MouseSystemEx = {};
     */
     function _loadAndSetupCustomCursorCSS() {
         var xhr = new XMLHttpRequest();
-        var url = TDDP_MouseSystemEx.customCursorPath + 'cursors.json';
+        var url = TDDP_MouseSystemEx.customCursorPath + TDDP_MouseSystemEx._indexFilename;
         xhr.open('GET', url);
         xhr.overrideMimeType('application/json');
         xhr.onload = function() {
             if (xhr.status < 400) {
+                var dummyContainerElement = document.createElement('div');
+                dummyContainerElement.id = "TDD_MS_CursorDummies";
+                document.body.appendChild(dummyContainerElement);
                 // Next we iterate the cached cursor list
                 var classPrefix = TDDP_MouseSystemEx._cssClassPrefix;
                 var cachedCursors = JSON.parse(xhr.responseText);
                 for (var i=0, max=cachedCursors.length; i<max; i++) {
                     var cursor = cachedCursors[i];
                     var cursorName = cursor.split(".")[0];
-                    if (cursor == 'cursors.json') continue;
                     var cursorPath = TDDP_MouseSystemEx.customCursorPath + cursor;
                     var sheet = window.document.styleSheets[0];
                     sheet.insertRule('.' + classPrefix + cursorName + ' { cursor: url(../' + cursorPath + '), default; }', sheet.cssRules.length);
                     // To ensure all the cursors get prefetched by browsers, we create dummy divs to hold all the styles...
                     var dummyLoaderElement = document.createElement('div');
-                    dummyLoaderElement.id = classPrefix + "_dummy";
-                    document.body.appendChild(dummyLoaderElement);
+                    dummyLoaderElement.id = cursorName + "_dummy";
+                    dummyContainerElement.appendChild(dummyLoaderElement);
                     dummyLoaderElement.className = classPrefix + cursorName;
                 }
             }
