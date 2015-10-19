@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.5.9
+// Version: 1.5.10
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.5.9";
+Imported.TDDP_MouseSystemEx = "1.5.10";
 
 //=============================================================================
 /*:
- * @plugindesc 1.5.9 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
+ * @plugindesc 1.5.10 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -50,6 +50,28 @@ Imported.TDDP_MouseSystemEx = "1.5.9";
  *
  * @param Change Armors Cursor
  * @desc Automatically show this custom cursor image when hovering over events with Change Armors commands in them.
+ *
+ * @param ---Auto Change Icons---
+ * @desc Options for automatically changing the icon next to the mouse when hovering over events with certain event commands in them.
+ * @default
+ *
+ * @param Show Text Icon
+ * @desc Automatically show this icon when hovering over events with Show Text commands in them.
+ *
+ * @param Transfer Icon
+ * @desc Automatically show this icon when hovering over events with Transfer Player commands in them.
+ *
+ * @param Change Gold Icon
+ * @desc Automatically show this icon when hovering over events with Change Gold commands in them.
+ *
+ * @param Change Items Icon
+ * @desc Automatically show this icon when hovering over events with Change Items commands in them.
+ *
+ * @param Change Weapons Icon
+ * @desc Automatically show this icon when hovering over events with Change Weapons commands in them.
+ *
+ * @param Change Armors Icon
+ * @desc Automatically show this icon when hovering over events with Change Armors commands in them.
  *
  * @param ---Hover Select---
  * @desc This is a heading, no need to touch it.
@@ -212,17 +234,25 @@ var TDDP_MouseSystemEx = {};
     // Setting up parameters
     //=============================================================================
     var parameters = PluginManager.parameters('TDDP_MouseSystemEx');
+    // Auto change cursors
     TDDP_MouseSystemEx.showTextCursor       = String(parameters['Show Text Cursor']) || false;
     TDDP_MouseSystemEx.changeGoldCursor     = String(parameters['Change Gold Cursor']) || false;
     TDDP_MouseSystemEx.changeItemCursor     = String(parameters['Change Items Cursor']) || false;
     TDDP_MouseSystemEx.changeWeaponCursor   = String(parameters['Change Weapons Cursor']) || false;
     TDDP_MouseSystemEx.changeArmorCursor    = String(parameters['Change Armors Cursor']) || false;
-    TDDP_MouseSystemEx.transferPlayerCursor = String(parameters['Transfer Cursor']) || false;
+    // Auto change icons
+    TDDP_MouseSystemEx.showTextIcon         = String(parameters['Show Text Icon']) || false;
+    TDDP_MouseSystemEx.changeGoldIcon       = String(parameters['Change Gold Icon']) || false;
+    TDDP_MouseSystemEx.changeItemIcon       = String(parameters['Change Items Icon']) || false;
+    TDDP_MouseSystemEx.changeWeaponIcon     = String(parameters['Change Weapons Icon']) || false;
+    TDDP_MouseSystemEx.changeArmorIcon      = String(parameters['Change Armors Icon']) || false;
+    TDDP_MouseSystemEx.transferPlayerIcon   = String(parameters['Transfer Icon']) || false;
+    // Settings
     TDDP_MouseSystemEx.highlightOnHover     = Boolean(parameters['Highlight On Hover'] === 'true' || false);
     TDDP_MouseSystemEx.audioCooldownOnHover = Number(parameters['Hover SE Cooldown'] || 4)
     TDDP_MouseSystemEx.hideCursor           = Boolean(parameters['Hide Cursor']        === 'true' || false);
-    TDDP_MouseSystemEx.iconOffsetX          = Number(parameters['Icon Offset X']);
-    TDDP_MouseSystemEx.iconOffsetY          = Number(parameters['Icon Offset Y']);
+    TDDP_MouseSystemEx.iconOffsetX          = Number(parameters['Icon Offset X']) || 0;
+    TDDP_MouseSystemEx.iconOffsetY          = Number(parameters['Icon Offset Y']) || 0;
     TDDP_MouseSystemEx.noAutoCursorNotetag  = String(parameters['No Auto Cursor Notetag']);
     TDDP_MouseSystemEx.clickToActivateNote  = String(parameters['Click Notetag']);
     TDDP_MouseSystemEx.hoverToActivateNote  = String(parameters['Hover Notetag']);
@@ -402,8 +432,17 @@ var TDDP_MouseSystemEx = {};
         [TDDP_MouseSystemEx.changeItemCursor,        TDDP_MouseSystemEx._filterChangeItems],
         [TDDP_MouseSystemEx.changeWeaponCursor,      TDDP_MouseSystemEx._filterChangeWeapons],
         [TDDP_MouseSystemEx.changeArmorCursor,       TDDP_MouseSystemEx._filterChangeArmors],
-        [TDDP_MouseSystemEx.showTextCursor,          TDDP_MouseSystemEx._filterMessages]
-    ]
+        [TDDP_MouseSystemEx.showTextCursor,          TDDP_MouseSystemEx._filterMessages],
+    ];
+    TDDP_MouseSystemEx.autoIconFilters = [
+        // The order is the priority; the first match stops further lookup
+        [TDDP_MouseSystemEx.transferPlayerIcon,    TDDP_MouseSystemEx._filterTransferPlayer],
+        [TDDP_MouseSystemEx.changeGoldIcon,        TDDP_MouseSystemEx._filterChangeGold],
+        [TDDP_MouseSystemEx.changeItemIcon,        TDDP_MouseSystemEx._filterChangeItems],
+        [TDDP_MouseSystemEx.changeWeaponIcon,      TDDP_MouseSystemEx._filterChangeWeapons],
+        [TDDP_MouseSystemEx.changeArmorIcon,       TDDP_MouseSystemEx._filterChangeArmors],
+        [TDDP_MouseSystemEx.showTextIcon,          TDDP_MouseSystemEx._filterMessages],
+    ];
     /**
     * Function to check whether conditions are prime to check for events under the mouse
     */
@@ -521,6 +560,15 @@ var TDDP_MouseSystemEx = {};
         // Check for events under mouse and perform actions, and get event in result
         var overEvent = this._checkForEventUnderMouse(pageX, pageY);
 
+        // Update cursor icon position
+        if (this.cursorIcon.iconIndex) {
+            this.cursorIcon.x = Graphics.pageToCanvasX(pageX) +
+                (this.cursorIcon.customOffsetX !== null ? this.cursorIcon.customOffsetX : TDDP_MouseSystemEx.iconOffsetX);
+            this.cursorIcon.y = Graphics.pageToCanvasY(pageY) +
+                (this.cursorIcon.customOffsetY !== null ? this.cursorIcon.customOffsetY : TDDP_MouseSystemEx.iconOffsetY);
+            this.cursorIcon.visible = true;
+        }
+
         // Check if leave activate is to be triggered for a previous event
         if (this._activeEvent && this._activeEvent.TDDP_MS.leaveActivate &&
                 (!overEvent || overEvent !== this._activeEvent)) {
@@ -529,13 +577,6 @@ var TDDP_MouseSystemEx = {};
         }
         // Set active event
         this._activeEvent = overEvent || this._activeEvent;
-        if (this.cursorIcon.iconIndex) {
-            this.cursorIcon.x = Graphics.pageToCanvasX(pageX) +
-                (this.cursorIcon.customOffsetX !== null ? this.cursorIcon.customOffsetX : TDDP_MouseSystemEx.iconOffsetX);
-            this.cursorIcon.y = Graphics.pageToCanvasY(pageY) +
-                (this.cursorIcon.customOffsetY !== null ? this.cursorIcon.customOffsetY : TDDP_MouseSystemEx.iconOffsetY);
-            this.cursorIcon.visible = true;
-        }
     }
     /**
     * Alias and extend update() to store last event coords for checking if cursor has left an event
@@ -553,11 +594,11 @@ var TDDP_MouseSystemEx = {};
     * Perform check for event under mouse and perform functions depending on parsed notetag properties
     */
     TouchInput._checkForEventUnderMouse = function(pageX, pageY) {
+        this._curEventPageX = pageX;
+        this._curEventPageY = pageY;
         if (TDDP_MouseSystemEx.conditionsValidForMouseHoverCheck()) {
             var x = $gameMap.canvasToMapX(Graphics.pageToCanvasX(pageX));
             var y = $gameMap.canvasToMapY(Graphics.pageToCanvasY(pageY));
-            this._curEventPageX = pageX;
-            this._curEventPageY = pageY;
             var _events = $gameMap.eventsXy(x, y);
             if (_events.length > 0) {
                 var game_event = _events[_events.length - 1]; // Get topmost event
@@ -688,6 +729,7 @@ var TDDP_MouseSystemEx = {};
         this.TDDP_MS                 = {};
         this.TDDP_MS.hoverIcon       = false;
         this.TDDP_MS.allowAutoCursor = true;
+        this.TDDP_MS.allowAutoIcons  = true;
         this.TDDP_MS.clickActivate   = false;
         this.TDDP_MS.hoverActivate   = false;
         this.TDDP_MS.leaveActivate   = false;
@@ -738,20 +780,40 @@ var TDDP_MouseSystemEx = {};
             this.TDDP_MS.hoverSwitch.key = String(result[1]);
             this.TDDP_MS.hoverSwitch.val = String(result[2]);
         });
+        if (!this.page()) return;
         // Auto cursor checks, only if there's a page and allowed
-        if (!this.page() || !this.TDDP_MS.allowAutoCursor) return false;
-        for (var i=0, max=TDDP_MouseSystemEx.autoCursorFilters.length; i < max; i++) {
-            if (this.TDDP_MS.customCursor) break;
-            var entry = TDDP_MouseSystemEx.autoCursorFilters[i];
-            var cursor = entry[0];
-            var filter = entry[1];
-            if (typeof cursor == "string") {
-                var matches = this.page().list.filter(filter);
-                if (matches.length > 0) {
-                    this.TDDP_MS.customCursor = cursor;
+        if (this.TDDP_MS.allowAutoCursor) {
+            for (var i=0, max=TDDP_MouseSystemEx.autoCursorFilters.length; i < max; i++) {
+                if (this.TDDP_MS.customCursor) break;
+                var entry = TDDP_MouseSystemEx.autoCursorFilters[i];
+                var cursor = entry[0];
+                var filter = entry[1];
+                if (typeof cursor == "string") {
+                    var matches = this.page().list.filter(filter);
+                    if (matches.length > 0) {
+                        this.TDDP_MS.customCursor = cursor;
+                    }
                 }
             }
-
+        }
+        // Auto icon checks
+        if (this.TDDP_MS.allowAutoIcons) {
+            for (var i=0, max=TDDP_MouseSystemEx.autoIconFilters.length; i < max; i++) {
+                if (this.TDDP_MS.hoverIcon) break;
+                var entry = TDDP_MouseSystemEx.autoIconFilters[i];
+                var icon = entry[0];
+                var filter = entry[1];
+                if (typeof icon == "string") {
+                    var matches = this.page().list.filter(filter);
+                    if (matches.length > 0) {
+                        if (isNaN(icon)) {
+                            // Icon is a string, so let's look in Icon Tags
+                            icon = TDDP_MouseSystemEx.mouseIconTags[icon]
+                        }
+                        this.TDDP_MS.hoverIcon = Number(icon);
+                    }
+                }
+            }
         }
     }
 })();
