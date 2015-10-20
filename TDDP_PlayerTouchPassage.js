@@ -64,7 +64,7 @@ Imported.TDDP_PlayerTouchPassage = "1.0.0";
         if (event._trigger < 1 || event._trigger > 2) {
             return true;
         }
-        // Event must be below character and through to not block
+        // Event must be below character or through to not block
         if (!event.isThrough() && event._priorityType > 0) {
             return true; // It should block
         }
