@@ -1,4 +1,36 @@
+//=============================================================================
+// TDDP_PlayerTouchPassage.js
+// Version: 1.0.0
+//=============================================================================
+var Imported = Imported || {};
+Imported.TDDP_PlayerTouchPassage = "1.0.0";
+//=============================================================================
+/*:
+ * @plugindesc 1.0.0 Allows the player character to keep walking after touching events below them when using mouse input.
+ *
+ * @author Tor Damian Design / Galenmereth
+ *
+ * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
+ * Information
+ * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
+ * WARNING: Currently does not play well with Yanfly's Region Events plugin.
+ *
+ * For updates and easy to use documentation, please go to the plugin's website:
+ * http://mvplugins.tordamian.com/?p=388
+ *
+ * There you can also download a PDF of the documentation for offline use, and
+ * having the documentation in one cleanly presented place means you can always
+ * be sure it's the most recent available.
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Terms & Conditions
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * This plugin is free for both non-commercial and commercial use. Please see
+ * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
+ */
 (function() {
+    /**
+    * MODIFIED
+    */
     Game_Player.prototype.canMove = function() {
         if ($gameMessage.isBusy()) {
             return false;
@@ -18,7 +50,9 @@
         }
         return true;
     };
-
+    /**
+    * NEW check if event should be blocking mouse movement
+    */
     Game_Player.prototype.eventIsBlocking = function() {
         interpreter = $gameMap._interpreter;
         if (!interpreter._list) return false;
