@@ -6,7 +6,7 @@ var Imported = Imported || {};
 Imported.TDDP_PlayerTouchPassage = "1.0.0";
 //=============================================================================
 /*:
- * @plugindesc 1.0.0 Allows the player character to keep walking after touching events below them when using mouse input.
+ * @plugindesc 1.0.0 Allows the player character to keep walking after touching events below them when using mouse or touch input.
  *
  * @author Tor Damian Design / Galenmereth
  *
