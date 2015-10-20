@@ -1,20 +1,18 @@
 //=============================================================================
 // TDDP_PlayerTouchPassage.js
-// Version: 1.0.0
+// Version: 1.0.1
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_PlayerTouchPassage = "1.0.0";
+Imported.TDDP_PlayerTouchPassage = "1.0.1";
 //=============================================================================
 /*:
- * @plugindesc 1.0.0 Allows the player character to keep walking after touching events below them when using mouse or touch input.
+ * @plugindesc 1.0.1 Allows the player character to keep walking after touching events below them when using mouse or touch input.
  *
  * @author Tor Damian Design / Galenmereth
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * Information
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * WARNING: Currently does not play well with Yanfly's Region Events plugin.
- *
  * For updates and easy to use documentation, please go to the plugin's website:
  * http://mvplugins.tordamian.com/?p=388
  *
@@ -34,6 +32,12 @@ Imported.TDDP_PlayerTouchPassage = "1.0.0";
     Game_Player.prototype.canMove = function() {
         if ($gameMessage.isBusy()) {
             return false;
+        }
+        // If Yanfly Region Events is enabled, enable check
+        if (Imported.YEP_RegionEvents) {
+            if ($gameMap.isEventRunning() && $gameMap.moveAfterCommonEvent()) {
+              return true;
+            }
         }
         // Added logic to check if running event should be blocking
         if ($gameMap.isEventRunning() && this.eventIsBlocking()) {
@@ -59,7 +63,7 @@ Imported.TDDP_PlayerTouchPassage = "1.0.0";
         id = interpreter.eventId();
         event = $gameMap.event(id);
         // Return unless event
-        if (!event) return true;
+        if (!event) return false;
         // Event must be player touch or event touch to not block
         if (event._trigger < 1 || event._trigger > 2) {
             return true;
@@ -70,16 +74,14 @@ Imported.TDDP_PlayerTouchPassage = "1.0.0";
         }
         // Let's  check what event calls are in this active event
         return interpreter._list.some(function(event_call) {
-            return blockingEventCodes.indexOf(event_call.code) >= 0
+            return [
+                201, // Transfer Player
+                205, // Move Route
+                230, // Wait
+                232, // Move Picture
+                261, // Play Movie
+                301, // Battle Processing
+            ].indexOf(event_call.code) >= 0
         });
     };
-
-    var blockingEventCodes = [
-        201, // Transfer Player
-        205, // Move Route
-        230, // Wait
-        232, // Move Picture
-        261, // Play Movie
-        301, // Battle Processing
-    ]
 })();
