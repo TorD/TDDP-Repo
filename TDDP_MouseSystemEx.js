@@ -290,6 +290,11 @@ var TDDP_MouseSystemEx = {};
             path = path.slice(1);
         }
         path = decodeURIComponent(path);
+        // Check if cursors dir exists, make if not
+        if (!fs.existsSync(path)) {
+            alert('TDDP MouseSystemEx\nThe chosen cursor folder "' + TDDP_MouseSystemEx.customCursorPath + '" has been created for you. Please put any custom cursor image files in this folder.');
+            fs.mkdirSync(path);
+        }
         // Read dir
         var files = fs.readdirSync(path).filter(function(v) {
             if(v != TDDP_MouseSystemEx._indexFilename && v[1]) return v;
