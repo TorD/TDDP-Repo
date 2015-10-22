@@ -1,16 +1,16 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 0.8.0
+// Version: 1.0.0
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "0.8.0";
+Imported.TDDP_PreloadManager = "1.0.0";
 
 var TDDP = TDDP || {};
-TDDP.PreloadManager = "0.8.0";
+TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 0.8.0 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
+ * @plugindesc 1.0.0 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -23,7 +23,7 @@ TDDP.PreloadManager = "0.8.0";
  * @default false
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * Information
+ * Introduction / Table of contents
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * TDDP PreloadManager lets you preload resources on both boot (before the
  * game title screen displays) and on map load (in between map transfers) to
@@ -46,8 +46,30 @@ TDDP.PreloadManager = "0.8.0";
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
  * be sure it's the most recent available.
+ *
+ * Table of contents
+ * -----------------
+ * 1. Installation
+ * 2. Advanced Configuration
+ * 3. Terms & Conditions
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 1. Installation
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Drag and drop plugin .js file into your project's js/plugins folder, then
+ * enable it in the editor interface.
+ *
+ * Make sure this plugin is placed at the top for maximum compatibility.
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * 2. Advanced Configuration
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * There is an advanced configuration section if you open the plugin .js file
+ * in a text editor. Look for BOOT PRELOAD CONFIG -- ADVANCED USERS. This lets
+ * you define resources to preload on boot manually.
+ *
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Terms & Conditions
+ * 3. Terms & Conditions
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  * This plugin is free for both non-commercial and commercial use. Please see
  * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
@@ -136,7 +158,7 @@ TDDP.bootPreloadSE = [
 * -----------------------------------------------------------------------------
 */
 TDDP.bootPreloadME = [
-    // "Open2"
+    // "Shock1"
 ]
 //=============================================================================
 // END OF BOOT PRELOAD CONFIG
@@ -221,7 +243,9 @@ var PreloadManager;
                 return;
             }
             this._increaseFileNums();
-            AudioManager.createBuffer(type, audioObject.name).addLoadListener(this.onFileLoaded.bind(this, audioObject.name));
+            var bufferObject = AudioManager.createBuffer(type, audioObject.name);
+            bufferObject.addLoadListener(this.onFileLoaded.bind(this, bufferObject.name));
+            bufferObject.addErrorListener(this.onAudioFileError.bind(this, bufferObject));
             this._cacheAudio(type, audioObject.name);
         }
     }
@@ -310,6 +334,10 @@ var PreloadManager;
         this._filesLoaded += 1;
         if(debug) console.log("Loaded file: " + filename + "(" + this._filesLoaded + "/" + this._filesTotal + ")");
         this.controlIfReady();
+    };
+
+    PreloadManager.onAudioFileError = function(bufferObject) {
+        throw new Error("Could not load file " + bufferObject._url);
     };
 
     PreloadManager.controlIfReady = function(manual) {
@@ -452,4 +480,89 @@ var PreloadManager;
         if(!PreloadManager.isReady()) return false;
         return Scene_Base_prototype_isReady.call(this);
     }
+
+    //=============================================================================
+    // WebAudio extensions
+    //=============================================================================
+    /**
+     * NEW function for adding error listener
+     *
+     * @method addErrorListener
+     * @param {Function} listener The callback function
+     */
+    WebAudio.prototype.addErrorListener = function(listener) {
+        this._errorListeners.push(listener);
+    };
+    /**
+     * NEW function for calling on error listeners
+     *
+     * @method onError
+     */
+    WebAudio.prototype.onError = function () {
+        while (this._errorListeners.length > 0) {
+            var listener = this._errorListeners.shift();
+            listener();
+        }
+    }
+    /**
+     * Clears the audio data.
+     *
+     * @method clear
+     */
+    TDDP.PreloadManager.WebAudio_clear = WebAudio.prototype.clear;
+    WebAudio.prototype.clear = function() {
+        TDDP.PreloadManager.WebAudio_clear.call(this);
+        this._errorListeners = [];
+    }
+    /**
+     * EXTENDED to call onError
+     * @method _load
+     * @param {String} url
+     * @private
+     */
+    WebAudio.prototype._load = function(url) {
+        if (WebAudio._context) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.responseType = 'arraybuffer';
+            xhr.onload = function() {
+                if (xhr.status < 400) {
+                    this._onXhrLoad(xhr);
+                }
+            }.bind(this);
+            xhr.onerror = function() {
+                this._hasError = true;
+                this.onError(); // NEW call
+            }.bind(this);
+            xhr.send();
+        }
+    };
+    //=============================================================================
+    // HTML5Audio extensions
+    //=============================================================================
+    /**
+     * EXTENDED Clears the audio data.
+     *
+     * @static
+     * @method clear
+     */
+    TDDP.PreloadManager.Html5Audio_clear = Html5Audio.clear;
+    Html5Audio.clear = function () {
+        TDDP.PreloadManager.Html5Audio_clear.call(this);
+        this._errorListeners = [];
+    };
+    /**
+     * EXTENDED Calls error listeners
+     * @static
+     * @method _onError
+     * @private
+     */
+    TDDP.PreloadManager.Html5Audio__onError = Html5Audio._onError;
+    Html5Audio._onError = function () {
+        TDDP.PreloadManager.Html5Audio__onError.call(this);
+        while (this._errorListeners.length > 0) {
+            var listener = this._errorListeners.shift();
+            listener();
+        }
+    };
 })();
