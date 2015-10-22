@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.6.0
+// Version: 1.6.1
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.6.0";
+Imported.TDDP_MouseSystemEx = "1.6.1";
 
 //=============================================================================
 /*:
- * @plugindesc 1.6.0 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
+ * @plugindesc 1.6.1 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -93,6 +93,10 @@ Imported.TDDP_MouseSystemEx = "1.6.0";
  * @param No Auto Cursor Notetag
  * @desc The notetag used to not use auto cursor switching on this event or event page.
  * @default no_auto_cursor!
+ *
+ * @param No Auto Icon Notetag
+ * @desc The notetag used to not use auto icon switching on this event or event page.
+ * @default no_auto_icon!
  *
  * @param Click Notetag
  * @desc The notetag used to trigger the event when it is clicked on.
@@ -255,6 +259,7 @@ var TDDP_MouseSystemEx = {};
     TDDP_MouseSystemEx.iconOffsetX          = Number(parameters['Icon Offset X']) || 0;
     TDDP_MouseSystemEx.iconOffsetY          = Number(parameters['Icon Offset Y']) || 0;
     TDDP_MouseSystemEx.noAutoCursorNotetag  = String(parameters['No Auto Cursor Notetag']);
+    TDDP_MouseSystemEx.noAutoIconNotetag    = String(parameters['No Auto Icon Notetag']);
     TDDP_MouseSystemEx.clickToActivateNote  = String(parameters['Click Notetag']);
     TDDP_MouseSystemEx.hoverToActivateNote  = String(parameters['Hover Notetag']);
     TDDP_MouseSystemEx.leaveToActivateNote  = String(parameters['Leave Notetag']);
@@ -776,7 +781,7 @@ var TDDP_MouseSystemEx = {};
         this.TDDP_MS                 = {};
         this.TDDP_MS.hoverIcon       = false;
         this.TDDP_MS.allowAutoCursor = true;
-        this.TDDP_MS.allowAutoIcons  = true;
+        this.TDDP_MS.allowAutoIcon   = true;
         this.TDDP_MS.clickActivate   = false;
         this.TDDP_MS.hoverActivate   = false;
         this.TDDP_MS.leaveActivate   = false;
@@ -796,6 +801,9 @@ var TDDP_MouseSystemEx = {};
         });
         TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.noAutoCursorNotetag, function() {
             this.TDDP_MS.allowAutoCursor = false;
+        });
+        TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.noAutoIconNotetag, function() {
+            this.TDDP_MS.allowAutoIcon = false;
         });
         TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.clickToActivateNote, function() {
             this.TDDP_MS.clickActivate = true;
@@ -844,7 +852,7 @@ var TDDP_MouseSystemEx = {};
             }
         }
         // Auto icon checks
-        if (this.TDDP_MS.allowAutoIcons) {
+        if (this.TDDP_MS.allowAutoIcon) {
             for (var i=0, max=TDDP_MouseSystemEx.autoIconFilters.length; i < max; i++) {
                 if (this.TDDP_MS.hoverIcon) break;
                 var entry = TDDP_MouseSystemEx.autoIconFilters[i];
