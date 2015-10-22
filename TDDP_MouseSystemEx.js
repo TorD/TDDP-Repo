@@ -91,11 +91,11 @@ Imported.TDDP_MouseSystemEx = "1.6.1";
  * @default
  *
  * @param No Auto Cursor Notetag
- * @desc The notetag used to not use auto cursor switching on this event or event page.
+ * @desc The notetag used to disable auto cursor switching on this event or event page.
  * @default no_auto_cursor!
  *
  * @param No Auto Icon Notetag
- * @desc The notetag used to not use auto icon switching on this event or event page.
+ * @desc The notetag used to disable auto icon switching on this event or event page.
  * @default no_auto_icon!
  *
  * @param Click Notetag
