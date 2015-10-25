@@ -165,6 +165,7 @@ TDDP.bootPreloadME = [
 //=============================================================================
 var PreloadManager;
 (function() {
+    "use strict";
     //=============================================================================
     // Setting up parameters
     //=============================================================================
@@ -191,7 +192,30 @@ var PreloadManager;
     PreloadManager.start = function() {
         this._ready = true;
         this.controlIfReady(true);
-    }
+    };
+
+    PreloadManager._projectPath = function() {
+        var path = window.location.pathname.replace(/\/[^\/]*$/, "/");
+        if (path.match(/^\/([A-Z]\:)/)) {
+            path = path.slice(1);
+        }
+        return decodeURIComponent(path);
+    };
+
+    PreloadManager.controlAudioFileExistence = function(folder, filename) {
+        this.controlFileExistence("audio/" + folder + "/", filename, [".m4a", ".ogg"]);
+    };
+
+    PreloadManager.controlFileExistence = function(folder, filename, extensions) {
+        if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
+            var fs = require("fs");
+            var path = this._projectPath() + folder + filename;
+            for (var i=0, max=extensions.length; i < max; i++) {
+                if (fs.existsSync(path + extensions[i])) return true;
+            }
+            throw new Error("PreloadManager: File " + folder + filename + " could not be found. Does it exist?")
+        }
+    };
 
     PreloadManager.preloadImages = function(type, filename, hue) {
         if(filename.constructor === Array) {
@@ -208,8 +232,7 @@ var PreloadManager;
                     throw new Error(e);
                 }
                 this._increaseFileNums();
-                ImageManager[func](filename, hue)
-                    .addLoadListener(this.onFileLoaded.bind(this, filename));
+                ImageManager[func](filename, hue).addLoadListener(this.onFileLoaded.bind(this, filename));
             }
         }
     };
@@ -243,10 +266,9 @@ var PreloadManager;
                 return;
             }
             this._increaseFileNums();
+            this.controlAudioFileExistence(type, audioObject.name);
             var bufferObject = AudioManager.createBuffer(type, audioObject.name);
-            bufferObject.addLoadListener(this.onFileLoaded.bind(this, bufferObject.name));
-            bufferObject.addErrorListener(this.onAudioFileError.bind(this, bufferObject));
-            this._cacheAudio(type, audioObject.name);
+            bufferObject.addLoadListener(this.onAudioFileLoaded.bind(this, type, audioObject.name));
         }
     }
 
@@ -308,6 +330,7 @@ var PreloadManager;
             case 245:
                 this.preloadBGS(parameters[0]);
                 break;
+            // Play ME
             case 249:
                 this.preloadME(parameters[0]);
                 break;
@@ -328,7 +351,7 @@ var PreloadManager;
                 this.preloadAnimation(parameters[1]);
                 break;
         }
-    }
+    };
 
     PreloadManager.onFileLoaded = function(filename) {
         this._filesLoaded += 1;
@@ -336,8 +359,13 @@ var PreloadManager;
         this.controlIfReady();
     };
 
+    PreloadManager.onAudioFileLoaded = function(type, name) {
+        this._cacheAudio(type, name);
+        this.onFileLoaded(name);
+    };
+
     PreloadManager.onAudioFileError = function(bufferObject) {
-        throw new Error("Could not load file " + bufferObject._url);
+        throw new Error("Could not preload file " + bufferObject._url + ". Please make sure it exists.");
     };
 
     PreloadManager.controlIfReady = function(manual) {
@@ -480,89 +508,4 @@ var PreloadManager;
         if(!PreloadManager.isReady()) return false;
         return Scene_Base_prototype_isReady.call(this);
     }
-
-    //=============================================================================
-    // WebAudio extensions
-    //=============================================================================
-    /**
-     * NEW function for adding error listener
-     *
-     * @method addErrorListener
-     * @param {Function} listener The callback function
-     */
-    WebAudio.prototype.addErrorListener = function(listener) {
-        this._errorListeners.push(listener);
-    };
-    /**
-     * NEW function for calling on error listeners
-     *
-     * @method onError
-     */
-    WebAudio.prototype.onError = function () {
-        while (this._errorListeners.length > 0) {
-            var listener = this._errorListeners.shift();
-            listener();
-        }
-    }
-    /**
-     * Clears the audio data.
-     *
-     * @method clear
-     */
-    TDDP.PreloadManager.WebAudio_clear = WebAudio.prototype.clear;
-    WebAudio.prototype.clear = function() {
-        TDDP.PreloadManager.WebAudio_clear.call(this);
-        this._errorListeners = [];
-    }
-    /**
-     * EXTENDED to call onError
-     * @method _load
-     * @param {String} url
-     * @private
-     */
-    WebAudio.prototype._load = function(url) {
-        if (WebAudio._context) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
-            xhr.responseType = 'arraybuffer';
-            xhr.onload = function() {
-                if (xhr.status < 400) {
-                    this._onXhrLoad(xhr);
-                }
-            }.bind(this);
-            xhr.onerror = function() {
-                this._hasError = true;
-                this.onError(); // NEW call
-            }.bind(this);
-            xhr.send();
-        }
-    };
-    //=============================================================================
-    // HTML5Audio extensions
-    //=============================================================================
-    /**
-     * EXTENDED Clears the audio data.
-     *
-     * @static
-     * @method clear
-     */
-    TDDP.PreloadManager.Html5Audio_clear = Html5Audio.clear;
-    Html5Audio.clear = function () {
-        TDDP.PreloadManager.Html5Audio_clear.call(this);
-        this._errorListeners = [];
-    };
-    /**
-     * EXTENDED Calls error listeners
-     * @static
-     * @method _onError
-     * @private
-     */
-    TDDP.PreloadManager.Html5Audio__onError = Html5Audio._onError;
-    Html5Audio._onError = function () {
-        TDDP.PreloadManager.Html5Audio__onError.call(this);
-        while (this._errorListeners.length > 0) {
-            var listener = this._errorListeners.shift();
-            listener();
-        }
-    };
 })();
