@@ -1,16 +1,16 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 1.0.0
+// Version: 1.0.1
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "1.0.0";
+Imported.TDDP_PreloadManager = "1.0.1";
 
 var TDDP = TDDP || {};
 TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 1.0.0 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
+ * @plugindesc 1.0.1 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -184,6 +184,7 @@ var PreloadManager;
     PreloadManager._ready = false;
     PreloadManager._preloadedMaps = [];
     PreloadManager._preloadedAudio = [];
+    PreloadManager._sessionRequestedImages = [];
 
     PreloadManager.callOnComplete = function(func) {
         this._callOnComplete = func;
@@ -191,6 +192,7 @@ var PreloadManager;
 
     PreloadManager.start = function() {
         this._ready = true;
+        this._sessionRequestedImages = [];
         this.controlIfReady(true);
     };
 
@@ -224,7 +226,7 @@ var PreloadManager;
             }
         } else {
             if(filename.length > 0) {
-                if(debug) console.log("Preloading image (" + type + "): ", filename);
+                if (this._isImageRequested(type, filename)) return;
                 var func = "load" + type.charAt(0).toUpperCase() + type.substr(1).toLowerCase();
                 if(typeof ImageManager[func] === 'undefined') {
                     e = "PreloadManager: " + type + " is not a valid image load key. Check your configuration.";
@@ -232,7 +234,8 @@ var PreloadManager;
                     throw new Error(e);
                 }
                 this._increaseFileNums();
-                ImageManager[func](filename, hue).addLoadListener(this.onFileLoaded.bind(this, filename));
+                ImageManager[func](filename, hue).addLoadListener(this.onFileLoaded.bind(this, "(" + type + ") " + filename));
+                this._registerRequestedImage(type, filename);
             }
         }
     };
@@ -284,11 +287,12 @@ var PreloadManager;
     PreloadManager.preloadMapResources = function(mapId) {
         this._ready = false;
         // Wait and ensure map is loaded
-        if(!DataManager.isMapDataLoaded()) return setTimeout(this.preloadMapResources.bind(this, mapId), 250);
+        if(!DataManager.isMapDataLoaded()) return setTimeout(this.preloadMapResources.bind(this, mapId), 100);
+        var mapDebugName = mapId + " (" + $dataMapInfos[mapId].name + ")";
         if(this._preloadedMaps.indexOf(mapId) > -1) {
-            if(debug) console.log("Map " + mapId + " already preloaded, skipping.");
+            if(debug) console.log("Map " + mapDebugName + " already preloaded, skipping.");
         } else {
-            if(debug) console.log("Map " + mapId + " preload starting.");
+            if(debug) console.log("Map " + mapDebugName + " preload starting.");
             // Map is loaded, preload resources now
             this.preloadBGM($dataMap.bgm);
             this.preloadBGS($dataMap.bgs);
@@ -359,13 +363,9 @@ var PreloadManager;
         this.controlIfReady();
     };
 
-    PreloadManager.onAudioFileLoaded = function(type, name) {
-        this._cacheAudio(type, name);
-        this.onFileLoaded(name);
-    };
-
-    PreloadManager.onAudioFileError = function(bufferObject) {
-        throw new Error("Could not preload file " + bufferObject._url + ". Please make sure it exists.");
+    PreloadManager.onAudioFileLoaded = function(type, filename) {
+        this._cacheAudio(type, filename);
+        this.onFileLoaded("(" + type + ") " + filename);
     };
 
     PreloadManager.controlIfReady = function(manual) {
@@ -380,6 +380,14 @@ var PreloadManager;
 
     PreloadManager._cacheAudio = function(path, filename) {
         this._preloadedAudio.push(path + filename);
+    };
+
+    PreloadManager._registerRequestedImage = function(type, filename) {
+        this._sessionRequestedImages.push(type + filename);
+    };
+
+    PreloadManager._isImageRequested = function(type, filename) {
+        return this._sessionRequestedImages.indexOf(type + filename) > -1;
     }
 
     PreloadManager.isAudioCached = function(path, filename) {
@@ -398,8 +406,7 @@ var PreloadManager;
             }
         }
         return false;
-    }
-
+    };
 
     //=============================================================================
     // Scene_Boot extensions
