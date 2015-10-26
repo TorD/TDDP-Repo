@@ -1,16 +1,16 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 1.0.1
+// Version: 1.0.2
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "1.0.1";
+Imported.TDDP_PreloadManager = "1.0.2";
 
 var TDDP = TDDP || {};
 TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 1.0.1 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
+ * @plugindesc 1.0.2 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -515,4 +515,45 @@ var PreloadManager;
         if(!PreloadManager.isReady()) return false;
         return Scene_Base_prototype_isReady.call(this);
     }
+
+    //=============================================================================
+    // Html5Audio extensions
+    //=============================================================================
+    /**
+     * Sets up the Html5 Audio.
+     *
+     * @static
+     * @method setup
+     * @param {String} url The url of the audio file
+     */
+    Html5Audio.setup = function (url) {
+        if (!this._initialized) {
+            this.initialize();
+        }
+        this.clear();
+        this._load(url); // Changed from this._url = url to call the _load func; this func is never loaded by default
+    };
+
+    /**
+     * @static
+     * @method _setupEventHandlers
+     * @private
+     */
+    Html5Audio._setupEventHandlers = function () {
+        document.addEventListener('touchstart', this._onTouchStart.bind(this));
+        document.addEventListener('visibilitychange', this._onVisibilityChange.bind(this));
+        this._audioElement.addEventListener("canplaythrough", this._onLoadedData.bind(this)); // Changed from loaddata to canplaythrough, so it knows streaming is stable enough
+        this._audioElement.addEventListener("error", this._onError.bind(this));
+        this._audioElement.addEventListener("ended", this._onEnded.bind(this));
+    };
+
+    /**
+     * @static
+     * @method _onLoadedData
+     * @private
+     */
+    Html5Audio._onLoadedData = function () {
+        this._buffered = true;
+        this._onLoad(); // I removed check for this._unlocked because that shouldn't matter
+    };
 })();
