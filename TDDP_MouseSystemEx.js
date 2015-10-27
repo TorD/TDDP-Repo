@@ -8,7 +8,7 @@ Imported.TDDP_MouseSystemEx = "1.6.1";
 
 //=============================================================================
 /*:
- * @plugindesc 1.6.1 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.
+ * @plugindesc 1.6.1 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -237,7 +237,7 @@ var TDDP_MouseSystemEx = {};
     //=============================================================================
     // Setting up parameters
     //=============================================================================
-    var parameters = PluginManager.parameters('TDDP_MouseSystemEx');
+    var parameters = $plugins.filter(function(p){return p.description.contains("id:TDDP_MouseSystemEx")})[0].parameters;
     // Auto change cursors
     TDDP_MouseSystemEx.showTextCursor       = String(parameters['Show Text Cursor']) || false;
     TDDP_MouseSystemEx.changeGoldCursor     = String(parameters['Change Gold Cursor']) || false;
