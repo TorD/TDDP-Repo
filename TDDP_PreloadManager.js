@@ -10,12 +10,12 @@ var TDDP = TDDP || {};
 TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 1.0.2 Preload resources on scene/map load as well as game boot for a smoother gameplay experience.
+ * @plugindesc 1.0.2 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
  * @param Preload System SFX
- * @desc If you want to preload all the SFX specified in the Database System tab on boot, set this to true.
+ * @desc If you want to preload all the SFX specified in the Database System tab on startup, set this to true.
  * @default false
  *
  * @param Print Debug to Console
@@ -25,7 +25,7 @@ TDDP.PreloadManager = TDDP.PreloadManager || {};
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * Introduction / Table of contents
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * TDDP PreloadManager lets you preload resources on both boot (before the
+ * TDDP PreloadManager lets you preload resources on both startup (before the
  * game title screen displays) and on map load (in between map transfers) to
  * ensure resources such as pictures, music and sound effects are preloaded
  * before called.
@@ -169,9 +169,9 @@ var PreloadManager;
     //=============================================================================
     // Setting up parameters
     //=============================================================================
-    var parameters          = PluginManager.parameters('TDDP_PreloadManager');
-    var preloadSystemSFX    = Boolean(parameters['Preload System SFX'] === 'true' || false);
-    var debug               = Boolean(parameters['Print Debug to Console'] === 'true' || false);
+    var parameters       = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
+    var preloadSystemSFX = Boolean(parameters['Preload System SFX']     === 'true' || false);
+    var debug            = Boolean(parameters['Print Debug to Console'] === 'true' || false);
     if(debug) console.log("========= TDDP PreloadManager: Debug mode on =========")
 
     PreloadManager = function() {
