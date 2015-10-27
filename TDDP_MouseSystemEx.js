@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.6.1
+// Version: 1.6.2
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.6.1";
+Imported.TDDP_MouseSystemEx = "1.6.2";
 
 //=============================================================================
 /*:
- * @plugindesc 1.6.1 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
+ * @plugindesc 1.6.2 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -51,6 +51,9 @@ Imported.TDDP_MouseSystemEx = "1.6.1";
  * @param Change Armors Cursor
  * @desc Automatically show this custom cursor image when hovering over events with Change Armors commands in them.
  *
+ * @param Battle Processing Cursor
+ * @desc Automatically show this cursor when hovering over events with Battle Processing commands in them.
+ *
  * @param ---Auto Change Icons---
  * @desc Options for automatically showing an icon when hovering over events with the given event commands in them.
  * @default
@@ -72,6 +75,9 @@ Imported.TDDP_MouseSystemEx = "1.6.1";
  *
  * @param Change Armors Icon
  * @desc Automatically show this icon when hovering over events with Change Armors commands in them.
+ *
+ * @param Battle Processing Icon
+ * @desc Automatically show this icon when hovering over events with Battle Processing commands in them.
  *
  * @param ---Hover Select---
  * @desc This is a heading, no need to touch it.
@@ -239,12 +245,13 @@ var TDDP_MouseSystemEx = {};
     //=============================================================================
     var parameters = $plugins.filter(function(p){return p.description.contains("id:TDDP_MouseSystemEx")})[0].parameters;
     // Auto change cursors
-    TDDP_MouseSystemEx.showTextCursor       = String(parameters['Show Text Cursor']) || false;
-    TDDP_MouseSystemEx.changeGoldCursor     = String(parameters['Change Gold Cursor']) || false;
-    TDDP_MouseSystemEx.changeItemCursor     = String(parameters['Change Items Cursor']) || false;
-    TDDP_MouseSystemEx.changeWeaponCursor   = String(parameters['Change Weapons Cursor']) || false;
-    TDDP_MouseSystemEx.changeArmorCursor    = String(parameters['Change Armors Cursor']) || false;
-    TDDP_MouseSystemEx.transferPlayerCursor = String(parameters['Transfer Cursor']) || false;
+    TDDP_MouseSystemEx.showTextCursor         = String(parameters['Show Text Cursor']) || false;
+    TDDP_MouseSystemEx.changeGoldCursor       = String(parameters['Change Gold Cursor']) || false;
+    TDDP_MouseSystemEx.changeItemCursor       = String(parameters['Change Items Cursor']) || false;
+    TDDP_MouseSystemEx.changeWeaponCursor     = String(parameters['Change Weapons Cursor']) || false;
+    TDDP_MouseSystemEx.changeArmorCursor      = String(parameters['Change Armors Cursor']) || false;
+    TDDP_MouseSystemEx.transferPlayerCursor   = String(parameters['Transfer Cursor']) || false;
+    TDDP_MouseSystemEx.battleProcessingCursor = String(parameters['Battle Processing Cursor']) || false;
     // Auto change icons
     TDDP_MouseSystemEx.showTextIcon         = String(parameters['Show Text Icon']) || false;
     TDDP_MouseSystemEx.changeGoldIcon       = String(parameters['Change Gold Icon']) || false;
@@ -252,6 +259,7 @@ var TDDP_MouseSystemEx = {};
     TDDP_MouseSystemEx.changeWeaponIcon     = String(parameters['Change Weapons Icon']) || false;
     TDDP_MouseSystemEx.changeArmorIcon      = String(parameters['Change Armors Icon']) || false;
     TDDP_MouseSystemEx.transferPlayerIcon   = String(parameters['Transfer Icon']) || false;
+    TDDP_MouseSystemEx.battleProcessingIcon = String(parameters['Battle Processing Icon']) || false;
     // Settings
     TDDP_MouseSystemEx.highlightOnHover     = Boolean(parameters['Highlight On Hover'] === 'true' || false);
     TDDP_MouseSystemEx.audioCooldownOnHover = Number(parameters['Hover SE Cooldown'] || 4)
@@ -416,6 +424,12 @@ var TDDP_MouseSystemEx = {};
         return pageListObject.code == 201;
     }
     /**
+    * Return Battle Processing events from event page
+    */
+    TDDP_MouseSystemEx._filterBattleProcess = function(pageListObject) {
+        return pageListObject.code == 301;
+    }
+    /**
     * Return Change Gold events from event page
     */
     TDDP_MouseSystemEx._filterChangeGold = function(pageListObject) {
@@ -479,6 +493,7 @@ var TDDP_MouseSystemEx = {};
     */
     TDDP_MouseSystemEx.autoCursorFilters = [
         // The order is the priority; the first match stops further lookup
+        [TDDP_MouseSystemEx.battleProcessingCursor,  TDDP_MouseSystemEx._filterBattleProcess],
         [TDDP_MouseSystemEx.transferPlayerCursor,    TDDP_MouseSystemEx._filterTransferPlayer],
         [TDDP_MouseSystemEx.changeGoldCursor,        TDDP_MouseSystemEx._filterChangeGold],
         [TDDP_MouseSystemEx.changeItemCursor,        TDDP_MouseSystemEx._filterChangeItems],
@@ -488,6 +503,7 @@ var TDDP_MouseSystemEx = {};
     ];
     TDDP_MouseSystemEx.autoIconFilters = [
         // The order is the priority; the first match stops further lookup
+        [TDDP_MouseSystemEx.battleProcessingIcon,  TDDP_MouseSystemEx._filterBattleProcess],
         [TDDP_MouseSystemEx.transferPlayerIcon,    TDDP_MouseSystemEx._filterTransferPlayer],
         [TDDP_MouseSystemEx.changeGoldIcon,        TDDP_MouseSystemEx._filterChangeGold],
         [TDDP_MouseSystemEx.changeItemIcon,        TDDP_MouseSystemEx._filterChangeItems],
