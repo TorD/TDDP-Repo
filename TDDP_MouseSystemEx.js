@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.6.2
+// Version: 1.7.0
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.6.2";
+Imported.TDDP_MouseSystemEx = "1.7.0";
 
 //=============================================================================
 /*:
- * @plugindesc 1.6.2 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
+ * @plugindesc 1.7.0 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -276,12 +276,13 @@ var TDDP_MouseSystemEx = {};
     TDDP_MouseSystemEx.defaultCursorImage   = TDDP_MouseSystemEx.cursorImage;
     TDDP_MouseSystemEx.customCursorPath     = String(parameters['Custom Cursors Folder']);
 
-    TDDP_MouseSystemEx.mouseIconTags        = {}
     TDDP_MouseSystemEx._cursorFilenameInUse = null;   // Helper to compare changes
     TDDP_MouseSystemEx._lastUpdateFrame     = 0;      // Last frame cursor got updated
     TDDP_MouseSystemEx._cssClassPrefix      = "TDDP_customCursor_";
+    TDDP_MouseSystemEx._indexFilename       = "_index.json";
 
     // Add all mouse icon tags
+    TDDP_MouseSystemEx.mouseIconTags        = {}
     for(var i = 1; i <= 15; ++i) {
         var tag = parameters['Icon Tag ' + i]
         if (!tag) continue;
@@ -291,39 +292,11 @@ var TDDP_MouseSystemEx = {};
         TDDP_MouseSystemEx.mouseIconTags[key] = val;
     }
     /**
-    * Pre-cache all custom cursors when in test mode
-    */
-    // Check if playtest; if so, store file. If not, read stored
-    TDDP_MouseSystemEx._indexFilename = "_index.json";
-    if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
-        var fs = require('fs');
-        // Find that relative local path, using MV's own methods
-        var path = window.location.pathname.replace(/\/[^\/]*$/, '/' + TDDP_MouseSystemEx.customCursorPath);
-        if (path.match(/^\/([A-Z]\:)/)) {
-            path = path.slice(1);
-        }
-        path = decodeURIComponent(path);
-        // Check if cursors dir exists, make if not
-        if (!fs.existsSync(path)) {
-            alert('TDDP MouseSystemEx\nThe chosen cursor folder "' + TDDP_MouseSystemEx.customCursorPath + '" has been created for you. Please put any custom cursor image files in this folder.');
-            fs.mkdirSync(path);
-        }
-        // Read dir
-        var files = fs.readdirSync(path).filter(function(v) {
-            if(v != TDDP_MouseSystemEx._indexFilename && v[1]) return v;
-        });
-        // Store in json
-        fs.writeFile(path + TDDP_MouseSystemEx._indexFilename, JSON.stringify(files), 'utf8', _loadAndSetupCustomCursorCSS);
-    } else {
-        // Read stored file
-        _loadAndSetupCustomCursorCSS();
-    }
-    /**
     * Load and setup the custom cursor CSS additions
     */
-    function _loadAndSetupCustomCursorCSS() {
+    TDDP_MouseSystemEx._loadAndSetupCustomCursorCSS = function() {
         var xhr = new XMLHttpRequest();
-        var url = TDDP_MouseSystemEx.customCursorPath + TDDP_MouseSystemEx._indexFilename;
+        var url = this.customCursorPath + this._indexFilename;
         xhr.open('GET', url);
         xhr.overrideMimeType('application/json');
         xhr.onload = function() {
@@ -332,14 +305,24 @@ var TDDP_MouseSystemEx = {};
                 dummyContainerElement.id = "TDD_MS_CursorDummies";
                 document.body.appendChild(dummyContainerElement);
                 // Next we iterate the cached cursor list
-                var classPrefix = TDDP_MouseSystemEx._cssClassPrefix;
+                var classPrefix = this._cssClassPrefix;
                 var cachedCursors = JSON.parse(xhr.responseText);
                 for (var i=0, max=cachedCursors.length; i<max; i++) {
                     var cursor = cachedCursors[i];
                     var cursorName = cursor.split(".")[0];
-                    var cursorPath = TDDP_MouseSystemEx.customCursorPath + cursor;
+                    var ox = 0;
+                    cursorName = cursorName.replace(/_x(\d*)/g, function(m, p1) {
+                        if (p1) ox = p1;
+                        return "";
+                    });
+                    var oy = 0;
+                    cursorName = cursorName.replace(/_y(\d*)/, function(m, p1){
+                        if (p1) oy = p1;
+                        return "";
+                    });
+                    var cursorPath = this.customCursorPath + cursor;
                     var sheet = window.document.styleSheets[0];
-                    sheet.insertRule('.' + classPrefix + cursorName + ' { cursor: url(../' + cursorPath + '), default; }', sheet.cssRules.length);
+                    sheet.insertRule('.' + classPrefix + cursorName + ' { cursor: url(../' + cursorPath + ')' + ox + ' ' + oy + ', default; }', sheet.cssRules.length);
                     // To ensure all the cursors get prefetched by browsers, we create dummy divs to hold all the styles...
                     var dummyLoaderElement = document.createElement('div');
                     dummyLoaderElement.id = cursorName + "_dummy";
@@ -347,12 +330,41 @@ var TDDP_MouseSystemEx = {};
                     dummyLoaderElement.className = classPrefix + cursorName;
                 }
             }
-        };
+        }.bind(this);
         xhr.onerror = function() {
             //
         };
         xhr.send();
     }
+    /**
+    * Pre-cache all custom cursors when in test mode
+    */
+    // Check if playtest; if so, store file. If not, read stored
+    TDDP_MouseSystemEx._precacheCustomCursors = function() {
+        if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
+            var fs = require('fs');
+            // Find that relative local path, using MV's own methods
+            var path = window.location.pathname.replace(/\/[^\/]*$/, '/' + this.customCursorPath);
+            if (path.match(/^\/([A-Z]\:)/)) {
+                path = path.slice(1);
+            }
+            path = decodeURIComponent(path);
+            // Check if cursors dir exists, make if not
+            if (!fs.existsSync(path)) {
+                alert('TDDP MouseSystemEx\nThe chosen cursor folder "' + this.customCursorPath + '" has been created for you. Please put any custom cursor image files in this folder.');
+                fs.mkdirSync(path);
+            }
+            // Read dir
+            var files = fs.readdirSync(path).filter(function(v) {
+                if(v != this._indexFilename && v[1]) return v;
+            }.bind(this));
+            // Store in json
+            fs.writeFile(path + this._indexFilename, JSON.stringify(files), 'utf8', this._loadAndSetupCustomCursorCSS.bind(this));
+        } else {
+            // Read stored file
+            this._loadAndSetupCustomCursorCSS();
+        }
+    }.apply(TDDP_MouseSystemEx);
     //=============================================================================
     // Game_Interpreter - register plugin commands
     //=============================================================================
@@ -851,6 +863,7 @@ var TDDP_MouseSystemEx = {};
             this.TDDP_MS.hoverSwitch.key = String(result[1]);
             this.TDDP_MS.hoverSwitch.val = String(result[2]);
         });
+        // If no active event page, there's no event commands to go through
         if (!this.page()) return;
         // Auto cursor checks, only if there's a page and allowed
         if (this.TDDP_MS.allowAutoCursor) {
