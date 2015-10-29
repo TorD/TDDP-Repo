@@ -1,16 +1,16 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 1.0.2
+// Version: 1.0.3
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "1.0.2";
+Imported.TDDP_PreloadManager = "1.0.3";
 
 var TDDP = TDDP || {};
 TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 1.0.2 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 1.0.3 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -166,6 +166,8 @@ TDDP.bootPreloadME = [
 var PreloadManager;
 (function() {
     "use strict";
+    // Skip preloading if event test
+    if (DataManager.isEventTest()) return;
     //=============================================================================
     // Setting up parameters
     //=============================================================================
