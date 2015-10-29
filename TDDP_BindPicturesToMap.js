@@ -1,12 +1,12 @@
 //=============================================================================
 // TDDP_BindPicturesToMap.js
-// Version: 1.0.4
+// Version: 1.0.5
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_BindPicturesToMap = "1.0.4";
+Imported.TDDP_BindPicturesToMap = "1.0.5";
 //=============================================================================
 /*:
- * @plugindesc 1.0.4 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
+ * @plugindesc 1.0.5 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
  *
  * @author Tor Damian Design / Galenmereth
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
@@ -223,19 +223,23 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
         // Blit original bitmap
         this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, 0, 0);
 
-        // Make a copy for horizontal offscreen scrolls into view
-        if($gameMap.isLoopHorizontal() && picture._useHorizontalRepeat) {
-            this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, picture._horSpacing, 0);
+        // Only used and performed when on a map scene
+        if (SceneManager._scene instanceof Scene_Map) {
+            // Make a copy for horizontal offscreen scrolls into view
+            if($gameMap.isLoopHorizontal() && picture._useHorizontalRepeat) {
+                this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, picture._horSpacing, 0);
+            }
+            // Make a copy for vertical offscreen scrolling into view
+            if($gameMap.isLoopVertical() && picture._useVerticalRepeat) {
+                this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, 0, picture._verSpacing);
+            }
+            // Make a copy if horizontal + vertical is scrolled into view
+            if($gameMap.isLoopHorizontal() && $gameMap.isLoopVertical()
+                    && picture._useHorizontalRepeat && picture._useVerticalRepeat) {
+                this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, picture._horSpacing, picture._verSpacing);
+            }
         }
-        // Make a copy for vertical offscreen scrolling into view
-        if($gameMap.isLoopVertical() && picture._useVerticalRepeat) {
-            this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, 0, picture._verSpacing);
-        }
-        // Make a copy if horizontal + vertical is scrolled into view
-        if($gameMap.isLoopHorizontal() && $gameMap.isLoopVertical()
-                && picture._useHorizontalRepeat && picture._useVerticalRepeat) {
-            this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, picture._horSpacing, picture._verSpacing);
-        }
+
     };
     //=============================================================================
     // Game_Picture
@@ -270,11 +274,15 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
                                 scaleY, opacity, blendMode);
 
         this._offsetX = this._offsetY = 0;
-        // Map offsets for resolutions that offset the map's drawing start. Used only when binding pictures to map
-        this._mapOffsX = Math.max(SceneManager._screenWidth - ($gameMap.width() * $gameMap.tileWidth()), 0);
-        this._mapOffsY = Math.max(SceneManager._screenHeight - ($gameMap.height() * $gameMap.tileHeight()), 0);
         this._originX = this._x;
         this._originY = this._y;
+
+        // Only used and performed when on a map scene
+        if (SceneManager._scene instanceof Scene_Map) {
+            // Map offsets for resolutions that offset the map's drawing start. Used only when binding pictures to map
+            this._mapOffsX = Math.max(SceneManager._screenWidth - ($gameMap.width() * $gameMap.tileWidth()), 0);
+            this._mapOffsY = Math.max(SceneManager._screenHeight - ($gameMap.height() * $gameMap.tileHeight()), 0);
+        }
         // Fetch temp bitmap to calculate sizes
         var bitmap = ImageManager.loadPicture(this._name);
         bitmap.addLoadListener(this.setDimensions.bind(this, bitmap));
@@ -289,9 +297,12 @@ Imported.TDDP_BindPicturesToMap = "1.0.4";
         // Clear bitmap
         bitmap = null;
 
-        // Horizontal and  vertical spacing for repeating textures
-        this._horSpacing = $gameMap.width() * $gameMap.tileWidth();
-        this._verSpacing = $gameMap.height() * $gameMap.tileHeight();
+        // Only used and performed when on a map scene
+        if (SceneManager._scene instanceof Scene_Map) {
+            // Horizontal and  vertical spacing for repeating textures
+            this._horSpacing = $gameMap.width() * $gameMap.tileWidth();
+            this._verSpacing = $gameMap.height() * $gameMap.tileHeight();
+        }
 
         // Check if we need horizontal and vertical repeating
         this._useHorizontalRepeat = this._width < this._horSpacing * 2;//this._width + Graphics.width > this._horSpacing && this._width < this._horSpacing;
