@@ -3,7 +3,7 @@
 // Version: 1.0.0
 //=============================================================================
 /*:
- * @plugindesc 1.0.0 Disables the ability to fast forward messages and move routes.
+ * @plugindesc 1.0.0 Disables the ability to fast forward move routes.
  * @author Tor Damian Design / Galenmereth
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
