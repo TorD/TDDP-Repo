@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.7.0
+// Version: 1.8.0
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.7.0";
+Imported.TDDP_MouseSystemEx = "1.8.0";
 
 //=============================================================================
 /*:
- * @plugindesc 1.7.0 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
+ * @plugindesc 1.8.0 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -227,12 +227,12 @@ Imported.TDDP_MouseSystemEx = "1.7.0";
 //=============================================================================
 // All anonymous/helper functions are registered on this object for the convenience of other plugins.
 var TDDP_MouseSystemEx = {};
-(function() {
+(function($) {
     "use strict";
     /**
     * Return .png if no file extension present in filename
     */
-    TDDP_MouseSystemEx._ext = function(filename) {
+    $._ext = function(filename) {
         if (String(filename).split(".").length > 1) {
             return filename;
         } else {
@@ -245,56 +245,56 @@ var TDDP_MouseSystemEx = {};
     //=============================================================================
     var parameters = $plugins.filter(function(p){return p.description.contains("id:TDDP_MouseSystemEx")})[0].parameters;
     // Auto change cursors
-    TDDP_MouseSystemEx.showTextCursor         = String(parameters['Show Text Cursor']) || false;
-    TDDP_MouseSystemEx.changeGoldCursor       = String(parameters['Change Gold Cursor']) || false;
-    TDDP_MouseSystemEx.changeItemCursor       = String(parameters['Change Items Cursor']) || false;
-    TDDP_MouseSystemEx.changeWeaponCursor     = String(parameters['Change Weapons Cursor']) || false;
-    TDDP_MouseSystemEx.changeArmorCursor      = String(parameters['Change Armors Cursor']) || false;
-    TDDP_MouseSystemEx.transferPlayerCursor   = String(parameters['Transfer Cursor']) || false;
-    TDDP_MouseSystemEx.battleProcessingCursor = String(parameters['Battle Processing Cursor']) || false;
+    $.showTextCursor         = String(parameters['Show Text Cursor']) || false;
+    $.changeGoldCursor       = String(parameters['Change Gold Cursor']) || false;
+    $.changeItemCursor       = String(parameters['Change Items Cursor']) || false;
+    $.changeWeaponCursor     = String(parameters['Change Weapons Cursor']) || false;
+    $.changeArmorCursor      = String(parameters['Change Armors Cursor']) || false;
+    $.transferPlayerCursor   = String(parameters['Transfer Cursor']) || false;
+    $.battleProcessingCursor = String(parameters['Battle Processing Cursor']) || false;
     // Auto change icons
-    TDDP_MouseSystemEx.showTextIcon         = String(parameters['Show Text Icon']) || false;
-    TDDP_MouseSystemEx.changeGoldIcon       = String(parameters['Change Gold Icon']) || false;
-    TDDP_MouseSystemEx.changeItemIcon       = String(parameters['Change Items Icon']) || false;
-    TDDP_MouseSystemEx.changeWeaponIcon     = String(parameters['Change Weapons Icon']) || false;
-    TDDP_MouseSystemEx.changeArmorIcon      = String(parameters['Change Armors Icon']) || false;
-    TDDP_MouseSystemEx.transferPlayerIcon   = String(parameters['Transfer Icon']) || false;
-    TDDP_MouseSystemEx.battleProcessingIcon = String(parameters['Battle Processing Icon']) || false;
+    $.showTextIcon         = String(parameters['Show Text Icon']) || false;
+    $.changeGoldIcon       = String(parameters['Change Gold Icon']) || false;
+    $.changeItemIcon       = String(parameters['Change Items Icon']) || false;
+    $.changeWeaponIcon     = String(parameters['Change Weapons Icon']) || false;
+    $.changeArmorIcon      = String(parameters['Change Armors Icon']) || false;
+    $.transferPlayerIcon   = String(parameters['Transfer Icon']) || false;
+    $.battleProcessingIcon = String(parameters['Battle Processing Icon']) || false;
     // Settings
-    TDDP_MouseSystemEx.highlightOnHover     = Boolean(parameters['Highlight On Hover'] === 'true' || false);
-    TDDP_MouseSystemEx.audioCooldownOnHover = Number(parameters['Hover SE Cooldown'] || 4)
-    TDDP_MouseSystemEx.hideCursor           = Boolean(parameters['Hide Cursor']        === 'true' || false);
-    TDDP_MouseSystemEx.iconOffsetX          = Number(parameters['Icon Offset X']) || 0;
-    TDDP_MouseSystemEx.iconOffsetY          = Number(parameters['Icon Offset Y']) || 0;
-    TDDP_MouseSystemEx.noAutoCursorNotetag  = String(parameters['No Auto Cursor Notetag']);
-    TDDP_MouseSystemEx.noAutoIconNotetag    = String(parameters['No Auto Icon Notetag']);
-    TDDP_MouseSystemEx.clickToActivateNote  = String(parameters['Click Notetag']);
-    TDDP_MouseSystemEx.hoverToActivateNote  = String(parameters['Hover Notetag']);
-    TDDP_MouseSystemEx.leaveToActivateNote  = String(parameters['Leave Notetag']);
-    TDDP_MouseSystemEx.useCustomCursor      = Boolean(parameters['Use Custom Cursor?'] === 'true' || false);
-    TDDP_MouseSystemEx.cursorImage          = TDDP_MouseSystemEx._ext(String(parameters['Custom Cursor Image']));
-    TDDP_MouseSystemEx.defaultCursorImage   = TDDP_MouseSystemEx.cursorImage;
-    TDDP_MouseSystemEx.customCursorPath     = String(parameters['Custom Cursors Folder']);
+    $.highlightOnHover     = Boolean(parameters['Highlight On Hover'] === 'true' || false);
+    $.audioCooldownOnHover = Number(parameters['Hover SE Cooldown'] || 4)
+    $.hideCursor           = Boolean(parameters['Hide Cursor']        === 'true' || false);
+    $.iconOffsetX          = Number(parameters['Icon Offset X']) || 0;
+    $.iconOffsetY          = Number(parameters['Icon Offset Y']) || 0;
+    $.noAutoCursorNotetag  = String(parameters['No Auto Cursor Notetag']);
+    $.noAutoIconNotetag    = String(parameters['No Auto Icon Notetag']);
+    $.clickToActivateNote  = String(parameters['Click Notetag']);
+    $.hoverToActivateNote  = String(parameters['Hover Notetag']);
+    $.leaveToActivateNote  = String(parameters['Leave Notetag']);
+    $.useCustomCursor      = Boolean(parameters['Use Custom Cursor?'] === 'true' || false);
+    $.cursorImage          = $._ext(String(parameters['Custom Cursor Image']));
+    $.defaultCursorImage   = $.cursorImage;
+    $.customCursorPath     = String(parameters['Custom Cursors Folder']);
 
-    TDDP_MouseSystemEx._cursorFilenameInUse = null;   // Helper to compare changes
-    TDDP_MouseSystemEx._lastUpdateFrame     = 0;      // Last frame cursor got updated
-    TDDP_MouseSystemEx._cssClassPrefix      = "TDDP_customCursor_";
-    TDDP_MouseSystemEx._indexFilename       = "_index.json";
+    $._cursorFilenameInUse = null;   // Helper to compare changes
+    $._lastUpdateFrame     = 0;      // Last frame cursor got updated
+    $._cssClassPrefix      = "TDDP_customCursor_";
+    $._indexFilename       = "_index.json";
 
     // Add all mouse icon tags
-    TDDP_MouseSystemEx.mouseIconTags        = {}
+    $.mouseIconTags        = {}
     for(var i = 1; i <= 15; ++i) {
         var tag = parameters['Icon Tag ' + i]
         if (!tag) continue;
         tag = tag.split(":");
         var key = tag[0];
         var val = tag[1].replace(' ', '');
-        TDDP_MouseSystemEx.mouseIconTags[key] = val;
+        $.mouseIconTags[key] = val;
     }
     /**
     * Load and setup the custom cursor CSS additions
     */
-    TDDP_MouseSystemEx._loadAndSetupCustomCursorCSS = function() {
+    $._loadAndSetupCustomCursorCSS = function() {
         var xhr = new XMLHttpRequest();
         var url = this.customCursorPath + this._indexFilename;
         xhr.open('GET', url);
@@ -340,7 +340,7 @@ var TDDP_MouseSystemEx = {};
     * Pre-cache all custom cursors when in test mode
     */
     // Check if playtest; if so, store file. If not, read stored
-    TDDP_MouseSystemEx._precacheCustomCursors = function() {
+    $._precacheCustomCursors = function() {
         if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
             var fs = require('fs');
             // Find that relative local path, using MV's own methods
@@ -374,36 +374,47 @@ var TDDP_MouseSystemEx = {};
     var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function(command, args) {
         Game_Interpreter_pluginCommand.call(this, command, args)
-        if (command === 'SetCustomCursor')      TDDP_MouseSystemEx._setCustomCursor(args);
-        if (command === 'ResetCustomCursor')    TDDP_MouseSystemEx._resetCustomCursor();
+        if (command === 'SetCustomCursor')      $._setCustomCursor(args);
+        if (command === 'ResetCustomCursor')    $._resetCustomCursor();
     };
     //=============================================================================
     // Helper functions
     //=============================================================================
     /**
+    * Get events at x and y coordinates. Separate function for compatibility
+    *
+    * @method _eventsXy
+    * @param x {Number} Map X coordinate
+    * @param y {Number} Map Y coordinate
+    * @return {Array} of events at given coordinates
+    */
+    $._eventsXy = function(x, y) {
+        return $gameMap.eventsXy(x, y);
+    }
+    /**
     * Show custom cursor
     */
-    TDDP_MouseSystemEx._showCustomCursor = function(filename) {
+    $._showCustomCursor = function(filename) {
         var filename = filename || this.cursorImage;
         document.body.className = this._cssClassPrefix + filename.split(".")[0];
     }
     /**
     * Set new default custom cursor
     */
-    TDDP_MouseSystemEx._setCustomCursor = function(filename) {
+    $._setCustomCursor = function(filename) {
         this.cursorImage = filename;
         this._showCustomCursor(TouchInput.cursorImage);
     }
     /**
     * Reset custom cursor to parameter setting defaults
     */
-    TDDP_MouseSystemEx._resetCustomCursor = function() {
+    $._resetCustomCursor = function() {
         this._setCustomCursor(this.defaultCursorImage);
     }
     /**
     * Show the mouse cursor
     */
-    TDDP_MouseSystemEx._showMouseCursor = function() {
+    $._showMouseCursor = function() {
         if (this.useCustomCursor) {
             this._showCustomCursor();
         } else {
@@ -413,68 +424,68 @@ var TDDP_MouseSystemEx = {};
     /**
     * Hide the mouse cursor
     */
-    TDDP_MouseSystemEx._hideMouseCursor = function() {
+    $._hideMouseCursor = function() {
         document.body.style.cursor = 'none';
     }
     /**
     * Return Comments from event page. Multiline comments require an additional check (408)
     */
-    TDDP_MouseSystemEx._filterComments = function(pageListObject) {
+    $._filterComments = function(pageListObject) {
         var comments = (pageListObject.code == 108 || pageListObject.code == 408) ? true : false;
         return comments;
     }
     /**
     * Return Show Text messages from event page
     */
-    TDDP_MouseSystemEx._filterMessages = function(pageListObject) {
+    $._filterMessages = function(pageListObject) {
         return pageListObject.code == 401;
     }
     /**
     * Return Transfer Player events from event page
     */
-    TDDP_MouseSystemEx._filterTransferPlayer = function(pageListObject) {
+    $._filterTransferPlayer = function(pageListObject) {
         return pageListObject.code == 201;
     }
     /**
     * Return Battle Processing events from event page
     */
-    TDDP_MouseSystemEx._filterBattleProcess = function(pageListObject) {
+    $._filterBattleProcess = function(pageListObject) {
         return pageListObject.code == 301;
     }
     /**
     * Return Change Gold events from event page
     */
-    TDDP_MouseSystemEx._filterChangeGold = function(pageListObject) {
+    $._filterChangeGold = function(pageListObject) {
         return pageListObject.code == 125;
     }
     /**
     * Return Change Items events from event page
     */
-    TDDP_MouseSystemEx._filterChangeItems = function(pageListObject) {
+    $._filterChangeItems = function(pageListObject) {
         return pageListObject.code == 126;
     }
     /**
     * Return Change Weapons events from event page
     */
-    TDDP_MouseSystemEx._filterChangeWeapons = function(pageListObject) {
+    $._filterChangeWeapons = function(pageListObject) {
         return pageListObject.code == 127;
     }
     /**
     * Return Change Armors events from event page
     */
-    TDDP_MouseSystemEx._filterChangeArmors = function(pageListObject) {
+    $._filterChangeArmors = function(pageListObject) {
         return pageListObject.code == 128;
     }
     /**
     * Check if current scene is of the type Scene_Map
     */
-    TDDP_MouseSystemEx._isSceneMap = function() {
+    $._isSceneMap = function() {
         return (SceneManager._scene instanceof Scene_Map);
     }
     /**
     * Find a given notetag either in a game_event's Note box or Comment box on current active page
     */
-    TDDP_MouseSystemEx._findInEventNotetags = function(game_event, notetag, onMatch) {
+    $._findInEventNotetags = function(game_event, notetag, onMatch) {
         if (!game_event.page()) return false;
         var comments   = game_event.page().list.filter(this._filterComments);
         var result     = null;
@@ -503,30 +514,30 @@ var TDDP_MouseSystemEx = {};
     /**
     * Arrays of pairs of cursors/icons and filters to run to check if they should be used
     */
-    TDDP_MouseSystemEx.autoCursorFilters = [
+    $.autoCursorFilters = [
         // The order is the priority; the first match stops further lookup
-        [TDDP_MouseSystemEx.battleProcessingCursor,  TDDP_MouseSystemEx._filterBattleProcess],
-        [TDDP_MouseSystemEx.transferPlayerCursor,    TDDP_MouseSystemEx._filterTransferPlayer],
-        [TDDP_MouseSystemEx.changeGoldCursor,        TDDP_MouseSystemEx._filterChangeGold],
-        [TDDP_MouseSystemEx.changeItemCursor,        TDDP_MouseSystemEx._filterChangeItems],
-        [TDDP_MouseSystemEx.changeWeaponCursor,      TDDP_MouseSystemEx._filterChangeWeapons],
-        [TDDP_MouseSystemEx.changeArmorCursor,       TDDP_MouseSystemEx._filterChangeArmors],
-        [TDDP_MouseSystemEx.showTextCursor,          TDDP_MouseSystemEx._filterMessages],
+        [$.battleProcessingCursor,  $._filterBattleProcess],
+        [$.transferPlayerCursor,    $._filterTransferPlayer],
+        [$.changeGoldCursor,        $._filterChangeGold],
+        [$.changeItemCursor,        $._filterChangeItems],
+        [$.changeWeaponCursor,      $._filterChangeWeapons],
+        [$.changeArmorCursor,       $._filterChangeArmors],
+        [$.showTextCursor,          $._filterMessages],
     ];
-    TDDP_MouseSystemEx.autoIconFilters = [
+    $.autoIconFilters = [
         // The order is the priority; the first match stops further lookup
-        [TDDP_MouseSystemEx.battleProcessingIcon,  TDDP_MouseSystemEx._filterBattleProcess],
-        [TDDP_MouseSystemEx.transferPlayerIcon,    TDDP_MouseSystemEx._filterTransferPlayer],
-        [TDDP_MouseSystemEx.changeGoldIcon,        TDDP_MouseSystemEx._filterChangeGold],
-        [TDDP_MouseSystemEx.changeItemIcon,        TDDP_MouseSystemEx._filterChangeItems],
-        [TDDP_MouseSystemEx.changeWeaponIcon,      TDDP_MouseSystemEx._filterChangeWeapons],
-        [TDDP_MouseSystemEx.changeArmorIcon,       TDDP_MouseSystemEx._filterChangeArmors],
-        [TDDP_MouseSystemEx.showTextIcon,          TDDP_MouseSystemEx._filterMessages],
+        [$.battleProcessingIcon,  $._filterBattleProcess],
+        [$.transferPlayerIcon,    $._filterTransferPlayer],
+        [$.changeGoldIcon,        $._filterChangeGold],
+        [$.changeItemIcon,        $._filterChangeItems],
+        [$.changeWeaponIcon,      $._filterChangeWeapons],
+        [$.changeArmorIcon,       $._filterChangeArmors],
+        [$.showTextIcon,          $._filterMessages],
     ];
     /**
     * Function to check whether conditions are prime to check for events under the mouse
     */
-    TDDP_MouseSystemEx.conditionsValidForMouseHoverCheck = function() {
+    $.conditionsValidForMouseHoverCheck = function() {
         return (SceneManager.isCurrentSceneStarted() && this._isSceneMap() &&
             $gameMap !== null &&
             $dataMap !== null &&
@@ -535,7 +546,7 @@ var TDDP_MouseSystemEx = {};
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // START - Highlight On Hover option
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if (TDDP_MouseSystemEx.highlightOnHover){
+    if ($.highlightOnHover){
         //=========================================================================
         // TouchInput modifications
         //=========================================================================
@@ -593,7 +604,7 @@ var TDDP_MouseSystemEx = {};
         var _SoundManager_playCursor = SoundManager.playCursor;
         SoundManager.playCursor = function() {
             var _canPlay = SoundManager._lastPlayCursorFrame > Graphics.frameCount
-                || Graphics.frameCount > SoundManager._lastPlayCursorFrame + TDDP_MouseSystemEx.audioCooldownOnHover;
+                || Graphics.frameCount > SoundManager._lastPlayCursorFrame + $.audioCooldownOnHover;
 
             if (_canPlay) {
                 _SoundManager_playCursor.call(this);
@@ -635,28 +646,35 @@ var TDDP_MouseSystemEx = {};
     };
     /**
     * Check cursor's status and whether to alter cursor
+    * @method _checkCursorStatus
+    * @param pageX {Number} Mouse page X coordinate
+    * @param pageY {Number} Mouse page Y coordinate
     */
     TouchInput._checkCursorStatus = function(pageX, pageY) {
         // Check for events under mouse and perform actions, and get event in result
-        var overEvent = this._checkForEventUnderMouse(pageX, pageY);
+        var overEvents = this._checkForEventUnderMouse(pageX, pageY);
 
         // Update cursor icon position
         if (this.cursorIcon.iconIndex) {
             this.cursorIcon.x = Graphics.pageToCanvasX(pageX) +
-                (this.cursorIcon.customOffsetX !== null ? this.cursorIcon.customOffsetX : TDDP_MouseSystemEx.iconOffsetX);
+                (this.cursorIcon.customOffsetX !== null ? this.cursorIcon.customOffsetX : $.iconOffsetX);
             this.cursorIcon.y = Graphics.pageToCanvasY(pageY) +
-                (this.cursorIcon.customOffsetY !== null ? this.cursorIcon.customOffsetY : TDDP_MouseSystemEx.iconOffsetY);
+                (this.cursorIcon.customOffsetY !== null ? this.cursorIcon.customOffsetY : $.iconOffsetY);
             this.cursorIcon.visible = true;
         }
 
-        // Check if leave activate is to be triggered for a previous event
-        if (this._activeEvent && this._activeEvent.TDDP_MS.leaveActivate &&
-                (!overEvent || overEvent !== this._activeEvent)) {
-            this._activeEvent.start();
-            this._activeEvent = false;
+        // Check if leave activate is to be triggered for a previously active event
+        this._activeEvents = this._activeEvents || [];
+        while (this._activeEvents.length > 0) {
+            var activeEvent = this._activeEvents.shift();
+            if (activeEvent.TDDP_MS.leaveActivate) {
+                if (!overEvents || overEvents.length == 0 || overEvents.indexOf(activeEvent) == -1) {
+                    activeEvent.start();
+                }
+            }
         }
-        // Set active event
-        this._activeEvent = overEvent || this._activeEvent;
+        // Reset active events if new over events
+        this._activeEvents = overEvents || this._activeEvents;
     }
     /**
     * Alias and extend update() to store last event coords for checking if cursor has left an event
@@ -672,19 +690,22 @@ var TDDP_MouseSystemEx = {};
     }
     /**
     * Perform check for event under mouse and perform functions depending on parsed notetag properties
+    * @method _checkForEventUnderMouse
+    * @param pageX {Number} Mouse page X coordinate
+    * @param pageY {Number} Mouse page Y coordinate
+    * @return {Array} of found events or {Boolean} false if none.
     */
     TouchInput._checkForEventUnderMouse = function(pageX, pageY) {
         this._curEventPageX = pageX;
         this._curEventPageY = pageY;
-        if (TDDP_MouseSystemEx.conditionsValidForMouseHoverCheck()) {
+        if ($.conditionsValidForMouseHoverCheck()) {
             var x = $gameMap.canvasToMapX(Graphics.pageToCanvasX(pageX));
             var y = $gameMap.canvasToMapY(Graphics.pageToCanvasY(pageY));
-            var _events = $gameMap.eventsXy(x, y);
-            if (_events.length > 0) {
-                var game_event = _events[_events.length - 1]; // Get topmost event
+            var events = $._eventsXy(x, y);
+            events.reverse().forEach(function(game_event) {
                 if (game_event.TDDP_MS.hoverIcon) {
                     TouchInput._updateCursorIcon(game_event.TDDP_MS.hoverIcon);
-                    if (TDDP_MouseSystemEx.hideCursor) TDDP_MouseSystemEx._hideMouseCursor();
+                    if ($.hideCursor) $._hideMouseCursor();
                 } else {
                     TouchInput._hideCursorIcon();
                 };
@@ -692,32 +713,35 @@ var TDDP_MouseSystemEx = {};
                     game_event.start();
                 };
                 if (game_event.TDDP_MS.hideCursor) {
-                    TDDP_MouseSystemEx._hideMouseCursor();
+                    $._hideMouseCursor();
                 };
                 if (game_event.TDDP_MS.customOffsetX && game_event.TDDP_MS.customOffsetY) {
                     TouchInput.cursorIcon.customOffsetX = game_event.TDDP_MS.customOffsetX;
                     TouchInput.cursorIcon.customOffsetY = game_event.TDDP_MS.customOffsetY;
                 };
-                if (TDDP_MouseSystemEx.useCustomCursor) {
+                if ($.useCustomCursor) {
                     if (game_event.TDDP_MS.customCursor) {
-                        TDDP_MouseSystemEx._showCustomCursor(game_event.TDDP_MS.customCursor);
+                        $._showCustomCursor(game_event.TDDP_MS.customCursor);
                     } else {
-                        TDDP_MouseSystemEx._showCustomCursor();
+                        $._showCustomCursor();
                     }
                 };
                 if (game_event.TDDP_MS.hoverSwitch) {
                     var key = [$gameMap._mapId, game_event._eventId, game_event.TDDP_MS.hoverSwitch.key]
                     $gameSelfSwitches.setValue(key, game_event.TDDP_MS.hoverSwitch.val === 'true')
                 };
-                return game_event;
-            }
+            });
+            if (events && events.length > 0) return events;
         }
+        // If no events found under cursor perform default actions
         TouchInput._hideCursorIcon();
-        TDDP_MouseSystemEx._showMouseCursor();
+        $._showMouseCursor();
         return false;
     };
     /**
     * Update the cursor icon
+    * @method _updateCursorIcon
+    * @param iconIndex {Number} The icon index to show next to the cursor
     */
     TouchInput._updateCursorIcon = function(iconIndex) {
         if (this.cursorIcon.iconIndex != iconIndex) {
@@ -729,6 +753,7 @@ var TDDP_MouseSystemEx = {};
     };
     /**
     * Hide the cursor icon
+    * @method _hideCursorIcon
     */
     TouchInput._hideCursorIcon = function() {
         this.cursorIcon.iconIndex     = null;
@@ -749,15 +774,16 @@ var TDDP_MouseSystemEx = {};
     };
     /**
     * Activate click events if valid and return true if so
+    * @method _activateClickEvents
+    * @param x {Number} Map X coordinate
+    * @param y {Number} Map Y coordinate
     */
     TouchInput._activateClickEvents = function(x, y) {
         var found_click_event = false;
         if (SceneManager.isCurrentSceneStarted() && $gameMap !== null && $dataMap !== null && !$gameMessage.isBusy()) {
             var x = $gameMap.canvasToMapX(x);
             var y = $gameMap.canvasToMapY(y);
-            var _events = $gameMap.eventsXy(x, y);
-            if (_events.length > 0) {
-                var game_event = _events[_events.length - 1];
+            $._eventsXy(x, y).forEach(function(game_event) {
                 if (game_event.TDDP_MS.clickActivate) {
                     game_event.start();
                     found_click_event = true;
@@ -767,7 +793,7 @@ var TDDP_MouseSystemEx = {};
                     $gameSelfSwitches.setValue(key, game_event.TDDP_MS.clickSwitch.val === 'true');
                     found_click_event = true;
                 };
-            }
+            });
         }
         return found_click_event;
     }
@@ -819,46 +845,46 @@ var TDDP_MouseSystemEx = {};
         this.TDDP_MS.customCursor    = false;
         this.TDDP_MS.clickSwitch     = false;
         this.TDDP_MS.hoverSwitch     = false;
-        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_icon\s(.*?);/i, function(result) {
+        $._findInEventNotetags(this, /hover_icon\s(.*?);/i, function(result) {
             if (!result) return;
             result = result[result.length - 1];
-            if (TDDP_MouseSystemEx.mouseIconTags[result]) {
-                result = TDDP_MouseSystemEx.mouseIconTags[result];
+            if ($.mouseIconTags[result]) {
+                result = $.mouseIconTags[result];
             }
             this.TDDP_MS.hoverIcon = Number(result);
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.noAutoCursorNotetag, function() {
+        $._findInEventNotetags(this, $.noAutoCursorNotetag, function() {
             this.TDDP_MS.allowAutoCursor = false;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.noAutoIconNotetag, function() {
+        $._findInEventNotetags(this, $.noAutoIconNotetag, function() {
             this.TDDP_MS.allowAutoIcon = false;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.clickToActivateNote, function() {
+        $._findInEventNotetags(this, $.clickToActivateNote, function() {
             this.TDDP_MS.clickActivate = true;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.hoverToActivateNote, function() {
+        $._findInEventNotetags(this, $.hoverToActivateNote, function() {
             this.TDDP_MS.hoverActivate = true;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, TDDP_MouseSystemEx.leaveToActivateNote, function() {
+        $._findInEventNotetags(this, $.leaveToActivateNote, function() {
             this.TDDP_MS.leaveActivate = true;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, 'hide_cursor!', function() {
+        $._findInEventNotetags(this, 'hide_cursor!', function() {
             this.TDDP_MS.hideCursor = true;
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /icon_offset\s(.*?)\s(.*?);/i, function(result) {
+        $._findInEventNotetags(this, /icon_offset\s(.*?)\s(.*?);/i, function(result) {
             this.TDDP_MS.customOffsetX = Number(result[1]);
             this.TDDP_MS.customOffsetY = Number(result[2]);
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_cursor\s(.*?);/i, function(result) {
+        $._findInEventNotetags(this, /hover_cursor\s(.*?);/i, function(result) {
             this.TDDP_MS.customCursor = result[result.length - 1];
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /click_switch\s(.*?)\s(.*?);/i, function(result) {
+        $._findInEventNotetags(this, /click_switch\s(.*?)\s(.*?);/i, function(result) {
             this.TDDP_MS.clickSwitch = {};
             this.TDDP_MS.clickSwitch.key = String(result[1]);
             this.TDDP_MS.clickSwitch.val = String(result[2]);
 
         });
-        TDDP_MouseSystemEx._findInEventNotetags(this, /hover_switch\s(.*?)\s(.*?);/i, function(result) {
+        $._findInEventNotetags(this, /hover_switch\s(.*?)\s(.*?);/i, function(result) {
             this.TDDP_MS.hoverSwitch = {};
             this.TDDP_MS.hoverSwitch.key = String(result[1]);
             this.TDDP_MS.hoverSwitch.val = String(result[2]);
@@ -867,9 +893,9 @@ var TDDP_MouseSystemEx = {};
         if (!this.page()) return;
         // Auto cursor checks, only if there's a page and allowed
         if (this.TDDP_MS.allowAutoCursor) {
-            for (var i=0, max=TDDP_MouseSystemEx.autoCursorFilters.length; i < max; i++) {
+            for (var i=0, max=$.autoCursorFilters.length; i < max; i++) {
                 if (this.TDDP_MS.customCursor) break;
-                var entry = TDDP_MouseSystemEx.autoCursorFilters[i];
+                var entry = $.autoCursorFilters[i];
                 var cursor = entry[0];
                 var filter = entry[1];
                 if (typeof cursor == "string") {
@@ -882,9 +908,9 @@ var TDDP_MouseSystemEx = {};
         }
         // Auto icon checks
         if (this.TDDP_MS.allowAutoIcon) {
-            for (var i=0, max=TDDP_MouseSystemEx.autoIconFilters.length; i < max; i++) {
+            for (var i=0, max=$.autoIconFilters.length; i < max; i++) {
                 if (this.TDDP_MS.hoverIcon) break;
-                var entry = TDDP_MouseSystemEx.autoIconFilters[i];
+                var entry = $.autoIconFilters[i];
                 var icon = entry[0];
                 var filter = entry[1];
                 if (typeof icon == "string") {
@@ -892,7 +918,7 @@ var TDDP_MouseSystemEx = {};
                     if (matches.length > 0) {
                         if (isNaN(icon)) {
                             // Icon is a string, so let's look in Icon Tags
-                            icon = TDDP_MouseSystemEx.mouseIconTags[icon]
+                            icon = $.mouseIconTags[icon]
                         }
                         this.TDDP_MS.hoverIcon = Number(icon);
                     }
@@ -900,4 +926,4 @@ var TDDP_MouseSystemEx = {};
             }
         }
     }
-})();
+})(TDDP_MouseSystemEx);
