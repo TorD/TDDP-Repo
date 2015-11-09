@@ -1,14 +1,14 @@
 //=============================================================================
 // TDDP_MouseSystemEx.js
-// Version: 1.8.0
+// Version: 1.8.1
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.8.0";
+Imported.TDDP_MouseSystemEx = "1.8.1";
 
 //=============================================================================
 /*:
- * @plugindesc 1.8.0 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
+ * @plugindesc 1.8.1 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -780,10 +780,10 @@ var TDDP_MouseSystemEx = {};
     */
     TouchInput._activateClickEvents = function(x, y) {
         var found_click_event = false;
-        if (SceneManager.isCurrentSceneStarted() && $gameMap !== null && $dataMap !== null && !$gameMessage.isBusy()) {
+        if ($.conditionsValidForMouseHoverCheck()) {
             var x = $gameMap.canvasToMapX(x);
             var y = $gameMap.canvasToMapY(y);
-            $._eventsXy(x, y).forEach(function(game_event) {
+            $._eventsXy(x, y).reverse().forEach(function(game_event) {
                 if (game_event.TDDP_MS.clickActivate) {
                     game_event.start();
                     found_click_event = true;
