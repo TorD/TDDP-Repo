@@ -1,12 +1,12 @@
 //=============================================================================
 // TDDP_BindPicturesToMap.js
-// Version: 1.0.5
+// Version: 1.0.6
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_BindPicturesToMap = "1.0.5";
+Imported.TDDP_BindPicturesToMap = "1.0.6";
 //=============================================================================
 /*:
- * @plugindesc 1.0.5 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
+ * @plugindesc 1.0.6 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
  *
  * @author Tor Damian Design / Galenmereth
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
@@ -268,12 +268,15 @@ Imported.TDDP_BindPicturesToMap = "1.0.5";
     var _Game_Picture_show =
             Game_Picture.prototype.show;
     Game_Picture.prototype.show = function(name, origin, x, y, scaleX,
-                                           scaleY, opacity, blendMode) {
+            scaleY, opacity, blendMode) {
 
         _Game_Picture_show.call(this, name, origin, x, y, scaleX,
-                                scaleY, opacity, blendMode);
+            scaleY, opacity, blendMode);
 
+        // Temporary offsets until bitmap dimensions are loaded; see setDimensions
         this._offsetX = this._offsetY = 0;
+
+        // Origin coords
         this._originX = this._x;
         this._originY = this._y;
 
@@ -293,6 +296,10 @@ Imported.TDDP_BindPicturesToMap = "1.0.5";
     Game_Picture.prototype.setDimensions = function(bitmap) {
         this._width = bitmap.width;
         this._height = bitmap.height;
+
+        // Set offsets
+        this._offsetX = -(this._width / 2) * this._origin;
+        this._offsetY = -(this._height / 2) * this._origin;
 
         // Clear bitmap
         bitmap = null;
