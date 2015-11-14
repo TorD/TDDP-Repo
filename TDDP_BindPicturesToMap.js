@@ -1,12 +1,12 @@
 //=============================================================================
 // TDDP_BindPicturesToMap.js
-// Version: 1.0.6
+// Version: 1.0.7
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_BindPicturesToMap = "1.0.6";
+Imported.TDDP_BindPicturesToMap = "1.0.7";
 //=============================================================================
 /*:
- * @plugindesc 1.0.6 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
+ * @plugindesc 1.0.7 Plugin Commands for binding pictures to the map and/or changing what layer they're drawn on.
  *
  * @author Tor Damian Design / Galenmereth
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
@@ -126,10 +126,18 @@ Imported.TDDP_BindPicturesToMap = "1.0.6";
     // NEW
     Spriteset_Map.prototype.createPicturesLayer = function(layer, parent, z) {
         var z = z || 0;
-        this._pictureContainer[layer] = new Sprite();
-        var container = this._pictureContainer[layer];
+        var container = new Sprite();
+        // Set container props
+        var width = Graphics.boxWidth;
+        var height = Graphics.boxHeight;
+        var x = (Graphics.width - width) / 2;
+        var y = (Graphics.height - height) / 2;
+        container.setFrame(x, y, width, height);
         container.z = z;
+        // Add to children
         parent.addChild(container);
+        // Add binding
+        this._pictureContainer[layer] = container;
     };
 
     // ALIAS
@@ -167,16 +175,6 @@ Imported.TDDP_BindPicturesToMap = "1.0.6";
     //=============================================================================
     // Sprite_Picture
     //=============================================================================
-    var _Sprite_Picture_updatePosition =
-            Sprite_Picture.prototype.updatePosition;
-    Sprite_Picture.prototype.updatePosition = function() {
-        _Sprite_Picture_updatePosition.apply(this);
-        var picture = this.picture();
-        this._offset.x = picture._offsetX;
-        this._offset.y = picture._offsetY;
-    };
-
-
     Sprite_Picture.prototype.updateLayer = function() {
         var picture = this.picture();
         var parent = this.parent;
@@ -199,32 +197,38 @@ Imported.TDDP_BindPicturesToMap = "1.0.6";
         this.updateLayer();
     };
 
-    var _Sprite_Picture_loadBitmap =
-            Sprite_Picture.prototype.loadBitmap;
+    // OVERWRITE inherited
     Sprite_Picture.prototype.loadBitmap = function() {
         var bitmap = ImageManager.loadPicture(this.picture()._name);
         bitmap.addLoadListener(this.bltLoadedBitmap.bind(this, bitmap));
         return;
     };
 
+    // NEW
     Sprite_Picture.prototype._useLoopingBitmap = function() {
         return this.picture()._bindToMap && ($gameMap.isLoopHorizontal() || $gameMap.isLoopVertical());
     }
 
+    // NEW
     Sprite_Picture.prototype.bltLoadedBitmap = function(sourceBitmap) {
         var picture = this.picture();
+        picture.setDimensions(sourceBitmap);
 
         // Check if bitmap size is too large
         if(picture._width + picture._height > 8032) {
             throw new Error("Picture " + this._pictureId + "(" + this._pictureName + ") is too large for bitmaps bound to the map and looping enabled. Its height + width must be less than 8032 in total.");
         }
 
-        this.bitmap = new Bitmap(picture._bitmapWidth, picture._bitmapHeight);
+        // Set dimensions of new bitmap
+        var bw = (this._useLoopingBitmap() && $gameMap.isLoopHorizontal() && picture._useHorizontalRepeat) ? picture._loopWidth : picture._width;
+        var bh = (this._useLoopingBitmap() && $gameMap.isLoopVertical() && picture._useVerticalRepeat) ? picture._loopHeight : picture._height;
+        this.bitmap = new Bitmap(bw, bh);
+
         // Blit original bitmap
         this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, 0, 0);
 
         // Only used and performed when on a map scene
-        if (SceneManager._scene instanceof Scene_Map) {
+        if (SceneManager._scene instanceof Scene_Map && this._useLoopingBitmap()) {
             // Make a copy for horizontal offscreen scrolls into view
             if($gameMap.isLoopHorizontal() && picture._useHorizontalRepeat) {
                 this.bitmap.blt(sourceBitmap, 0, 0, sourceBitmap.width, sourceBitmap.height, picture._horSpacing, 0);
@@ -269,12 +273,8 @@ Imported.TDDP_BindPicturesToMap = "1.0.6";
             Game_Picture.prototype.show;
     Game_Picture.prototype.show = function(name, origin, x, y, scaleX,
             scaleY, opacity, blendMode) {
-
         _Game_Picture_show.call(this, name, origin, x, y, scaleX,
             scaleY, opacity, blendMode);
-
-        // Temporary offsets until bitmap dimensions are loaded; see setDimensions
-        this._offsetX = this._offsetY = 0;
 
         // Origin coords
         this._originX = this._x;
@@ -286,23 +286,13 @@ Imported.TDDP_BindPicturesToMap = "1.0.6";
             this._mapOffsX = Math.max(SceneManager._screenWidth - ($gameMap.width() * $gameMap.tileWidth()), 0);
             this._mapOffsY = Math.max(SceneManager._screenHeight - ($gameMap.height() * $gameMap.tileHeight()), 0);
         }
-        // Fetch temp bitmap to calculate sizes
-        var bitmap = ImageManager.loadPicture(this._name);
-        bitmap.addLoadListener(this.setDimensions.bind(this, bitmap));
     };
     /**
-    * Set dimensions based on temp bitmap
+    * Set dimensions based on a bitmap. Gets called by Sprite_Picture
     */
     Game_Picture.prototype.setDimensions = function(bitmap) {
         this._width = bitmap.width;
         this._height = bitmap.height;
-
-        // Set offsets
-        this._offsetX = -(this._width / 2) * this._origin;
-        this._offsetY = -(this._height / 2) * this._origin;
-
-        // Clear bitmap
-        bitmap = null;
 
         // Only used and performed when on a map scene
         if (SceneManager._scene instanceof Scene_Map) {
@@ -312,12 +302,12 @@ Imported.TDDP_BindPicturesToMap = "1.0.6";
         }
 
         // Check if we need horizontal and vertical repeating
-        this._useHorizontalRepeat = this._width < this._horSpacing * 2;//this._width + Graphics.width > this._horSpacing && this._width < this._horSpacing;
-        this._useVerticalRepeat = this._height < this._verSpacing * 2;//this._height + Graphics.height > this._verSpacing && this._height < this._verSpacing;
+        this._useHorizontalRepeat = this._width < this._horSpacing * 2;
+        this._useVerticalRepeat = this._height < this._verSpacing * 2;
 
         // Set requested bitmap width based on repeating
-        this._bitmapWidth = this._useHorizontalRepeat ? this._horSpacing * 2 : this._width;
-        this._bitmapHeight = this._useVerticalRepeat ? this._verSpacing * 2 : this._height;
+        this._loopWidth = this._useHorizontalRepeat ? this._horSpacing * 2 : this._width;
+        this._loopHeight = this._useVerticalRepeat ? this._verSpacing * 2 : this._height;
     }
     /**
     * Extensions to updateMove when binding pictures to map
