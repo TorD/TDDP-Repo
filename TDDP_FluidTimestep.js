@@ -9,6 +9,9 @@
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
  * Information
  * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
+ * For updates and easy to use documentation, please go to the plugin's website:
+ * http://mvplugins.tordamian.com/?p=437
+ *
  * This plugin replaces MV's update loop with a semi-fixed timestep solution based
  * on http://gafferongames.com/game-physics/fix-your-timestep/
  *
@@ -21,9 +24,6 @@
  * This solution decouples visual updates from logic updates so that the latter
  * always occur at 1/60th of a second, while frames get updated as fast as the
  * user's computer can display it.
- *
- * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/?p=437
  *
  * There you can also download a PDF of the documentation for offline use, and
  * having the documentation in one cleanly presented place means you can always
