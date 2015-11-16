@@ -2,6 +2,8 @@
 // TDDP_FluidTimestep
 // Version: 1.0.0
 //=============================================================================
+var Imported = Imported || {};
+Imported.TDDP_FluidTimestep = "1.0.0";
 /*:
  * @plugindesc 1.0.0 Fixes MV's framerate dependent timestepping. Makes the gamespeed the same regardless of framerate.
  * @author Tor Damian Design / Galenmereth
@@ -22,7 +24,7 @@
  * normal speed.
  *
  * This solution decouples visual updates from logic updates so that the latter
- * always occur at 1/60th of a second, while frames get updated as fast as the
+ * always occur at 60 times per second, while frames get updated as fast as the
  * user's computer can display it.
  *
  * There you can also download a PDF of the documentation for offline use, and
@@ -34,6 +36,7 @@
  * This plugin is free for both non-commercial and commercial use. Please see
  * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
  */
+
 (function(){
     /**
     * Get current world time in ms
@@ -43,6 +46,14 @@
     SceneManager.getTimeInMs = function() {
         return Date.now();
     };
+
+    /**
+    * This is the passed logic update time, useful for other plugins
+    *
+    * @var _t
+    */
+    SceneManager._t = 0.0;
+
     /**
     * The delta time for logic updates, set to 1/60th of a second. Since MV bases all
     * its logic on a 60fps frame update, this is the best solution.
@@ -50,18 +61,21 @@
     * @var _dt
     */
     SceneManager._dt = 1.0 / 60.0;
+
     /**
     * The current time in milliseconds
     *
     * @var _currentTime
     */
     SceneManager._currentTime = SceneManager.getTimeInMs();
+
     /**
     * The frame accumulator, for when the framerate is faster than the logic should update
     *
     * @var _accumulator
     */
     SceneManager._accumulator = 0.0;
+
     /**
     * CHANGED The frame update
     */
@@ -75,6 +89,7 @@
             this.catchException(e);
         }
     };
+
     /**
     * CHANGED The main update function
     */
@@ -92,6 +107,7 @@
             this.updateInputData(); // While the frame accumulator is greater than the logic update delta, we keep updating the game's logic and catching input
             this.updateScene();
             this._accumulator -= this._dt;
+            this._t += this._dt;
         }
 
         this.renderScene();
