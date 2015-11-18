@@ -1,11 +1,11 @@
 //=============================================================================
 // TDDP_FluidTimestep
-// Version: 1.0.0
+// Version: 1.0.1
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_FluidTimestep = "1.0.0";
+Imported.TDDP_FluidTimestep = "1.0.1";
 /*:
- * @plugindesc 1.0.0 Fixes MV's framerate dependent timestepping. Makes the gamespeed the same regardless of framerate.
+ * @plugindesc 1.0.1 Fixes MV's framerate dependent timestepping. Makes the gamespeed the same regardless of framerate.
  * @author Tor Damian Design / Galenmereth
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
@@ -94,7 +94,6 @@ Imported.TDDP_FluidTimestep = "1.0.0";
     * CHANGED The main update function
     */
     SceneManager.updateMain = function() {
-        this.changeScene();
 
         var newTime = this.getTimeInMs();
         var frameTime = (newTime - this._currentTime) / 1000;
@@ -105,6 +104,7 @@ Imported.TDDP_FluidTimestep = "1.0.0";
 
         while (this._accumulator >= this._dt) {
             this.updateInputData(); // While the frame accumulator is greater than the logic update delta, we keep updating the game's logic and catching input
+            this.changeScene();
             this.updateScene();
             this._accumulator -= this._dt;
             this._t += this._dt;
