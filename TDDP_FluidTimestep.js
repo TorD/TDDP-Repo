@@ -1,11 +1,11 @@
 //=============================================================================
 // TDDP_FluidTimestep
-// Version: 1.0.1
+// Version: 1.0.2
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_FluidTimestep = "1.0.1";
+Imported.TDDP_FluidTimestep = "1.0.2";
 /*:
- * @plugindesc 1.0.1 Fixes MV's framerate dependent timestepping. Makes the gamespeed the same regardless of framerate.
+ * @plugindesc 1.0.2 Fixes MV's framerate dependent timestepping. Makes the gamespeed the same regardless of framerate.
  * @author Tor Damian Design / Galenmereth
  *
  * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
