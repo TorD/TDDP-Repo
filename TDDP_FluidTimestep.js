@@ -44,7 +44,7 @@ Imported.TDDP_FluidTimestep = "1.0.1";
     * @method getTimeInMs()
     */
     SceneManager.getTimeInMs = function() {
-        return Date.now();
+        return performance.now();
     };
 
     /**
