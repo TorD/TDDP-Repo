@@ -1,18 +1,26 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 1.0.3
+// Version: 1.0.4
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "1.0.3";
+Imported.TDDP_PreloadManager = "1.0.4";
 
 var TDDP = TDDP || {};
 TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 1.0.3 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 1.0.4 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
+ *
+ * @param Preload On Map Load
+ * @desc If you want to preload all assets found on a map upon loading the map, set this to true.
+ * @default true
+ *
+ * @param Preload System Music
+ * @desc If you want to preload all the Music specified in the Database System tab on startup, set this to true.
+ * @default false
  *
  * @param Preload System SFX
  * @desc If you want to preload all the SFX specified in the Database System tab on startup, set this to true.
@@ -171,9 +179,11 @@ var PreloadManager;
     //=============================================================================
     // Setting up parameters
     //=============================================================================
-    var parameters       = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
-    var preloadSystemSFX = Boolean(parameters['Preload System SFX']     === 'true' || false);
-    var debug            = Boolean(parameters['Print Debug to Console'] === 'true' || false);
+    var parameters         = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
+    var preloadOnMapLoad   = Boolean(parameters['Preload On Map Load']       === 'true' || false);
+    var preloadSystemMusic = Boolean(parameters['Preload System Music']      === 'true' || false);
+    var preloadSystemSFX   = Boolean(parameters['Preload System SFX']        === 'true' || false);
+    var debug              = Boolean(parameters['Print Debug to Console']    === 'true' || false);
     if(debug) console.log("========= TDDP PreloadManager: Debug mode on =========")
 
     PreloadManager = function() {
@@ -473,10 +483,30 @@ var PreloadManager;
         }
         // Preload system SFX if set
         if(preloadSystemSFX) {
-            "========= TDDP PreloadManager: Boot Preloading System SFX ========="
+            if(debug) console.log("========= TDDP PreloadManager: Boot Preloading System SFX =========");
             for(var i = 0, max = $dataSystem.sounds.length; i < max; i++) {
                 PreloadManager.preloadSE($dataSystem.sounds[i]);
             }
+        }
+        // Preload system BGM and ME if set
+        if(preloadSystemMusic) {
+            if(debug) console.log("========= TDDP PreloadManager: Boot Preloading System Music =========");
+            [
+                $dataSystem.titleBgm,
+                $dataSystem.battleBgm,
+                $dataSystem.boat.bgm,
+                $dataSystem.ship.bgm,
+                $dataSystem.airship.bgm,
+            ].forEach(function(bgm) {
+                PreloadManager.preloadBGM(bgm);
+            });
+            [
+                $dataSystem.victoryMe,
+                $dataSystem.defeatMe,
+                $dataSystem.gameoverMe,
+            ].forEach(function(me) {
+                PreloadManager.preloadME(me);
+            });
         }
         PreloadManager.start();
     };
@@ -484,28 +514,30 @@ var PreloadManager;
     //=============================================================================
     // DataManager extensions
     //=============================================================================
-    var DataManager_loadMapData =
-        DataManager.loadMapData;
-    DataManager.loadMapData = function(mapId) {
-        if(debug) console.log("========= TDDP PreloadManager: Map Preload =========");
-        this._preloaded = false;
-        DataManager_loadMapData.call(this, mapId);
-        PreloadManager.preloadMapResources(mapId);
-        PreloadManager.callOnComplete(this._onPreloadDone.bind(this));
-    }
+    if (preloadOnMapLoad) {
+        var DataManager_loadMapData =
+            DataManager.loadMapData;
+        DataManager.loadMapData = function(mapId) {
+            if(debug) console.log("========= TDDP PreloadManager: Map Preload =========");
+            this._preloaded = false;
+            DataManager_loadMapData.call(this, mapId);
+            PreloadManager.preloadMapResources(mapId);
+            PreloadManager.callOnComplete(this._onPreloadDone.bind(this));
+        }
 
-    DataManager._onPreloadDone = function() {
-        this._preloaded = true;
-    }
+        DataManager._onPreloadDone = function() {
+            this._preloaded = true;
+        }
 
-    var DataManager_isMapLoaded =
-        DataManager.isMapLoaded;
-    DataManager.isMapLoaded = function() {
-        return (this.isMapDataLoaded() && this._preloaded);
-    }
+        var DataManager_isMapLoaded =
+            DataManager.isMapLoaded;
+        DataManager.isMapLoaded = function() {
+            return (this.isMapDataLoaded() && this._preloaded);
+        }
 
-    DataManager.isMapDataLoaded = function() {
-        return DataManager_isMapLoaded.call(this);
+        DataManager.isMapDataLoaded = function() {
+            return DataManager_isMapLoaded.call(this);
+        }
     }
 
     //=============================================================================
