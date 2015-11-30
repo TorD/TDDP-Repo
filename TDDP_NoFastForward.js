@@ -1,11 +1,11 @@
 //=============================================================================
 // TDDP_NoFastForward
-// Version: 2.0.0
+// Version: 2.1.0
 //=============================================================================
 var Imported = Imported || {};
-Imported.TDDP_NoFastForward = "2.0.0";
+Imported.TDDP_NoFastForward = "2.1.0";
 /*:
- * @plugindesc 2.0.0 Disables the ability to fast forward move routes and/or text.                                                          id:TDDP_NoFastForward
+ * @plugindesc 2.1.0 Disables the ability to fast forward move routes and/or text.                                                          id:TDDP_NoFastForward
  * @author Tor Damian Design / Galenmereth
  *
  * @param Disable for Move Routes
@@ -36,29 +36,35 @@ TDDP_NoFastForward = {};
     //=============================================================================
     // Setting up parameters and internal funcs. All bound to TDDP_NoFastForward object
     //=============================================================================
-    $.parameters               = $plugins.filter(function(p){return p.description.contains("id:TDDP_NoFastForward")})[0].parameters;
-    $.disableGlobalMoveRouteFf = Boolean($.parameters['Disable for Move Routes'] === 'true' || false);
-    $.disableGlobalTextFf      = Boolean($.parameters['Disable for Show Text']   === 'true' || false);
+    $._parameters               = $plugins.filter(function(p){return p.description.contains("id:TDDP_NoFastForward")})[0].parameters;
+    $._disableGlobalMoveRouteFF = Boolean($._parameters['Disable for Move Routes'] === 'true' || false);
+    $._disableGlobalTextFF      = Boolean($._parameters['Disable for Show Text']   === 'true' || false);
     /**
     * Disable text Fast Forwarding
-    * @method disableTextFf
+    * @method disableTextFF
     */
-    $.disableTextFf = function() {
+    $.disableTextFF = function() {
         this._textFfDisabled = true;
     }
     /**
     * Enable text Fast Forwarding
-    * @method enableTextFf
+    * @method enableTextFF
     */
-    $.enableTextFf = function() {
+    $.enableTextFF = function() {
         this._textFfDisabled = false;
+    }
+    $.disableNextTextFF = function() {
+        this._nextTextFfDisabled = true;
+    }
+    $.resetDisableNextTextFF = function() {
+        this._nextTextFfDisabled = false;
     }
     /**
     * Get if text Fast Forwarding is disabled
     * @method isTextFfDisabled
     */
     $.isTextFfDisabled = function() {
-        if (this._textFfDisabled || $.disableGlobalTextFf) return true;
+        if (this._nextTextFfDisabled || this._textFfDisabled || this._disableGlobalTextFF) return true;
         return false;
     }
     //=============================================================================
@@ -70,7 +76,10 @@ TDDP_NoFastForward = {};
     var _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function(command, args) {
         _Game_Interpreter_pluginCommand.call(this, command, args)
-        if (command.toUpperCase() === 'DISABLETEXTFF') $.disableTextFf();
+        command = command.toUpperCase();
+        if (command === 'ENABLETEXTFF') $.enableTextFF();
+        if (command === 'DISABLETEXTFF') $.disableTextFF();
+        if (command === 'DISABLENEXTTEXTFF') $.disableNextTextFF();
     };
     //=============================================================================
     // Scene_Map
@@ -80,18 +89,18 @@ TDDP_NoFastForward = {};
     */
     Scene_Map_prototype_isFastForward = Scene_Map.prototype.isFastForward;
     Scene_Map.prototype.isFastForward = function() {
-        if ($.disableGlobalMoveRouteFf) return false;
+        if ($._disableGlobalMoveRouteFF) return false;
         return Scene_Map_prototype_isFastForward.call(this);
     };
     //=============================================================================
     // Window_Message
     //=============================================================================
     /**
-    * @CHANGED Extending to reset enableTextFf flag on end of text
+    * @CHANGED Extending to run resetDisableNextTextFF()
     */
     Window_Message_prototype_onEndOfText = Window_Message.prototype.onEndOfText;
     Window_Message.prototype.onEndOfText = function() {
-        $.enableTextFf(); // Re-enable local text FF
+        $.resetDisableNextTextFF(); // Re-enable local text FF
         Window_Message_prototype_onEndOfText.call(this);
     };
 
