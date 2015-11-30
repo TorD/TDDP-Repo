@@ -87,7 +87,7 @@ TDDP_NoFastForward = {};
     // Window_Message
     //=============================================================================
     /**
-    * @CHANGED Extending to reset _noFastForward flag on new page
+    * @CHANGED Extending to reset enableTextFf flag on end of text
     */
     Window_Message_prototype_onEndOfText = Window_Message.prototype.onEndOfText;
     Window_Message.prototype.onEndOfText = function() {
