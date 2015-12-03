@@ -1,16 +1,16 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 1.1.0
+// Version: 1.1.1
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "1.1.0";
+Imported.TDDP_PreloadManager = "1.1.1";
 
 var TDDP = TDDP || {};
 TDDP.PreloadManager = TDDP.PreloadManager || {};
 //=============================================================================
 /*:
- * @plugindesc 1.1.0 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 1.1.1 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -420,6 +420,16 @@ var PreloadManager;
         return false;
     };
 
+    PreloadManager.isDatabaseLoaded = function() {
+        DataManager.checkError();
+        for (var i = 0; i < DataManager._databaseFiles.length; i++) {
+            if (!window[DataManager._databaseFiles[i].name]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     //=============================================================================
     // Scene_Boot extensions
     //=============================================================================
@@ -431,7 +441,7 @@ var PreloadManager;
     };
 
     Scene_Boot.prototype._performPreload = function() {
-        if(!DataManager.isDatabaseLoaded()) return setTimeout(this._performPreload.bind(this), 5);
+        if(!PreloadManager.isDatabaseLoaded()) return setTimeout(this._performPreload.bind(this), 5);
         if(debug) console.log("========= TDDP PreloadManager: Boot Preload =========");
         // Preload bootPreloadImages resources
         if(TDDP.bootPreloadImages) {
