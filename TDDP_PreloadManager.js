@@ -420,7 +420,7 @@ var PreloadManager;
         return false;
     };
 
-    PreloadManager.isDatabaseLoaded = function() {
+    var _isDatabaseLoaded = function() {
         DataManager.checkError();
         for (var i = 0; i < DataManager._databaseFiles.length; i++) {
             if (!window[DataManager._databaseFiles[i].name]) {
@@ -441,7 +441,7 @@ var PreloadManager;
     };
 
     Scene_Boot.prototype._performPreload = function() {
-        if(!PreloadManager.isDatabaseLoaded()) return setTimeout(this._performPreload.bind(this), 5);
+        if(!_isDatabaseLoaded()) return setTimeout(this._performPreload.bind(this), 5);
         if(debug) console.log("========= TDDP PreloadManager: Boot Preload =========");
         // Preload bootPreloadImages resources
         if(TDDP.bootPreloadImages) {
