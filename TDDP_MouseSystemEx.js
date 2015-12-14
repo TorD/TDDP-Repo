@@ -374,7 +374,7 @@ var TDDP_MouseSystemEx = {};
     var Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function(command, args) {
         Game_Interpreter_pluginCommand.call(this, command, args)
-        if (command === 'SetCustomCursor')      $._setCustomCursor(args);
+        if (command === 'SetCustomCursor')      $._setCustomCursor(args[0]);
         if (command === 'ResetCustomCursor')    $._resetCustomCursor();
     };
     //=============================================================================
