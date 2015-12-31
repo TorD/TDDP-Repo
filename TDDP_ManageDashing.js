@@ -1,20 +1,23 @@
 //=============================================================================
 // TDDP_ManageDashing
-// Version: 1.0.0
 //=============================================================================
 /*:
- * @plugindesc 1.0.0 Lets you manage the dashing mode in your game with simple plugin options.
+ * @plugindesc 1.0.1 Lets you manage the dashing mode in your game with simple plugin options.
  * @author Tor Damian Design / Galenmereth
  *
  * @param Disable Auto-dash
  * @desc If set to true this disables touch and mouse input to cause auto-dashing behavior. Can still use dash button.
  * @default false
  *
+ * @param Force Dashing
+ * @desc This forces dashing to be on in the game. This wil also remove the superfluous "Always Dash" game option if true.
+ * @default false
+ *
  * @param Disable Dashing
  * @desc If set to true this disables dashing in the game. This will also remove the "Always Dash" game option.
  * @default false
  *
- * @param Remove Dash Option
+ * @param Remove Always Dash Option
  * @desc If set to true this removes the "Always Dash" option from the game's options.
  * @default false
  *
@@ -40,26 +43,30 @@
  * everyone!
  */
  var Imported = Imported || {};
- Imported.TDDP_ManageDashing = "1.0.0";
+ Imported.TDDP_ManageDashing = "1.0.1";
 
  var TDDP_ManageDashing = {};
- (function() {
+ (function($) {
     "use strict";
-    var parameters = PluginManager.parameters('TDDP_ManageDashing');
-    TDDP_ManageDashing.disableAutoDash  = Boolean(parameters['Disable Auto-dash'] === 'true' || false);
-    TDDP_ManageDashing.disableDashing   = Boolean(parameters['Disable Dashing'] === 'true' || false);
-    TDDP_ManageDashing.removeDashOption = Boolean(parameters['Remove Dash Option'] === 'true' || false);
+
+    $.pluginParameters = PluginManager.parameters('TDDP_ManageDashing');
+    $.disableAutoDash  = Boolean($.pluginParameters['Disable Auto-dash'] === 'true' || false);
+    $.disableDashing   = Boolean($.pluginParameters['Disable Dashing'] === 'true' || false);
+    $.forceDashing     = Boolean($.pluginParameters['Force Dashing'] === 'true' || false);
+    $.removeDashOption = Boolean($.pluginParameters['Remove Always Dash Option'] === 'true' || false);
+
     /**
     * Whether Always Dash option should be shown
     */
-    TDDP_ManageDashing.showDashOption = function() {
-        if (this.disableDashing || this.removeDashOption) return false;
+    $.showDashOption = function() {
+        if (this.forceDashing || this.disableDashing || this.removeDashOption) return false;
         return true;
     }
     /**
     * Extended check for dashing based on plugin parameters
     */
-    TDDP_ManageDashing.dashing = function(gamePlayer) {
+    $.dashing = function(gamePlayer) {
+        if (this.forceDashing) return true;
         if (this.disableDashing) return false;
         if (this.disableAutoDash) {
             return gamePlayer.isDashButtonPressed();
@@ -68,13 +75,19 @@
             return ( gamePlayer.isDashButtonPressed() || $gameTemp.isDestinationValid() );
         }
     }
+    ///////////////////////////////////////////////////////////////////////////////
+    // Window_Options modifications                                              //
+    ///////////////////////////////////////////////////////////////////////////////
     /**
     * Add check to see if Dash option should be removed
     */
     Window_Options.prototype.addGeneralOptions = function() {
-        if (TDDP_ManageDashing.showDashOption()) this.addCommand(TextManager.alwaysDash, 'alwaysDash');
+        if ($.showDashOption()) this.addCommand(TextManager.alwaysDash, 'alwaysDash');
         this.addCommand(TextManager.commandRemember, 'commandRemember');
     };
+    ///////////////////////////////////////////////////////////////////////////////
+    // Game_Player modifications                                                 //
+    ///////////////////////////////////////////////////////////////////////////////
     /**
     * Alter functionality so that touch input doesn't force auto dash
     */
@@ -83,7 +96,7 @@
             return;
         }
         if (this.canMove() && !this.isInVehicle() && !$gameMap.isDashDisabled()) {
-            this._dashing = TDDP_ManageDashing.dashing(this);
+            this._dashing = $.dashing(this);
         } else {
             this._dashing = false;
         }
@@ -94,10 +107,10 @@
     Game_Player.prototype.isDashButtonPressed = function() {
         var shift = Input.isPressed('shift');
         // If Dash option is removed, don't respect Always Dash option settings.
-        if (ConfigManager.alwaysDash && TDDP_ManageDashing.showDashOption()) {
+        if (ConfigManager.alwaysDash && $.showDashOption()) {
             return !shift;
         } else {
             return shift;
         }
     };
- })();
+})(TDDP_ManageDashing);
