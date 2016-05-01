@@ -1,53 +1,4 @@
 //=============================================================================
-// TDDP_PreloadManager.js
-// Version: 2.0.0a
-//=============================================================================
-var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "2.0.0a";
-
-var TDDP = TDDP || {}; TDDP.PreloadManager = { config: {
-startupPreload: [ // !! Do not edit this line !!
-//-----------------------------------------------------------------------------
-// Preload on game start
-//-----------------------------------------------------------------------------
-// "audio/se/001-System01.ogg", // Specify individual files if you want to
-// "img/system", // Folders too; will load anything in the folder and subfolders
-], // !! Do not edit this line !!
-//-----------------------------------------------------------------------------
-// Preload on start that should NEVER be removed from cache
-//-----------------------------------------------------------------------------
-startupPreloadPermanent: [
-  // "audio/se/002-System02.ogg", // Works like
-],
-//-----------------------------------------------------------------------------
-// Folders to index when testing your game
-//-----------------------------------------------------------------------------
-foldersToIndex: [
-  "audio",
-  "img"
-],
-//-----------------------------------------------------------------------------
-// IGNORED FILES
-// - Files that should not be indexed
-//-----------------------------------------------------------------------------
-ignoredFiles: [
-  ".DS_Store", // OSX files often automatically generated
-  "_index.json", // Created by TDDP_MouseSystemEx
-],
-//-----------------------------------------------------------------------------
-// IGNORED FILE EXTENSIONS
-// - File types that should not be indexed
-//-----------------------------------------------------------------------------
-ignoredExtensions: [
-  "txt",
-],
-//-----------------------------------------------------------------------------
-// Index filename
-// - The index file that gets generated
-//-----------------------------------------------------------------------------
-indexFilename: ".PM_Index",
-}};
-//=============================================================================
 /*:
  * @plugindesc 2.0.0.a Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
@@ -60,6 +11,10 @@ indexFilename: ".PM_Index",
  * @param Audio Cache Limit
  * @desc The total size limit of the audio cache in MB. When exceeded the least used cached files will be purged
  * @default 200
+ *
+ * @param Simulate Latency
+ * @desc Simulate latency between file loads to simulate a slow connection. Value in milliseconds.
+ * @default 0
  *
  * @param Print Debug to Console
  * @desc If you want to see debug information in the console (F8) set this to true.
@@ -83,6 +38,7 @@ indexFilename: ".PM_Index",
   $.settings.audioCacheLimit = parseInt($.settings.parameters['Audio Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
   $.settings.printDebug      = Boolean($.settings.parameters['Print Debug to Console'] === 'true' || false);
   $.settings.logLevel        = $.settings.logLevels.indexOf(String($.settings.parameters['Print Debug Level']));
+  $.settings.simulateLatency    = parseInt($.settings.parameters['Simulate Latency'], 10);
   //=============================================================================
   // asEventDispatcher functional mixin
   //=============================================================================
@@ -452,6 +408,7 @@ indexFilename: ".PM_Index",
   // Main functionality
   //=============================================================================
   $.mixins.asEventDispatcher.call($); // Act as EventDispatcher
+  $._preloadActive = false;
   $.eventListeners = [];
   $.events = {
     onPreloadStart:    "preloadStart",
@@ -489,6 +446,7 @@ indexFilename: ".PM_Index",
    * @static
    */
   $.performBootPreload = function() {
+    if (!$dataSystem) return setTimeout($.performBootPreload.bind(this), 1);
     $.helper.log("info", "====== Preloading startup files ======");
     $.queueFilesForPreload($.config.startupPreload);
     $.queueFilesForPreload($.config.startupPreloadPermanent, false);
@@ -548,7 +506,7 @@ indexFilename: ".PM_Index",
     }
   }
   /**
-   * Queue audio file for preload
+   * Queue audio file for preload.
    * @static
    * @param type {String} Type of audio. Corresponds to subfolders in audio/
    * @param title {String} The audio file without extension
@@ -559,7 +517,7 @@ indexFilename: ".PM_Index",
     return $.queueFileForPreload(["audio", type, title].join("/") + AudioManager.audioFileExt(), garbageCollectable);
   }
   /**
-   * Queue image file for preload
+   * Queue image file for preload.
    * @static
    * @param type {String} Type of image. Corresponds to subfolders in img/
    * @param title {String} The image file without extension
@@ -613,6 +571,7 @@ indexFilename: ".PM_Index",
    * @static
    */
   $.pruneMemoryUse = function() {
+    // Audio
     if ($.settings.audioCacheLimit > 0 && $.cache.audioBytesTotal > $.settings.audioCacheLimit) {
       $.helper.log("info", "====== Pruning audio cache:", $.helper.toKB($.cache.audioBytesTotal), "kB /", $.helper.toKB($.settings.audioCacheLimit), "kB used ======");
       var originalAudioBytesTotal = $.cache.audioBytesTotal;
@@ -623,6 +582,7 @@ indexFilename: ".PM_Index",
       });
       $.helper.log("Pruned", files, "audio files for a total of", $.helper.toKB(originalAudioBytesTotal - $.cache.audioBytesTotal), "kB");
     }
+    // Images
     if ($.settings.imageCacheLimit > 0 && $.cache.imageBytesTotal > $.settings.imageCacheLimit) {
       $.helper.log("info", "====== Pruning image cache:", $.helper.toKB($.cache.imageBytesTotal), "kB /", $.helper.toKB($.settings.imageCacheLimit), "kB used ======");
       var originalImageBytesTotal = $.cache.imageBytesTotal;
@@ -780,7 +740,7 @@ indexFilename: ".PM_Index",
    * @return {Boolean}
    */
   $.isLoading = function() {
-    return this._preloadActive && this.sizeLoaded() < this.sizeTotal();
+    return this._preloadActive && this.sizeLoaded() != this.sizeTotal();
   }
   /**
    * Retrieve and remove the first {PreloadObject} in queue
@@ -841,11 +801,9 @@ indexFilename: ".PM_Index",
       preloadObject.addEventListener(PreloadObject.events.onLoad, function(evt) {
         tickLoaded(evt);
         $.cache.addPreloadObject(preloadObject);
-        $._preloadActive = false;
-        // Fire off progress event
-        // $.dispatchEvent(new Event($.events.onPreloadProgress));
         // Load next object if any
-        $._preloadLooper();
+        $._preloadActive = false;
+        setTimeout($._preloadLooper.bind(this), $.settings.simulateLatency);
       });
       // Start
       preloadObject.load();
@@ -985,6 +943,7 @@ indexFilename: ".PM_Index",
     switch (this.fileType) {
       case "image":
         this.data = new Bitmap();
+        this.data._isLoading = true;
         break;
       case "audio":
         this.data = new WebAudio(this.path, false);
@@ -1050,6 +1009,7 @@ indexFilename: ".PM_Index",
     listenerId = $.addEventListener($.events.onIndexLoad, function() {
       Scene_Boot_prototype_create.call(this);
       $.removeEventListener(listenerId);
+      $.performBootPreload();
     }.bind(this));
     $.loadIndexFile();
   };
@@ -1057,15 +1017,15 @@ indexFilename: ".PM_Index",
    * Extend to perform boot preload before actually starting, and to fetch images
    * after they are preloaded
    */
-  var Scene_Boot_prototype_start = Scene_Boot.prototype.start;
-  Scene_Boot.prototype.start = function() {
-    var listenerId = null;
-    listenerId = $.addEventListener($.events.onPreloadLoad, function() {
-      Scene_Boot_prototype_start.call(this);
-      $.removeEventListener(listenerId);
-    }.bind(this));
-    $.performBootPreload();
-  };
+  // var Scene_Boot_prototype_start = Scene_Boot.prototype.start;
+  // Scene_Boot.prototype.start = function() {
+  //   var listenerId = null;
+  //   listenerId = $.addEventListener($.events.onPreloadLoad, function() {
+  //     Scene_Boot_prototype_start.call(this);
+  //     $.removeEventListener(listenerId);
+  //   }.bind(this));
+  //   // $.performBootPreload();
+  // };
   /**
    * Overwrite so it queues files for preload rather than start loading all immediately
    */
@@ -1081,9 +1041,13 @@ indexFilename: ".PM_Index",
      "Weapons2",
      "Weapons3",
      "ButtonSet"].forEach(function(image) {
-       ImageManager._cache["img/system/" + image + ":0"] = $.queueImageFileForPreload("system", image);
+       ImageManager._cache["img/system/" + image + ":0"] = $.queueImageFileForPreload("system", image).data;
      })
   };
+  // var Scene_Boot_prototype_isReady = Scene_Boot.prototype.isReady;
+  // Scene_Boot.prototype.isReady = function() {
+  //   return DataManager.isDatabaseLoaded() && this.isGameFontLoaded();
+  // }
   //=============================================================================
   // Scene_Base extensions
   //=============================================================================
@@ -1092,8 +1056,7 @@ indexFilename: ".PM_Index",
    */
   var Scene_Base_prototype_isReady = Scene_Base.prototype.isReady;
   Scene_Base.prototype.isReady = function() {
-    return !$.isLoading(); // Extend so that during preloading the scene is not determined as ready
-    // return Scene_Base_prototype_isReady.call(this);
+    return !$.isLoading() && !$.hasAnyInPreloadQueue() && Scene_Base_prototype_isReady.call(this); // Extend so that during preloading the scene is not determined as ready
   }
   /**
    * Extend to call ImageManager.clear() on scene creation
