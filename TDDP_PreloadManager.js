@@ -824,13 +824,13 @@ indexFilename: ".PM_Index",
     xhr.open('GET', url);
     xhr.overrideMimeType('application/json');
     xhr.onload = function() {
-        if (xhr.status < 400) {
-          $.indexFile = JSON.parse(xhr.responseText);
-          $.helper.log("Successfully loaded index file.");
-          // Dispatch event
-          var completeEvent = new Event($.events.onIndexLoad)
-          $.dispatchEvent(completeEvent);
-        }
+      if (xhr.status < 400) {
+        $.indexFile = JSON.parse(xhr.responseText);
+        $.helper.log("Successfully loaded index file.");
+        // Dispatch event
+        var completeEvent = new Event($.events.onIndexLoad)
+        $.dispatchEvent(completeEvent);
+      }
     };
     xhr.onerror = function() {
         throw new Error("Could not load TDDP.PreloadManager index file.");
