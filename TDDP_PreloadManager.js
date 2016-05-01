@@ -1,603 +1,1235 @@
 //=============================================================================
 // TDDP_PreloadManager.js
-// Version: 1.1.1
+// Version: 2.0.0a
 //=============================================================================
-
 var Imported = Imported || {};
-Imported.TDDP_PreloadManager = "1.1.1";
+Imported.TDDP_PreloadManager = "2.0.0a";
 
-var TDDP = TDDP || {};
-TDDP.PreloadManager = TDDP.PreloadManager || {};
+var TDDP = TDDP || {}; TDDP.PreloadManager = { config: {
+startupPreload: [ // !! Do not edit this line !!
+//-----------------------------------------------------------------------------
+// Preload on game start
+//-----------------------------------------------------------------------------
+// "audio/se/001-System01.ogg", // Specify individual files if you want to
+// "img/system", // Folders too; will load anything in the folder and subfolders
+], // !! Do not edit this line !!
+//-----------------------------------------------------------------------------
+// Preload on start that should NEVER be removed from cache
+//-----------------------------------------------------------------------------
+startupPreloadPermanent: [
+  // "audio/se/002-System02.ogg", // Works like
+],
+//-----------------------------------------------------------------------------
+// Folders to index when testing your game
+//-----------------------------------------------------------------------------
+foldersToIndex: [
+  "audio",
+  "img"
+],
+//-----------------------------------------------------------------------------
+// IGNORED FILES
+// - Files that should not be indexed
+//-----------------------------------------------------------------------------
+ignoredFiles: [
+  ".DS_Store", // OSX files often automatically generated
+  "_index.json", // Created by TDDP_MouseSystemEx
+],
+//-----------------------------------------------------------------------------
+// IGNORED FILE EXTENSIONS
+// - File types that should not be indexed
+//-----------------------------------------------------------------------------
+ignoredExtensions: [
+  "txt",
+],
+//-----------------------------------------------------------------------------
+// Index filename
+// - The index file that gets generated
+//-----------------------------------------------------------------------------
+indexFilename: ".PM_Index",
+}};
 //=============================================================================
 /*:
- * @plugindesc 1.1.1 Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
+ * @plugindesc 2.0.0.a Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
  * @author Tor Damian Design / Galenmereth
  *
- * @param Preload On Map Load
- * @desc If you want to preload all assets found on a map upon loading the map, set this to true.
- * @default true
+ * @param Image Cache Limit
+ * @desc The total size limit of the image cache in MB. When exceeded the least used cached files will be purged
+ * @default 500
  *
- * @param Preload System Music
- * @desc If you want to preload all the Music specified in the Database System tab on startup, set this to true.
- * @default false
- *
- * @param Preload System SFX
- * @desc If you want to preload all the SFX specified in the Database System tab on startup, set this to true.
- * @default false
+ * @param Audio Cache Limit
+ * @desc The total size limit of the audio cache in MB. When exceeded the least used cached files will be purged
+ * @default 200
  *
  * @param Print Debug to Console
  * @desc If you want to see debug information in the console (F8) set this to true.
- * @default false
+ * @default true
  *
- * @help =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * Introduction / Table of contents
- * =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~
- * TDDP PreloadManager lets you preload resources on both startup (before the
- * game title screen displays) and on map load (in between map transfers) to
- * ensure resources such as pictures, music and sound effects are preloaded
- * before called.
- *
- * By default MV will stream the resources as they are required. This plugin
- * serves as an alternative for a smoother gameplay experience at the cost of
- * more bandwidth.
- *
- * This Plugin will load all resources in all event pages on the map,
- * regardless of if they will be triggered by the player at any time or not.
- * Since page conditions cannot be predicted as they are dependent on player
- * interaction, this is a necessity to ensure the right files are ready and
- * preloaded.
- *
- * For updates and easy to use documentation, please go to the plugin's website:
- * http://mvplugins.tordamian.com/?p=29
- *
- * There you can also download a PDF of the documentation for offline use, and
- * having the documentation in one cleanly presented place means you can always
- * be sure it's the most recent available.
- *
- * Table of contents
- * -----------------
- * 1. Installation
- * 2. Advanced Configuration
- * 3. Terms & Conditions
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 1. Installation
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * Drag and drop plugin .js file into your project's js/plugins folder, then
- * enable it in the editor interface.
- *
- * Make sure this plugin is placed at the top for maximum compatibility.
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 2. Advanced Configuration
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * There is an advanced configuration section if you open the plugin .js file
- * in a text editor. Look for BOOT PRELOAD CONFIG -- ADVANCED USERS. This lets
- * you define resources to preload on boot manually.
- *
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * 3. Terms & Conditions
- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- * This plugin is free for both non-commercial and commercial use. Please see
- * http://mvplugins.tordamian.com/terms-of-use for the full terms of use.
- *
- * A big thank you to Degica for making this plugin free for commercial use for
- * everyone!
+ * @param Print Debug Level
+ * @desc The type of debug output you like to see in the console. From most to least: debug | info | warn | error
+ * @default warn
  */
-/*
-* =============================================================================
-* BOOT PRELOAD CONFIG -- ADVANCED USERS
-* =============================================================================
-*
-* Tip: You can omit the filename, it will assume .png since this is what MV
-* prefers.
-*
-* -----------------------------------------------------------------------------
-* Image files to load on boot:
-* -----------------------------------------------------------------------------
-* Keys:
-*   animation
-*   battleback1
-*   battleback2
-*   character
-*   enemy
-*   face
-*   parallax
-*   picture
-*   svActor
-*   svEnemy
-*   system
-*   tileset
-*   title1
-*   title2
-*
-* If you have subfolders in any of these folders, just prepend that to the
-* filename, like this example, where the picture "arrow" is in the "cursors"
-* subfolder within the system folder:
-*
-* system: [
-*   "balloon",
-*   "cursors/arrow"
-* ]
-*/
-TDDP.bootPreloadImages = {
-    /* Example
-    face: [
-        "Actor3"
-    ],
-    system: [
-      "myFile",
-      "subfolder/myOtherFile"
-    ]
-    */
-}
-/*
-*
-* -----------------------------------------------------------------------------
-* BGM files to load on boot
-* -----------------------------------------------------------------------------
-*/
-TDDP.bootPreloadBGM = [
-    // "Town1"
-]
-/*
-*
-* -----------------------------------------------------------------------------
-* BGS files to load on boot
-* -----------------------------------------------------------------------------
-*/
-TDDP.bootPreloadBGS = [
-    // "Quake"
-]
-/*
-*
-* -----------------------------------------------------------------------------
-* SFX files to load on boot.
-* -----------------------------------------------------------------------------
-*/
-TDDP.bootPreloadSE = [
-    // "Open2"
-]
-/*
-*
-* -----------------------------------------------------------------------------
-* ME files to load on boot.
-* -----------------------------------------------------------------------------
-*/
-TDDP.bootPreloadME = [
-    // "Shock1"
-]
-//=============================================================================
-// END OF BOOT PRELOAD CONFIG
-//=============================================================================
-var PreloadManager;
-(function() {
-    "use strict";
-    // Skip preloading if event test
-    if (DataManager.isEventTest()) return;
-    //=============================================================================
-    // Setting up parameters
-    //=============================================================================
-    var parameters         = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
-    var preloadOnMapLoad   = Boolean(parameters['Preload On Map Load']       === 'true' || false);
-    var preloadSystemMusic = Boolean(parameters['Preload System Music']      === 'true' || false);
-    var preloadSystemSFX   = Boolean(parameters['Preload System SFX']        === 'true' || false);
-    var debug              = Boolean(parameters['Print Debug to Console']    === 'true' || false);
-    if(debug) console.log("========= TDDP PreloadManager: Debug mode on =========")
-
-    PreloadManager = function() {
-        throw new Error('This is a static class');
-    };
-
-    PreloadManager._callOnComplete = false;
-    PreloadManager._filesLoaded = 0;
-    PreloadManager._filesTotal = 0;
-    PreloadManager._ready = false;
-    PreloadManager._preloadedMaps = [];
-    PreloadManager._preloadedAudio = [];
-    PreloadManager._sessionRequestedImages = [];
-
-    PreloadManager.callOnComplete = function(func) {
-        this._callOnComplete = func;
-    };
-
-    PreloadManager.start = function() {
-        this._ready = true;
-        this._sessionRequestedImages = [];
-        this.controlIfReady(true);
-    };
-
-    PreloadManager._projectPath = function() {
+(function($) {
+  "use strict";
+  //=============================================================================
+  // Setting up parameters
+  //=============================================================================
+  $.settings = {}; // Setup settings namespace object
+  // Static
+  $.settings.logLevels = ["error", "warn", "info", "debug"];
+  // Dynamic from plugin settings
+  $.settings.parameters = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
+  $.settings.imageCacheLimit = parseInt($.settings.parameters['Image Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
+  $.settings.audioCacheLimit = parseInt($.settings.parameters['Audio Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
+  $.settings.printDebug      = Boolean($.settings.parameters['Print Debug to Console'] === 'true' || false);
+  $.settings.logLevel        = $.settings.logLevels.indexOf(String($.settings.parameters['Print Debug Level']));
+  //=============================================================================
+  // asEventDispatcher functional mixin
+  //=============================================================================
+  $.mixins = {
+    /**
+     * Required instance params when mixed in
+     * @param eventListeners {Array} To hold event listeners per instance
+     */
+    asEventDispatcher: function() {
+      /**
+       * Add an event listener
+       * @param type {String}
+       * @param eventHandler {Function}
+       * @return {Integer} The listener id
+       */
+      this.addEventListener = function(type, eventHandler) {
+        var listener = Object();
+        listener.type = type;
+        listener.eventHandler = eventHandler;
+        this.eventListeners.push(listener);
+        return this.eventListeners.length - 1;
+      }
+      /**
+       * Remove a registered event listener tied to an event type and handler
+       * @param type {String} Event type
+       * @param eventHandler {Function}
+       */
+      this.removeEventListener = function(listenerId) {
+        this.eventListeners.splice(listenerId, 1);
+      }
+      /**
+       * Dispatch an event
+       * @param event {String} Type of event to dispatch
+       *
+       * This uses filter and then a forEach to counter the problem where calling
+       * removeEventListener whilst dispatchEvent is looping through array causes it to
+       * possibly "skip" a valid event.
+       */
+      this.dispatchEvent = function(event) {
+        this.eventListeners.filter(function(eventListener) {
+          return eventListener.type == event.type;
+        }).forEach(function(eventListener) {
+          eventListener.eventHandler(event);
+        });
+      }
+    }
+  };
+  //=============================================================================
+  // Array extension
+  // Credits: http://stackoverflow.com/a/5306832
+  //=============================================================================
+  Array.prototype.move = function (old_index, new_index) {
+    if (new_index >= this.length) {
+        var k = new_index - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
+        }
+    }
+    this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    return this; // for testing purposes
+  };
+  //=============================================================================
+  // Helper methods
+  //=============================================================================
+  $.helper = {
+    /**
+     * Get the current full project path
+     * @static
+     * @return {String}
+     */
+    projectPath: function() {
+      if(!this.projectPathVar) {
         var path = window.location.pathname.replace(/\/[^\/]*$/, "/");
         if (path.match(/^\/([A-Z]\:)/)) {
             path = path.slice(1);
         }
-        return decodeURIComponent(path);
-    };
+        this.projectPathVar = decodeURIComponent(path);
+      }
+      return this.projectPathVar;
+    },
+    /**
+     * Get the full path to the index file
+     * @static
+     * @return {String}
+     */
+    indexFilePath: function() {
+      if (!this.indexFilePathVar) {
+        this.indexFilePathVar = [this.projectPath(), $.config.indexFilename].join("");
+      }
+      return this.indexFilePathVar;
+    },
+    toMB: function(bytes) {
+      return Math.floor(this.toKB(bytes) / 1000);
+    },
+    toKB: function(bytes) {
+      return Math.floor(bytes / 1000);
+    },
+    /**
+    * Log helper with check whether printDebug is enabled in plugin settings
+    * @static
+    * @return Void
+    */
+    log: function() {
+      var args = Array.prototype.slice.call(arguments, 0)
 
-    PreloadManager.controlAudioFileExistence = function(folder, filename) {
-        this.controlFileExistence("audio/" + folder + "/", filename, [".m4a", ".ogg"]);
-    };
+      var logIndex = $.settings.logLevels.indexOf(args[0]);
+      if (logIndex >= 0) {
+        args.shift(); // Delete log level if present
+      } else {
+        logIndex = 3;
+      }
+      if ($.settings.logLevel < logIndex) return;
 
-    PreloadManager.controlFileExistence = function(folder, filename, extensions) {
-        if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
-            var fs = require("fs");
-            var path = this._projectPath() + folder + filename;
-            for (var i=0, max=extensions.length; i < max; i++) {
-                if (fs.existsSync(path + extensions[i])) return true;
-            }
-            throw new Error("PreloadManager: File " + folder + filename + " could not be found. Does it exist?")
+      if ($.settings.printDebug) console.log( ["PreloadManager " + ($.settings.logLevels[logIndex].slice() + "     ").substring(0, 5) + " ›"].concat(args).join(" ") )
+    },
+    /**
+    * Helper to check whether preloading should be skipped depending on environment
+    * @static
+    * @return {Boolean}
+    */
+    skipPreloading: function() {
+      if (DataManager.isEventTest()) return true;
+    },
+    /**
+     * Check if in dev mode
+     * @static
+     * @return {Boolean}
+     */
+    isDevMode: function() {
+      return (StorageManager.isLocalMode() && Utils.isOptionValid('test'));
+    },
+    /**
+     * Check if in prod mode
+     * @static
+     * @return {Boolean}
+     */
+    isProdMode: function() {
+      return !this.isDevMode();
+    },
+    /**
+     * Transform a local project path to a full path
+     * @static
+     * @return {String} Full path
+     */
+    localToFullPath: function(localPath) {
+      return [this.projectPath(), localPath].join("/");
+    },
+  };
+
+  //=============================================================================
+  // Skip preloading if flags are true
+  //=============================================================================
+  if ($.helper.skipPreloading()) return;
+  //=============================================================================
+  // Development only functionality
+  //=============================================================================
+  $.dev = {
+    /**
+    * Provides node filesystem access if in local dev mode
+    * @static
+    * @var fs
+    */
+    fs: $.helper.isDevMode() ? require("fs") : false,
+    /**
+    * Check the existence of a given file
+    * @static
+    * @param folder {String} The folder path with trailing /
+    * @param filename {String} The filename without file extension
+    * @param extension {String} The file extension including .
+    * @return {Boolean}
+    */
+    controlFileExistence: function(folder, filename, extension) {
+      var path = this.helper.projectPath() + folder + filename + extension;
+      return $.dev.fs.existsSync(path);
+    },
+    /**
+     * Crawl and write folder contents to an index object
+     * @static
+     * @param localPath {String} The full local path to the folder/file, i.e audio/bgm
+     * @param index {Object} The object to write the index to
+     * @return {Object} Returns the index object
+     */
+    crawlAndGetFolderContents: function(localPath, index) {
+      var fullPath = $.helper.localToFullPath(localPath);
+
+      // Get list of files / folders filtered
+      var list = $.dev.fs.readdirSync(fullPath).filter(function(f) {
+        return $.dev.validFile(f);
+      });
+
+      // Separate files and folders
+      var folders = [];
+      list.forEach(function(f) {
+        var _localPath = [localPath, f].join("/");
+        var _fullPath = [fullPath, f].join("/");
+        var stats = $.dev.fs.statSync(_fullPath);
+
+        if (stats.isDirectory()) {
+          index[f] = index[f] || {};
+          var subfolderFiles = $.dev.crawlAndGetFolderContents(_localPath, index[f]);
+        } else if (stats.isFile()) {
+          index[f] = stats.size;
         }
-    };
+      })
 
-    PreloadManager.preloadImages = function(type, filename, hue) {
-        if(filename.constructor === Array) {
-            for(var i = 0; i < filename.length; i++) {
-                this.preloadImages(type, filename[i], hue);
-            }
+      return index;
+    },
+    /**
+     * @static
+     * @param f {String} File path to check for validity for indexing
+     * @return {Boolean}
+     */
+    validFile: function(f) {
+      return $.config.ignoredFiles.indexOf(f) < 0 &&
+        $.config.ignoredExtensions.indexOf(f.split(".").slice(-1)[0].toLowerCase()) < 0;
+    },
+    /**
+     * Crawl and index assets
+     * @static
+     */
+    crawlAndIndexAllAssets: function() {
+      $.helper.log("info", "====== Crawling assets and generating index file ======")
+      $.helper.log("The project root path is resolved to:", $.helper.projectPath());
+      $.helper.log("Directories to index:", $.config.foldersToIndex.join(", "))
+
+      var index = {};
+      $.config.foldersToIndex.forEach(function(folder) {
+        $.helper.log("Crawling:", folder);
+        index[folder] = {};
+        $.dev.crawlAndGetFolderContents(folder, index[folder]);
+      });
+      $.helper.log("All crawls successful");
+
+      // Save index file
+      $.dev.fs.writeFileSync($.helper.indexFilePath(), JSON.stringify(index));
+      $.helper.log("Index file saved:", [$.helper.projectPath(), $.config.indexFilename].join(""));
+    },
+  };
+  //=============================================================================
+  // Queue object
+  //=============================================================================
+  $.queue = { // Queue specific functions and vars
+    /**
+     * The queue of preloadObjects
+     * @static
+     * @var {Array}
+     */
+    preloadObjects: [],
+    /**
+     * The total queued filesize to load (in Bytes)
+     * @static
+     * @var {Integer}
+     */
+    sizeTotal: 0,
+    /**
+     * The loaded filesize so far (in Bytes)
+     * @static
+     * @var {Integer}
+     */
+    sizeLoaded: 0,
+    /**
+     * Reset queue
+     * @static
+     */
+    reset: function() {
+      this.preloadObjects = [];
+      this.sizeTotal      = 0;
+      this.sizeLoaded     = 0;
+    }
+  };
+  //=============================================================================
+  // Cache object
+  //=============================================================================
+  $.cache = {
+    /**
+     * @static
+     * @var preloadedObjects {Array} The cache array
+     */
+    preloadedObjects: [],
+    /**
+     * @static
+     * @var audioBytesTotal {Integer} The bytes total of audio objects in cache
+     */
+    audioBytesTotal: 0,
+    /**
+     * @static
+     * @var imageBytesTotal {Integer} The bytes total of image objects in cache
+     */
+    imageBytesTotal: 0,
+    /**
+     * Add a given PreloadObject to the cache
+     * @static
+     * @param preloadObject {PreloadObject}
+     */
+    addPreloadObject: function(preloadObject) {
+      if (preloadObject.isAudio()) {
+        this.audioBytesTotal += preloadObject.fileSize;
+      } else {
+        this.imageBytesTotal += preloadObject.fileSize;
+      }
+      this.preloadedObjects.unshift(preloadObject);
+    },
+    /**
+     * Remove a given PreloadObject from the cache
+     * @static
+     * @param preloadObject {PreloadObject}
+     * @return {PreloadObject} or {Boolean} if false
+     */
+    removePreloadObject: function(preloadObject) {
+      var index = this.preloadedObjects.indexOf(preloadObject);
+      if (!preloadObject.garbageCollectable) return false;
+      if (index >= 0) {
+        if (preloadObject.isAudio()) {
+          this.audioBytesTotal -= preloadObject.fileSize;
         } else {
-            if(filename.length > 0) {
-                if (this._isImageRequested(type, filename)) return;
-                var func = "load" + type.charAt(0).toUpperCase() + type.substr(1).toLowerCase();
-                if(typeof ImageManager[func] === 'undefined') {
-                    e = "PreloadManager: " + type + " is not a valid image load key. Check your configuration.";
-                    Graphics.printError(e);
-                    throw new Error(e);
-                }
-                this._increaseFileNums();
-                ImageManager[func](filename, hue).addLoadListener(this.onFileLoaded.bind(this, "(" + type + ") " + filename));
-                this._registerRequestedImage(type, filename);
-            }
+          this.imageBytesTotal -= preloadObject.fileSize;
         }
-    };
-
-    PreloadManager.preloadBGM = function(audioObject) {
-        this.preloadAudio("bgm", audioObject);
-    };
-
-    PreloadManager.preloadBGS = function(audioObject) {
-        this.preloadAudio("bgs", audioObject);
-    };
-
-    PreloadManager.preloadSE = function(audioObject) {
-        this.preloadAudio("se", audioObject);
-    }
-
-    PreloadManager.preloadME = function(audioObject) {
-        this.preloadAudio("me", audioObject);
-    }
-
-    PreloadManager.preloadAudio = function(type, audioObject) {
-        if (!audioObject) return;
-        if(audioObject.constructor === Array) {
-            for(var i = 0, max = audioObject.length; i < max; i++) {
-                this.preloadAudio(type, audioObject[i]);
-            }
-        } else {
-            if(audioObject.name.length <= 0) return;
-            if(this.isAudioCached(type, audioObject.name)) {
-                if(debug) console.log(type + "/" + audioObject.name + " already preloaded; skipping.");
-                return;
-            }
-            this._increaseFileNums();
-            this.controlAudioFileExistence(type, audioObject.name);
-            var bufferObject = AudioManager.createBuffer(type, audioObject.name);
-            bufferObject.addLoadListener(this.onAudioFileLoaded.bind(this, type, audioObject.name));
-        }
-    }
-
-    PreloadManager.preloadAnimation = function(animationId) {
-        var animation = $dataAnimations[animationId];
-        this.preloadImages('animation', [animation.animation1Name, animation.animation2Name]);
-        for(var i=0, max=animation.timings.length; i<max; i++) {
-            var se = animation.timings[i].se;
-            this.preloadSE(se);
-        }
-    }
-
-    PreloadManager.preloadMapResources = function(mapId) {
-        this._ready = false;
-        // Wait and ensure map is loaded
-        if(!DataManager.isMapDataLoaded()) return setTimeout(this.preloadMapResources.bind(this, mapId), 100);
-        var mapDebugName = mapId + " (" + $dataMapInfos[mapId].name + ")";
-        if(this._preloadedMaps.indexOf(mapId) > -1) {
-            if(debug) console.log("Map " + mapDebugName + " already preloaded, skipping.");
-        } else {
-            if(debug) console.log("Map " + mapDebugName + " preload starting.");
-            // Map is loaded, preload resources now
-            this.preloadBGM($dataMap.bgm);
-            this.preloadBGS($dataMap.bgs);
-            this.preloadImages('battleback1', $dataMap.battleback1Name);
-            this.preloadImages('battleback2', $dataMap.battleback2Name);
-            this.preloadImages('parallax', $dataMap.parallaxName);
-            // Cycle events and load appropriate resources
-            for(var i = 0, max = $dataMap.events.length; i < max; i++) {
-                var event = $dataMap.events[i];
-                if(!event) continue;
-                for(var p = 0, pMax = event.pages.length; p < pMax; p++) {
-                    var page = event.pages[p];
-                    // Preload character graphic for page
-                    this.preloadImages('character', page.image.characterName);
-                    for(var l = 0, lMax = page.list.length; l < lMax; l++) {
-                        var listEntry = page.list[l];
-                        this.preloadEventListEntry(listEntry);
-                    }
-                }
-            };
-            this._preloadedMaps.push(mapId);
-        }
-        this.start(true);
-    };
-
-    PreloadManager.preloadEventListEntry = function(listEntry) {
-        var code = listEntry.code;
-        var parameters = listEntry.parameters;
-        switch(code) {
-            // Show Picture
-            case 231:
-                this.preloadImages('picture', parameters[1]);
-                break;
-            // Play BGM
-            case 241:
-                this.preloadBGM(parameters[0]);
-                break;
-            // Play BGS
-            case 245:
-                this.preloadBGS(parameters[0]);
-                break;
-            // Play ME
-            case 249:
-                this.preloadME(parameters[0]);
-                break;
-            // Play SE
-            case 250:
-                this.preloadSE(parameters[0]);
-                break;
-            // Change Parallax
-            case 284:
-                this.preloadImages('parallax', parameters[0]);
-                break;
-            // Show Text
-            case 101:
-                this.preloadImages('face', parameters[0]);
-                break;
-            // Show Animation
-            case 212:
-                this.preloadAnimation(parameters[1]);
-                break;
-        }
-    };
-
-    PreloadManager.onFileLoaded = function(filename) {
-        this._filesLoaded += 1;
-        if(debug) console.log("Loaded file: " + filename + "(" + this._filesLoaded + "/" + this._filesTotal + ")");
-        this.controlIfReady();
-    };
-
-    PreloadManager.onAudioFileLoaded = function(type, filename) {
-        this._cacheAudio(type, filename);
-        this.onFileLoaded("(" + type + ") " + filename);
-    };
-
-    PreloadManager.controlIfReady = function(manual) {
-        if(this.isReady()) {
-            if(debug && !manual) console.log("All files loaded (" + this._filesLoaded + "/" + this._filesTotal + ")");
-            this._filesTotal = this._filesLoaded = 0;
-            if(this._callOnComplete) {
-                this._callOnComplete.call();
-            }
-        }
-    }
-
-    PreloadManager._cacheAudio = function(path, filename) {
-        this._preloadedAudio.push(path + filename);
-    };
-
-    PreloadManager._registerRequestedImage = function(type, filename) {
-        this._sessionRequestedImages.push(type + filename);
-    };
-
-    PreloadManager._isImageRequested = function(type, filename) {
-        return this._sessionRequestedImages.indexOf(type + filename) > -1;
-    }
-
-    PreloadManager.isAudioCached = function(path, filename) {
-        return this._preloadedAudio.indexOf(path + filename) > -1;
-    }
-
-    PreloadManager._increaseFileNums = function() {
-        this._ready = false;
-        this._filesTotal +=1;
-    };
-
-    PreloadManager.isReady = function() {
-        if(this._filesLoaded >= this._filesTotal) {
-            if(this._ready || this._filesTotal == 0) {
-                return true;
-            }
-        }
+        return this.preloadedObjects.splice(index, 1);
+      } else {
         return false;
-    };
-
-    var _isDatabaseLoaded = function() {
-        DataManager.checkError();
-        for (var i = 0; i < DataManager._databaseFiles.length; i++) {
-            if (!window[DataManager._databaseFiles[i].name]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //=============================================================================
-    // Scene_Boot extensions
-    //=============================================================================
-    var Scene_Boot_prototype_create =
-        Scene_Boot.prototype.create;
-    Scene_Boot.prototype.create = function() {
-        Scene_Boot_prototype_create.call(this);
-        this._performPreload();
-    };
-
-    Scene_Boot.prototype._performPreload = function() {
-        if(!_isDatabaseLoaded()) return setTimeout(this._performPreload.bind(this), 5);
-        if(debug) console.log("========= TDDP PreloadManager: Boot Preload =========");
-        // Preload bootPreloadImages resources
-        if(TDDP.bootPreloadImages) {
-            for(var key in TDDP.bootPreloadImages) {
-                if(TDDP.bootPreloadImages.hasOwnProperty(key)) {
-                    PreloadManager.preloadImages(key, TDDP.bootPreloadImages[key]);
-                }
-            }
-        }
-        // Preload bootPreloadBGM resources
-        if(TDDP.bootPreloadBGM && TDDP.bootPreloadBGM.length > 0) {
-            for(var i = 0, max = TDDP.bootPreloadBGM.length; i < max; i++) {
-                PreloadManager.preloadBGM({
-                    name: TDDP.bootPreloadBGM[i],
-                    volume: 90,
-                    pitch: 100
-                });
-            }
-        }
-        // Preload bootPreloadBGS resources
-        if(TDDP.bootPreloadBGS && TDDP.bootPreloadBGS.length > 0) {
-            for(var i = 0, max = TDDP.bootPreloadBGS.length; i < max; i++) {
-                PreloadManager.preloadBGS({
-                    name: TDDP.bootPreloadBGS[i],
-                    volume: 90,
-                    pitch: 100
-                });
-            }
-        }
-        // Preload bootPreloadSE resources
-        if(TDDP.bootPreloadSE && TDDP.bootPreloadSE.length > 0) {
-            for(var i = 0, max = TDDP.bootPreloadSE.length; i < max; i++) {
-                PreloadManager.preloadSE({
-                    name: TDDP.bootPreloadSE[i],
-                    volume: 90,
-                    pitch: 100
-                });
-            }
-        }
-        // Preload bootPreloadME resources
-        if(TDDP.bootPreloadME && TDDP.bootPreloadME.length > 0) {
-            for(var i = 0, max = TDDP.bootPreloadME.length; i < max; i++) {
-                PreloadManager.preloadME({
-                    name: TDDP.bootPreloadME[i],
-                    volume: 90,
-                    pitch: 100
-                });
-            }
-        }
-        // Preload system SFX if set
-        if(preloadSystemSFX) {
-            if(debug) console.log("========= TDDP PreloadManager: Boot Preloading System SFX =========");
-            for(var i = 0, max = $dataSystem.sounds.length; i < max; i++) {
-                PreloadManager.preloadSE($dataSystem.sounds[i]);
-            }
-        }
-        // Preload system BGM and ME if set
-        if(preloadSystemMusic) {
-            if(debug) console.log("========= TDDP PreloadManager: Boot Preloading System Music =========");
-            [
-                $dataSystem.titleBgm,
-                $dataSystem.battleBgm,
-                $dataSystem.boat.bgm,
-                $dataSystem.ship.bgm,
-                $dataSystem.airship.bgm,
-            ].forEach(function(bgm) {
-                PreloadManager.preloadBGM(bgm);
-            });
-            [
-                $dataSystem.victoryMe,
-                $dataSystem.defeatMe,
-                $dataSystem.gameoverMe,
-            ].forEach(function(me) {
-                PreloadManager.preloadME(me);
-            });
-        }
-        PreloadManager.start();
-    };
-
-    //=============================================================================
-    // DataManager extensions
-    //=============================================================================
-    if (preloadOnMapLoad) {
-        var DataManager_loadMapData =
-            DataManager.loadMapData;
-        DataManager.loadMapData = function(mapId) {
-            if(debug) console.log("========= TDDP PreloadManager: Map Preload =========");
-            this._preloaded = false;
-            DataManager_loadMapData.call(this, mapId);
-            PreloadManager.preloadMapResources(mapId);
-            PreloadManager.callOnComplete(this._onPreloadDone.bind(this));
-        }
-
-        DataManager._onPreloadDone = function() {
-            this._preloaded = true;
-        }
-
-        var DataManager_isMapLoaded =
-            DataManager.isMapLoaded;
-        DataManager.isMapLoaded = function() {
-            return (this.isMapDataLoaded() && this._preloaded);
-        }
-
-        DataManager.isMapDataLoaded = function() {
-            return DataManager_isMapLoaded.call(this);
-        }
-    }
-
-    //=============================================================================
-    // Scene_Base extensions
-    //=============================================================================
-    var Scene_Base_prototype_isReady =
-        Scene_Base.prototype.isReady;
-    Scene_Base.prototype.isReady = function() {
-        if(!PreloadManager.isReady()) return false;
-        return Scene_Base_prototype_isReady.call(this);
-    }
-
-    //=============================================================================
-    // Html5Audio extensions
-    //=============================================================================
+      }
+    },
     /**
-     * Sets up the Html5 Audio.
-     *
+     * Check if a given file path is in the cache
      * @static
-     * @method setup
-     * @param {String} url The url of the audio file
+     * @return {Boolean}
      */
-    Html5Audio.setup = function (url) {
-        if (!this._initialized) {
-            this.initialize();
+    hasPath: function(localPath) {
+      return $.cache.retrieveFromPath(localPath) != null;
+    },
+    /**
+     * Retrieve cache object (if exists) from a given local path. Also moves it to
+     * the front of the array for freshness™
+     * @static
+     * @return {PreloadObject} or {null}
+     */
+    retrieveFromPath: function(localPath) {
+      var localPath = decodeURIComponent(localPath);
+      for (var i = 0; i < this.preloadedObjects.length; i++) {
+        if (this.preloadedObjects[i].path == localPath) {
+          this.preloadedObjects.move(i, 0);
+          return this.preloadedObjects[0];
         }
-        this.clear();
-        this._load(url); // Changed from this._url = url to call the _load func; this func is never loaded by default
-    };
-
+      }
+      return null;
+    },
     /**
-     * @static
-     * @method _setupEventHandlers
-     * @private
+     * Retrieve audio objects in cache
+     * @return {Array} of {PreloadObject}s
      */
-    Html5Audio._setupEventHandlers = function () {
-        document.addEventListener('touchstart', this._onTouchStart.bind(this));
-        document.addEventListener('visibilitychange', this._onVisibilityChange.bind(this));
-        this._audioElement.addEventListener("canplaythrough", this._onLoadedData.bind(this)); // Changed from loaddata to canplaythrough, so it knows streaming is stable enough
-        this._audioElement.addEventListener("error", this._onError.bind(this));
-        this._audioElement.addEventListener("ended", this._onEnded.bind(this));
-    };
-
+    retrieveAudioObjects: function() {
+      return this.preloadedObjects.filter(function(preloadObject) {
+        return preloadObject.isAudio();
+      });
+    },
     /**
-     * @static
-     * @method _onLoadedData
-     * @private
+     * Retrieve image objects in cache
+    * @return {Array} of {PreloadObject}s
      */
-    Html5Audio._onLoadedData = function () {
-        this._buffered = true;
-        this._onLoad(); // I removed check for this._unlocked because that shouldn't matter
+    retrieveImageObjects: function() {
+      return this.preloadedObjects.filter(function(preloadObject) {
+        return preloadObject.isImage();
+      });
+    },
+  }
+  //=============================================================================
+  // Main functionality
+  //=============================================================================
+  $.mixins.asEventDispatcher.call($); // Act as EventDispatcher
+  $.eventListeners = [];
+  $.events = {
+    onPreloadStart:    "preloadStart",
+    onPreloadLoad:     "preloadLoad",
+    onPreloadProgress: "preloadProgress",
+    onPreloadError:    "preloadError",
+    onPreloadAbort:    "preloadAbort",
+    onIndexLoad:       "indexLoad",
+  }
+  /**
+   * Get indexed data for a given file path
+   * @static
+   * @param path {String} Local path to file
+   */
+  $.getFileIndexData = function(path) {
+    var split = path.split("/");
+    var fileData = $.indexFile;
+    var valid = true;
+    split.forEach(function(element) {
+      try {
+        fileData = fileData[element];
+      }
+      catch (e) {
+        valid = false;
+      }
+    });
+    if (valid) {
+      return fileData;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Perform the boot/startup preload procedure
+   * @static
+   */
+  $.performBootPreload = function() {
+    $.helper.log("info", "====== Preloading startup files ======");
+    $.queueFilesForPreload($.config.startupPreload);
+    $.queueFilesForPreload($.config.startupPreloadPermanent, false);
+    // Preload system data
+    if ($dataSystem.title1Name) $.queueImageFileForPreload("titles1", $dataSystem.title1Name);
+    if ($dataSystem.title2Name) $.queueImageFileForPreload("titles2", $dataSystem.title2Name);
+    if ($dataSystem.titleBgm.name) $.queueAudioFileForPreload("bgm", $dataSystem.titleBgm.name);
+    $dataSystem.sounds.forEach(function(sound) {
+      if (sound.name) $.queueAudioFileForPreload("se", sound.name);
+    })
+    // Perform
+    $.performPreload();
+  }
+  /**
+   * Queues an array of file paths for preload
+   * @static
+   * @param filesArray {Array} Array of strings
+   * @param garbageCollectable {Boolean}
+   */
+  $.queueFilesForPreload = function(filesArray, garbageCollectable) {
+    var fileIndexData = null;
+    filesArray.forEach(function(path) {
+      fileIndexData = $.getFileIndexData(path);
+      if (fileIndexData) {
+        if (isNaN(fileIndexData)) {
+          // If folder, add folder contents
+          var files = Object.keys(fileIndexData).map(function(f) {
+            return [path, f].join("/");
+          });
+          $.queueFilesForPreload(files, garbageCollectable);
+        } else {
+          $.queueFileForPreload(path, garbageCollectable);
+        }
+      }
+    });
+  };
+  /**
+   * Queue a path to a file for preload
+   * @static
+   * @param localPath {String}
+   * @param garbageCollectable {Boolean}
+   * @return {PreloadObject} or {null}
+   */
+  $.queueFileForPreload = function(localPath, garbageCollectable) {
+    garbageCollectable = typeof garbageCollectable !== 'undefined' ? garbageCollectable : true;
+    var localPath = decodeURIComponent(localPath);
+    var fileIndexData = $.getFileIndexData(localPath);
+    if (fileIndexData) {
+      return $.addToPreloadQueue(new PreloadObject(
+        localPath,
+        $.getFileIndexData(localPath),
+        garbageCollectable
+      ));
+    } else {
+      $.helper.log("warn", "File not found in index:", localPath);
+      return null;
+    }
+  }
+  /**
+   * Preload audio file for preload.
+   * @static
+   * @param type {String} Type of audio. Corresponds to subfolders in audio/
+   * @param title {String} The audio file without extension
+   * @param garbageCollectable {Boolean}
+   * @return {PreloadObject}
+   */
+  $.queueAudioFileForPreload = function(type, title, garbageCollectable) {
+    return $.queueFileForPreload(["audio", type, title].join("/") + AudioManager.audioFileExt(), garbageCollectable);
+  }
+  /**
+   * Preload image file for preload.
+   * @static
+   * @param type {String} Type of image. Corresponds to subfolders in img/
+   * @param title {String} The image file without extension
+   * @param garbageCollectable {Boolean}
+   * @return {PreloadObject}
+   */
+  $.queueImageFileForPreload = function(type, title, garbageCollectable) {
+    return $.queueFileForPreload(["img", type, title].join("/") + ".png", garbageCollectable);
+  }
+  /**
+   * Queue tileset images for preload by a given tileset id
+   * @static
+   * @param id {Integer} Tileset id
+   * @param garbageCollectable {Boolean}
+   */
+  $.queueTilesetsForPreloadById = function(id, garbageCollectable) {
+    var tileset = $dataTilesets[id];
+    var files = [];
+    tileset.tilesetNames.forEach(function(file) {
+      files.push("img/tilesets/" + file + ".png");
+    });
+    $.queueFilesForPreload(files, garbageCollectable);
+  }
+  /**
+   * Queue animation images and audio for preload by a given animation id
+   * @static
+   * @param id {Integer} Animation id
+   * @param garbageCollectable {Boolean}
+   */
+  $.queueAnimationsForPreload = function(id, garbageCollectable) {
+    var animations = $dataAnimations[id];
+    if (animations.animation1Name) $.queueImageFileForPreload("animations", animations.animation1Name, garbageCollectable);
+    if (animations.animation2Name) $.queueImageFileForPreload("animations", animations.animation2Name, garbageCollectable);
+    animations.timings.forEach(function(timing) {
+      if (timing.se) $.queueAudioFileForPreload("se", timing.se.name, garbageCollectable);
+    });
+  }
+  /**
+   * Perform preload of all queued PreloadObjects
+   * @static
+   */
+  $.performPreload = function() {
+    if (!$.hasAnyInPreloadQueue()) return $.dispatchEvent(new Event($.events.onPreloadLoad));
+    $.helper.log("info", "====== Starting preload ======")
+    $.helper.log("info", "Total data size queued for preload:", $.helper.toKB($.queue.sizeTotal), "kB");
+    $.dispatchEvent(new Event($.events.preloadStart));
+    $._preloadLooper();
+  }
+
+  $.pruneMemoryUse = function() {
+    if ($.settings.audioCacheLimit > 0 && $.cache.audioBytesTotal > $.settings.audioCacheLimit) {
+      $.helper.log("info", "====== Pruning audio cache:", $.helper.toKB($.cache.audioBytesTotal), "kB /", $.helper.toKB($.settings.audioCacheLimit), "kB used ======");
+      var originalAudioBytesTotal = $.cache.audioBytesTotal;
+      var files = 0;
+      $.cache.retrieveAudioObjects().reverse().some(function(preloadObject) {
+        if ($.cache.removePreloadObject(preloadObject)) files += 1;
+        return $.cache.audioBytesTotal <= $.settings.audioCacheLimit;
+      });
+      $.helper.log("Pruned", files, "audio files for a total of", $.helper.toKB(originalAudioBytesTotal - $.cache.audioBytesTotal), "kB");
+    }
+    if ($.settings.imageCacheLimit > 0 && $.cache.imageBytesTotal > $.settings.imageCacheLimit) {
+      $.helper.log("info", "====== Pruning image cache:", $.helper.toKB($.cache.imageBytesTotal), "kB /", $.helper.toKB($.settings.imageCacheLimit), "kB used ======");
+      var originalImageBytesTotal = $.cache.imageBytesTotal;
+      var files = 0;
+      $.cache.retrieveImageObjects().reverse().some(function(preloadObject) {
+        if ($.cache.removePreloadObject(preloadObject)) files += 1;
+        return $.cache.imageBytesTotal <= $.settings.imageCacheLimit;
+      });
+      $.helper.log("Pruned", files, "image files for a total of", $.helper.toKB(originalImageBytesTotal - $.cache.imageBytesTotal), "kB");
+    }
+  }
+  /**
+  * Add a given preloadObject to the preload queue
+  * @static
+  * @param preloadObject {PreloadObject}
+  * @return {PreloadObject}
+  */
+  $.addToPreloadQueue = function(preloadObject) {
+    if (!$.existsInPreloadQueue(preloadObject.path) && !$.cache.retrieveFromPath(preloadObject.path)) {
+      $.queue.sizeTotal += preloadObject.fileSize;
+      $.helper.log("Adding to queue:", preloadObject.path)
+      $.queue.preloadObjects.push(preloadObject);
+    }
+    return preloadObject;
+  }
+  /**
+   * Control whether there are any {PreloadObject}s queued
+   * @static
+   */
+  $.hasAnyInPreloadQueue = function() {
+    return $.queue.preloadObjects.length > 0;
+  }
+  /**
+   * Control whether a given local path exists in preload queue
+   * @static
+   * @return {Boolean}
+   */
+  $.existsInPreloadQueue = function(localPath) {
+    return $.queue.preloadObjects.filter(function(preloadObject) {
+      return preloadObject.path == localPath;
+    }).length > 0
+  }
+  /**
+   * Preload a given file immediately and add to cache
+   * @static
+   * @return {PreloadObject}
+   */
+  $.preloadImmediately = function(localPath) {
+    var preloadObject = new PreloadObject(
+      localPath,
+      $.getFileIndexData(localPath)
+    );
+    preloadObject.addEventListener(PreloadObject.events.onLoad, function() {
+      $.cache.addPreloadObject(preloadObject);
+    }.bind(this));
+    preloadObject.load();
+    return preloadObject;
+  }
+  /**
+   * Load the index file
+   * @static
+   */
+  $.preloadCurrentMap = function() {
+    $.helper.log("info", "====== Indexing map:", $.mapInfo().name, "========");
+    // Preload system vehicles
+    if ($dataSystem.airship.characterName) $.queueImageFileForPreload("characters", $dataSystem.airship.characterName);
+    if ($dataSystem.boat.characterName) $.queueImageFileForPreload("characters", $dataSystem.boat.characterName);
+    if ($dataSystem.ship.characterName) $.queueImageFileForPreload("characters", $dataSystem.ship.characterName);
+    // Preload map specific data
+    if ($dataMap.bgm.name && !AudioManager.shouldUseHtml5Audio()) $.queueAudioFileForPreload("bgm", $dataMap.bgm.name);
+    if ($dataMap.bgs.name) $.queueAudioFileForPreload("bgs", $dataMap.bgs.name);
+    if ($dataMap.battleback1Name) $.queueImageFileForPreload("battlebacks1", $dataMap.battleback1Name);
+    if ($dataMap.battleback2Name) $.queueImageFileForPreload("battlebacks2", $dataMap.battleback2Name);
+    if ($dataMap.tilesetId) $.queueTilesetsForPreloadById($dataMap.tilesetId);
+    // Cycle events and load appropriate resources
+    $dataMap.events.forEach(function(event) {
+      if (event) {
+        event.pages.forEach(function(page) {
+          if (page.image.characterName) $.queueImageFileForPreload("characters", page.image.characterName);
+          page.list.forEach(function(listEntry) {
+            var code = listEntry.code;
+            var p = listEntry.parameters;
+            switch(code) {
+              // Show Picture
+              case 231:
+                if (p[1]) $.queueImageFileForPreload("pictures", p[1]);
+                break;
+              // Play BGM
+              case 241:
+                if (p[0]) $.queueAudioFileForPreload("bgm", p[0].name);
+                break;
+              // Play BGS
+              case 245:
+                if (p[0]) $.queueAudioFileForPreload("bgs", p[0].name);
+                break;
+              // Play ME
+              case 249:
+                if (p[0]) $.queueAudioFileForPreload("me", p[0].name);
+                break;
+              // Play SE
+              case 250:
+                if (p[0]) $.queueAudioFileForPreload("se", p[0].name);
+                break;
+              // Change Parallax
+              case 284:
+                if (p[0]) $.queueImageFileForPreload("parallax", p[0]);
+                break;
+              // Show Text
+              case 101:
+                if (p[0]) $.queueImageFileForPreload("faces", p[0]);
+                break;
+              // Show Animation
+              case 212:
+                if (p[1]) $.queueAnimationsForPreload(p[1]);
+                break;
+            }
+          });
+        });
+      };
+    });
+    $.performPreload();
+  }
+  /**
+   * Accessor for curent map info
+   * @return {Object} The map info for the current active map id
+   */
+  $.mapInfo = function() {
+    return $dataMapInfos[$.currentMapId];
+  }
+  /**
+   * Get percentage of queued files currently loaded
+   * @static
+   */
+  $.percentLoaded = function() {
+    return Math.floor(this.queue.sizeLoaded / this.queue.sizeTotal * 100);
+  };
+  /**
+   * Get size total of queued files (in Bytes)
+   * @static
+   * @return {Integer}
+   */
+  $.sizeTotal = function() {
+    return this.queue.sizeTotal;
+  }
+  /**
+   * Get size of loaded data (in Bytes)
+   * @static
+   * @return {Integer}
+   */
+  $.sizeLoaded = function() {
+    return this.queue.sizeLoaded;
+  }
+  /**
+   * Check if currently loading data
+   * @return {Boolean}
+   */
+  $.isLoading = function() {
+    return this._preloadActive && this.sizeLoaded() < this.sizeTotal();
+  }
+  /**
+   * Retrieve and remove the first {PreloadObject} in queue
+   * @private
+   * @static
+   */
+  $._getAndRemoveFirstInPreloadQueue = function() {
+    return $.queue.preloadObjects.shift();
+  }
+  /**
+   * Load the index file
+   * @static
+   */
+  $.loadIndexFile = function() {
+    var xhr = new XMLHttpRequest();
+    var url = $.helper.indexFilePath();
+    xhr.open('GET', url);
+    xhr.overrideMimeType('application/json');
+    xhr.onload = function() {
+        if (xhr.status < 400) {
+          $.indexFile = JSON.parse(xhr.responseText);
+          $.helper.log("Successfully loaded index file.");
+          // Dispatch event
+          var completeEvent = new Event($.events.onIndexLoad)
+          $.dispatchEvent(completeEvent);
+        }
     };
-})();
+    xhr.onerror = function() {
+        throw new Error("Could not load TDDP.PreloadManager index file.");
+    };
+    xhr.send();
+  }
+  /**
+   * Actual preload looper
+   * @private
+   * @static
+   */
+  $._preloadLooper = function() {
+    if ($._preloadActive) return; // Only one queue at a time
+    $._preloadActive = true;
+    if ($.hasAnyInPreloadQueue()) {
+      var loadedAccu = 0;
+      var preloadObject = $._getAndRemoveFirstInPreloadQueue();
+      // Tick loaded
+      var tickLoaded = function(evt) {
+        var loaded = evt.loaded - loadedAccu; if (loaded < 0) loaded = 0;
+        $.queue.sizeLoaded += loaded;
+        loadedAccu += evt.loaded;
+      }
+      // Progress
+      preloadObject.addEventListener(PreloadObject.events.onProgress, function(evt) {
+        tickLoaded(evt);
+        $.helper.log("info", "Loaded:", [$.percentLoaded(), "% | ", $.helper.toKB($.sizeLoaded()), " kB / ", $.helper.toKB($.sizeTotal()), " kB"].join(""));
+        // Fire off progress event
+        $.dispatchEvent(new Event($.events.onPreloadProgress));
+      });
+      // On finished loading
+      preloadObject.addEventListener(PreloadObject.events.onLoad, function(evt) {
+        tickLoaded(evt);
+        $.cache.addPreloadObject(preloadObject);
+        $._preloadActive = false;
+        // Fire off progress event
+        // $.dispatchEvent(new Event($.events.onPreloadProgress));
+        // Load next object if any
+        $._preloadLooper();
+      });
+      // Start
+      preloadObject.load();
+    } else {
+      $._preloadActive = false;
+      $.helper.log("info", "====== Preload done ======");
+      // Make sure we just set sizeLoaded to total
+      $.queue.sizeLoaded = $.queue.sizeTotal;
+      // Fire off load event
+      $.dispatchEvent(new Event($.events.onPreloadLoad));
+      // All done
+      $.queue.reset();
+      // Perform memory prune
+      $.pruneMemoryUse();
+    }
+  }
+  //=============================================================================
+  // PreloadObject
+  //=============================================================================
+  function PreloadObject() {
+    this.initialize.apply(this, arguments);
+  }
+  PreloadObject.prototype = Object.create(Object.prototype);
+  PreloadObject.constructor = PreloadObject;
+
+  $.mixins.asEventDispatcher.call(PreloadObject.prototype); // Act as EventDispatcher
+
+  PreloadObject.events = {
+    onLoad:     "load",
+    onProgress: "progress",
+    onError:    "error",
+    onAbort:    "abort",
+  }
+  /**
+   * @param path {String} Local file path
+   * @param fileSize {Integer} The size of the file
+   * @param garbageCollectable {Boolean}
+   */
+  PreloadObject.prototype.initialize = function(path, fileSize, garbageCollectable) {
+    this.path               = path;
+    this.garbageCollectable = garbageCollectable;
+    this.fileSize           = fileSize;
+    // Events
+    this.onProgress         = null;
+    this.onLoad             = null;
+    this.onError            = null;
+    this.eventListeners     = [];
+    // Initialize data depending on fileType
+    this._initializeData();
+  };
+  /**
+   * Initialize loading of data object
+   */
+  PreloadObject.prototype.load = function() {
+    switch (this.fileType) {
+      case "image":
+        this._loadImage();
+        break;
+      case "audio":
+        this._loadAudio();
+        break;
+    }
+  }
+  /**
+   * @return {Boolean}
+   */
+  PreloadObject.prototype.isAudio = function() {
+    return this.fileType == "audio";
+  }
+  /**
+   * @return {Boolean}
+   */
+  PreloadObject.prototype.isImage = function() {
+    return this.fileType == "image";
+  }
+  /**
+   * The file extension with no leading punctuation
+   * @property fileExtension
+   * @type String
+   */
+  Object.defineProperty(PreloadObject.prototype, 'fileExtension', {
+    get: function() {
+      if (!this._fileExtension) {
+        if (this.path.includes("audio")) {
+          this._fileExtension = AudioManager.audioFileExt().slice(-3).toLowerCase();
+        } else {
+          this._fileExtension = this.path.split(".").slice(-1)[0].toLowerCase(); // Get last after split
+        }
+      };
+
+      return this._fileExtension;
+    }
+  });
+  /**
+   * The file extension with no leading punctuation
+   * @property filename
+   * @type String
+   */
+  Object.defineProperty(PreloadObject.prototype, 'filename', {
+    get: function() {
+      if (!this._filename) {
+        this._filename = this.path.split("/").slice(-1)[0].toLowerCase(); // Get last after split
+      };
+      return this._filename;
+    }
+  });
+  /**
+   * Type of file
+   * @return {String} "audio" | "image" | "unknown"
+   */
+  Object.defineProperty(PreloadObject.prototype, 'fileType', {
+    get: function() {
+      if (!this._fileType) {
+        switch(this.fileExtension) {
+          case "ogg":
+          case "m4a":
+            this._fileType = "audio";
+            break;
+          case "png":
+          case "jpg":
+          case "bmp":
+            this._fileType = "image";
+            break;
+          default:
+            this._fileType = "unknown";
+        }
+      };
+
+      return this._fileType;
+    }
+  });
+  /**
+   * Initialize data types
+   * @private
+   */
+  PreloadObject.prototype._initializeData = function() {
+    switch (this.fileType) {
+      case "image":
+        this.data = new Bitmap();
+        break;
+      case "audio":
+        this.data = new WebAudio(this.path, false);
+        break;
+    }
+  }
+  /**
+   * Check whether Html5Audio should be used
+   * @private
+   * @return {Boolean}
+   */
+  PreloadObject.prototype._useHtml5Audio = function() {
+    return Utils.isAndroidChrome() && this.path.incldes("bgm");
+  }
+  /**
+   * Load image file
+   * This requires some hackery because the Image object does not support progress
+   * events. So what we do is we load the image data as a blob and then update the
+   * image source directly using an xhr request. Voila, progress and bytes loaded
+   * becomes available.
+   * @private
+   */
+  PreloadObject.prototype._loadImage = function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', this.path, true);
+    xhr.responseType = 'arraybuffer';
+
+    xhr.onload = function(evt) {
+      var mimeType = "image/" + this.fileExtension;
+      var blob = new Blob([xhr.response], {type: mimeType});
+      this.data._image = new Image();
+      this.data._url = this.path;
+      this.data._image.onload = Bitmap.prototype._onLoad.bind(this.data);
+      this.data._image.onerror = Bitmap.prototype._onError.bind(this.data);
+      this.data._image.src = window.URL.createObjectURL(blob);
+      this.dispatchEvent(evt);
+    }.bind(this);
+
+    xhr.onprogress = this.dispatchEvent.bind(this); // Forwards evt from Bitmap
+    xhr.onerror = this.dispatchEvent.bind(this); // Forwards evt from Bitmap
+
+    xhr.send();
+  }
+  /**
+   * Load audio file
+   * @private
+   */
+  PreloadObject.prototype._loadAudio = function() {
+    this.data.addEventListener("progress", this.dispatchEvent.bind(this));
+    this.data.addEventListener("load", this.dispatchEvent.bind(this));
+    this.data.addEventListener("error", this.dispatchEvent.bind(this));
+    this.data._load(this.path);
+  }
+  //=============================================================================
+  // Scene_Boot extension / overwrites
+  //=============================================================================
+  /**
+   * Extend to perform boot preloading
+   */
+  var Scene_Boot_prototype_create = Scene_Boot.prototype.create;
+  Scene_Boot.prototype.create = function() {
+    var listenerId = null;
+    listenerId = $.addEventListener($.events.onIndexLoad, function() {
+      Scene_Boot_prototype_create.call(this);
+      $.removeEventListener(listenerId);
+    }.bind(this));
+    $.loadIndexFile();
+  };
+  /**
+   * Extend to perform boot preload before actually starting, and to fetch images
+   * after they are preloaded
+   */
+  var Scene_Boot_prototype_start = Scene_Boot.prototype.start;
+  Scene_Boot.prototype.start = function() {
+    var listenerId = null;
+    listenerId = $.addEventListener($.events.onPreloadLoad, function() {
+      Scene_Boot_prototype_start.call(this);
+      $.removeEventListener(listenerId);
+    }.bind(this));
+    $.performBootPreload();
+  };
+  /**
+   * Overwrite so it queues files for preload rather than start loading all immediately
+   */
+  Scene_Boot.prototype.loadSystemImages = function() {
+    ["Window",
+     "IconSet",
+     "Balloon",
+     "Shadow1",
+     "Shadow2",
+     "Damage",
+     "States",
+     "Weapons1",
+     "Weapons2",
+     "Weapons3",
+     "ButtonSet"].forEach(function(image) {
+       ImageManager._cache["img/system/" + image + ":0"] = $.queueImageFileForPreload("system", image);
+     })
+  };
+  //=============================================================================
+  // Scene_Base extensions
+  //=============================================================================
+  /**
+   * Extend to return false if PreloadManager is loading
+   */
+  var Scene_Base_prototype_isReady = Scene_Base.prototype.isReady;
+  Scene_Base.prototype.isReady = function() {
+    return !$.isLoading(); // Extend so that during preloading the scene is not determined as ready
+    // return Scene_Base_prototype_isReady.call(this);
+  }
+  /**
+   * Extend to call ImageManager.clear() on scene creation
+   */
+  var Scene_Base_prototype_create = Scene_Base.prototype.create;
+  Scene_Base.prototype.create = function() {
+    ImageManager.clear(); // Clear image hue rotation cache between scenes.
+    Scene_Base_prototype_create.call(this);
+  };
+  //=============================================================================
+  // DataManager extensions
+  //=============================================================================
+  /**
+   * Extend to provide PreloadManager with the current map id and to set a var
+   * for preload completion
+   */
+  var DataManager_loadMapData = DataManager.loadMapData;
+  DataManager.loadMapData = function(mapId) {
+    this._isPreloadComplete = false;
+    $.currentMapId = mapId;
+    DataManager_loadMapData.call(this, mapId);
+  }
+  /**
+   * Extend to proceed with map preload only after map JSON has been loaded
+   */
+  var DataManager_onLoad = DataManager.onLoad;
+  DataManager.onLoad = function(object) {
+    DataManager_onLoad.call(this, object);
+    if (object === $dataMap) {
+      $.addEventListener($.events.onPreloadLoad, function() {
+        DataManager._isPreloadComplete = true;
+      })
+      $.preloadCurrentMap(object);
+    }
+  }
+  /**
+   * Add check for preload complete var
+   */
+  var DataManager_isMapLoaded = DataManager.isMapLoaded;
+  DataManager.isMapLoaded = function() {
+      return DataManager_isMapLoaded.call(this) && this._isPreloadComplete;
+  };
+  //=============================================================================
+  // AudioManager extension
+  //=============================================================================
+  /**
+   * Extended so that we return cached objects (or load to cache if cache miss)
+   */
+  AudioManager.createBuffer = function(folder, name) {
+    var ext = this.audioFileExt();
+    var url = this._path + folder + '/' + encodeURIComponent(name) + ext;
+    if (this.shouldUseHtml5Audio() && folder === 'bgm') {
+      Html5Audio.setup(url);
+      return Html5Audio;
+    } else {
+      var cachedPreloadObject = $.cache.retrieveFromPath(url);
+      if (cachedPreloadObject) {
+        $.helper.log("Cache hit:", url);
+        return cachedPreloadObject.data;
+      } else {
+        $.helper.log("Cache miss (fetching):", url);
+        return $.preloadImmediately(url).data;
+      }
+    }
+  };
+  //=============================================================================
+  // Bitmap extension
+  //=============================================================================
+  /**
+   * Extended to use PreloadManager cache for smarter handling of bitmaps
+   *
+   * @static
+   * @method load
+   * @param {String} url The image url of the texture
+   * @return Bitmap
+   */
+  var Bitmap_load = Bitmap.load;
+  Bitmap.load = function(url) {
+    var url = decodeURIComponent(url);
+    var cachedPreloadObject = $.cache.retrieveFromPath(url);
+    if (cachedPreloadObject) {
+      $.helper.log("Cache hit:", url);
+      return cachedPreloadObject.data;
+    } else {
+      $.helper.log("Cache miss (fetching):", url);
+      return $.preloadImmediately(url).data;
+    }
+  };
+  //=============================================================================
+  // WebAudio extensions
+  //=============================================================================
+  /**
+   * Extend the asEventDispatcher mixin to provide event listener and dispatcher
+   * functionality.
+   */
+  $.mixins.asEventDispatcher.call(WebAudio.prototype);
+  /**
+   * Override so it doesn't always immediately start loading
+   */
+  WebAudio.prototype.initialize = function(url, loadImmediately) {
+    loadImmediately = typeof loadImmediately !== 'undefined' ? loadImmediately : true;
+    if (!WebAudio._initialized) {
+      WebAudio.initialize();
+    }
+    this.clear();
+    this.eventListeners = [];
+    if (loadImmediately) this._load(url);
+    this._url = url;
+  };
+  /**
+   * Extend _load to dispatch events outwards using the asEventDispatcher interface
+   * @method _load
+   * @param {String} url
+   * @private
+   */
+  WebAudio.prototype._load = function(url) {
+    var url = decodeURIComponent(url);
+    if (WebAudio._context) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.responseType = 'arraybuffer';
+      xhr.onload = function(evt) {
+        if (xhr.status < 400) {
+          this._onXhrLoad(xhr);
+          this.dispatchEvent(evt); // New
+        }
+      }.bind(this);
+      xhr.onerror = function(evt) {
+        this._hasError = true;
+        this.dispatchEvent(evt); // New
+      }.bind(this);
+      xhr.onprogress = this.dispatchEvent.bind(this); // New
+      xhr.send();
+    }
+  };
+  //=============================================================================
+  // Indexing and development procedures
+  //=============================================================================
+  if ($.helper.isDevMode()) {
+    $.dev.crawlAndIndexAllAssets();
+  }
+})(TDDP.PreloadManager)
