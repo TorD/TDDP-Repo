@@ -608,7 +608,10 @@ indexFilename: ".PM_Index",
     $.dispatchEvent(new Event($.events.preloadStart));
     $._preloadLooper();
   }
-
+  /**
+   * Remove the oldest cached objects if memory limits are exceeded
+   * @static
+   */
   $.pruneMemoryUse = function() {
     if ($.settings.audioCacheLimit > 0 && $.cache.audioBytesTotal > $.settings.audioCacheLimit) {
       $.helper.log("info", "====== Pruning audio cache:", $.helper.toKB($.cache.audioBytesTotal), "kB /", $.helper.toKB($.settings.audioCacheLimit), "kB used ======");
