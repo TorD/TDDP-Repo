@@ -1,4 +1,53 @@
 //=============================================================================
+// TDDP_PreloadManager.js
+// Version: 2.0.0a
+//=============================================================================
+var Imported = Imported || {};
+Imported.TDDP_PreloadManager = "2.0.0a";
+
+var TDDP = TDDP || {}; TDDP.PreloadManager = { config: {
+startupPreload: [ // !! Do not edit this line !!
+//-----------------------------------------------------------------------------
+// Preload on game start
+//-----------------------------------------------------------------------------
+// "audio/se/001-System01.ogg", // Specify individual files if you want to
+// "img/system", // Folders too; will load anything in the folder and subfolders
+], // !! Do not edit this line !!
+//-----------------------------------------------------------------------------
+// Preload on start that should NEVER be removed from cache
+//-----------------------------------------------------------------------------
+startupPreloadPermanent: [
+  // "audio/se/002-System02.ogg", // Works like
+],
+//-----------------------------------------------------------------------------
+// Folders to index when testing your game
+//-----------------------------------------------------------------------------
+foldersToIndex: [
+  "audio",
+  "img"
+],
+//-----------------------------------------------------------------------------
+// IGNORED FILES
+// - Files that should not be indexed
+//-----------------------------------------------------------------------------
+ignoredFiles: [
+  ".DS_Store", // OSX files often automatically generated
+  "_index.json", // Created by TDDP_MouseSystemEx
+],
+//-----------------------------------------------------------------------------
+// IGNORED FILE EXTENSIONS
+// - File types that should not be indexed
+//-----------------------------------------------------------------------------
+ignoredExtensions: [
+  "txt",
+],
+//-----------------------------------------------------------------------------
+// Index filename
+// - The index file that gets generated
+//-----------------------------------------------------------------------------
+indexFilename: ".PM_Index",
+}};
+//=============================================================================
 /*:
  * @plugindesc 2.0.0.a Preload resources on scene/map load as well as game startup for a smoother gameplay experience.          id:TDDP_PreloadManager
  *
@@ -1035,11 +1084,11 @@
   // Scene_Base extensions
   //=============================================================================
   /**
-   * Extend to return false if PreloadManager is loading
+   * Extend to aslo return false if PreloadManager is loading
    */
   var Scene_Base_prototype_isReady = Scene_Base.prototype.isReady;
   Scene_Base.prototype.isReady = function() {
-    return !$.isLoading() && !$.hasAnyInPreloadQueue() && Scene_Base_prototype_isReady.call(this); // Extend so that during preloading the scene is not determined as ready
+    return !$.isLoading() && !$.hasAnyInPreloadQueue() && Scene_Base_prototype_isReady.call(this);
   }
   /**
    * Extend to call ImageManager.clear() on scene creation
