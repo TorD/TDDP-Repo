@@ -548,7 +548,7 @@ indexFilename: ".PM_Index",
     }
   }
   /**
-   * Preload audio file for preload.
+   * Queue audio file for preload
    * @static
    * @param type {String} Type of audio. Corresponds to subfolders in audio/
    * @param title {String} The audio file without extension
@@ -559,7 +559,7 @@ indexFilename: ".PM_Index",
     return $.queueFileForPreload(["audio", type, title].join("/") + AudioManager.audioFileExt(), garbageCollectable);
   }
   /**
-   * Preload image file for preload.
+   * Queue image file for preload
    * @static
    * @param type {String} Type of image. Corresponds to subfolders in img/
    * @param title {String} The image file without extension
