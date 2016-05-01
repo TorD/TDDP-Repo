@@ -457,8 +457,17 @@ indexFilename: ".PM_Index",
   // Main functionality
   //=============================================================================
   $.mixins.asEventDispatcher.call($); // Act as EventDispatcher
-  $._preloadActive = false;
+  /**
+   * Event listeners attached. Required for asEventDispatcher mixin
+   * @static
+   * @var eventListeners {Array}
+   */
   $.eventListeners = [];
+  /**
+   * List of events this object can dispatch
+   * @static
+   * @var events {Object}
+   */
   $.events = {
     onPreloadStart:    "preloadStart",
     onPreloadLoad:     "preloadLoad",
@@ -467,6 +476,12 @@ indexFilename: ".PM_Index",
     onPreloadAbort:    "preloadAbort",
     onIndexLoad:       "indexLoad",
   }
+  /**
+  * @static
+  * @private
+  * @var _preloadActive {Boolean}
+  */
+  $._preloadActive = false;
   /**
    * Get indexed data for a given file path
    * @static
@@ -842,7 +857,7 @@ indexFilename: ".PM_Index",
       // Progress
       preloadObject.addEventListener(PreloadObject.events.onProgress, function(evt) {
         tickLoaded(evt);
-        $.helper.log("info", "Loaded:", [$.percentLoaded(), "% | ", $.helper.toKB($.sizeLoaded()), " kB / ", $.helper.toKB($.sizeTotal()), " kB"].join(""));
+        $.helper.log("info", "Progress", [("   " + $.percentLoaded()).slice(-3), "% (", $.helper.toKB($.sizeLoaded()), " kB / ", $.helper.toKB($.sizeTotal()), " kB)"].join(""));
         // Fire off progress event
         $.dispatchEvent(new Event($.events.onPreloadProgress));
       });
@@ -879,7 +894,11 @@ indexFilename: ".PM_Index",
   PreloadObject.constructor = PreloadObject;
 
   $.mixins.asEventDispatcher.call(PreloadObject.prototype); // Act as EventDispatcher
-
+  /**
+   * List of events this object can dispatch
+   * @static
+   * @var events {Object}
+   */
   PreloadObject.events = {
     onLoad:     "load",
     onProgress: "progress",
@@ -1084,11 +1103,11 @@ indexFilename: ".PM_Index",
   // Scene_Base extensions
   //=============================================================================
   /**
-   * Extend to aslo return false if PreloadManager is loading
+   * Extend to return false if PreloadManager is loading
    */
   var Scene_Base_prototype_isReady = Scene_Base.prototype.isReady;
   Scene_Base.prototype.isReady = function() {
-    return !$.isLoading() && !$.hasAnyInPreloadQueue() && Scene_Base_prototype_isReady.call(this);
+    return !$.isLoading() && !$.hasAnyInPreloadQueue() && Scene_Base_prototype_isReady.call(this); // Extend so that during preloading the scene is not determined as ready
   }
   /**
    * Extend to call ImageManager.clear() on scene creation
