@@ -1014,19 +1014,6 @@
     $.loadIndexFile();
   };
   /**
-   * Extend to perform boot preload before actually starting, and to fetch images
-   * after they are preloaded
-   */
-  // var Scene_Boot_prototype_start = Scene_Boot.prototype.start;
-  // Scene_Boot.prototype.start = function() {
-  //   var listenerId = null;
-  //   listenerId = $.addEventListener($.events.onPreloadLoad, function() {
-  //     Scene_Boot_prototype_start.call(this);
-  //     $.removeEventListener(listenerId);
-  //   }.bind(this));
-  //   // $.performBootPreload();
-  // };
-  /**
    * Overwrite so it queues files for preload rather than start loading all immediately
    */
   Scene_Boot.prototype.loadSystemImages = function() {
@@ -1044,10 +1031,6 @@
        ImageManager._cache["img/system/" + image + ":0"] = $.queueImageFileForPreload("system", image).data;
      })
   };
-  // var Scene_Boot_prototype_isReady = Scene_Boot.prototype.isReady;
-  // Scene_Boot.prototype.isReady = function() {
-  //   return DataManager.isDatabaseLoaded() && this.isGameFontLoaded();
-  // }
   //=============================================================================
   // Scene_Base extensions
   //=============================================================================
