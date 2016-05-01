@@ -694,16 +694,14 @@ indexFilename: ".PM_Index",
    * @static
    * @return {PreloadObject}
    */
-  $.preloadImmediately = function(localPath) {
+  $.loadImmediately = function(localPath) {
     var preloadObject = new PreloadObject(
       localPath,
       $.getFileIndexData(localPath)
     );
-    preloadObject.addEventListener(PreloadObject.events.onLoad, function() {
-      $.cache.addPreloadObject(preloadObject);
-    }.bind(this));
-    preloadObject.load();
-    return preloadObject;
+   $.cache.addPreloadObject(preloadObject);
+   preloadObject.load();
+   return preloadObject;
   }
   /**
    * Load the index file
@@ -1169,7 +1167,7 @@ indexFilename: ".PM_Index",
         return cachedPreloadObject.data;
       } else {
         $.helper.log("Cache miss (fetching):", url);
-        return $.preloadImmediately(url).data;
+        return $.loadImmediately(url).data;
       }
     }
   };
@@ -1193,7 +1191,7 @@ indexFilename: ".PM_Index",
       return cachedPreloadObject.data;
     } else {
       $.helper.log("Cache miss (fetching):", url);
-      return $.preloadImmediately(url).data;
+      return $.loadImmediately(url).data;
     }
   };
   //=============================================================================
