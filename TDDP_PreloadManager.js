@@ -13,7 +13,7 @@ startupPreload: [ // !! Do not edit this line !!
 //-----------------------------------------------------------------------------
 // Files to preload upon startup that will NEVER be unloaded from memory
 //-----------------------------------------------------------------------------
-startupPreloadPermanent: [
+startupPreloadPermanent: [ // TODO Not yet implemented
   // "audio/se/002-System02.ogg",
 ],
 //-----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ indexFilename: ".PM_Index",
  *
  * @param Print Debug Level
  * @desc The type of debug output you like to see in the console. From most to least: debug | info | warn | error
- * @default warn
+ * @default debug
  */
 (function($) {
   "use strict";
