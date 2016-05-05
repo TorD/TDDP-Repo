@@ -1,4 +1,5 @@
 var Imported = Imported || {};
+Imported.TDDP_PreloadManager = "2.0.0-RC1"; 
 
 var TDDP = TDDP || {}; TDDP.PreloadManager = { config: {
 startupPreload: [ // !! Do not edit this line !!
