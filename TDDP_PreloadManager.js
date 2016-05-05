@@ -8,7 +8,6 @@ startupPreload: [ // !! Do not edit this line !!
 //-----------------------------------------------------------------------------
 // "audio/se/001-System01.ogg", // Files
 // "img/faces", // Folders too
-"img/system", // Recommended!
 ], // !! Do not edit this line !!
 //-----------------------------------------------------------------------------
 // Files to preload upon startup that will NEVER be unloaded from memory
@@ -50,6 +49,14 @@ indexFilename: ".PM_Index",
  *
  * @author Tor Damian Design / Galenmereth
  *
+ * @param System Audio Boot Preload
+ * @desc Preload all audio files specified in the Database's System tab on game start? Default: true
+ * @default true
+ *
+ * @param System Images Boot Preload
+ * @desc Preload all default image files in the img/Systems directory on game start? Default: true
+ * @default true
+ *
  * @param Image Cache Limit
  * @desc The total size limit of the image cache in MB. When exceeded the least used cached files will be purged
  * @default 500
@@ -63,7 +70,7 @@ indexFilename: ".PM_Index",
  * @default 0
  *
  * @param Print Debug to Console
- * @desc If you want to see debug information in the console (F8) set this to true.
+ * @desc If you want to see debug information in the console (F8) set this to true. Default: true
  * @default true
  *
  * @param Print Debug Level
@@ -78,13 +85,16 @@ indexFilename: ".PM_Index",
   $.settings = {}; // Setup settings namespace object
   // Static
   $.settings.logLevels = ["error", "warn", "info", "debug"];
+  $.settings.booleanCheck = function(param){return Boolean($.settings.parameters[param] === 'true' || false)};
   // Dynamic from plugin settings
-  $.settings.parameters     = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
-  $.settings.imageCacheLimit = parseInt($.settings.parameters['Image Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
-  $.settings.audioCacheLimit = parseInt($.settings.parameters['Audio Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
-  $.settings.printDebug      = Boolean($.settings.parameters['Print Debug to Console'] === 'true' || false);
-  $.settings.logLevel        = $.settings.logLevels.indexOf(String($.settings.parameters['Print Debug Level']));
-  $.settings.simulateLatency = parseInt($.settings.parameters['Simulate Latency'], 10);
+  $.settings.parameters          = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
+  $.settings.preloadSystemAudio  = $.settings.booleanCheck('System Audio Boot Preload');
+  $.settings.preloadSystemImages = $.settings.booleanCheck('System Images Boot Preload');
+  $.settings.imageCacheLimit     = parseInt($.settings.parameters['Image Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
+  $.settings.audioCacheLimit     = parseInt($.settings.parameters['Audio Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
+  $.settings.printDebug          = $.settings.booleanCheck('Print Debug to Console');
+  $.settings.logLevel            = $.settings.logLevels.indexOf(String($.settings.parameters['Print Debug Level']));
+  $.settings.simulateLatency     = parseInt($.settings.parameters['Simulate Latency'], 10);
   //=============================================================================
   // asEventDispatcher functional mixin
   //=============================================================================
@@ -521,18 +531,38 @@ indexFilename: ".PM_Index",
    * Perform the boot/startup preload procedure
    * @static
    */
-  $.performBootPreload = function() {
-    if (!$dataSystem) return setTimeout($.performBootPreload.bind(this), 5);
-    $.helper.log("info", "====== Preloading startup files ======");
+  $.preloadBoot = function() {
+    if (!$dataSystem) return setTimeout($.preloadBoot.bind(this), 5);
+    $.helper.log("info", "====== Indexing startup files ======");
+    // Default system preloads if enabled
+    if ($.settings.preloadSystemImages) {
+      ["Window",
+      "IconSet",
+      "Balloon",
+      "Shadow1",
+      "Shadow2",
+      "Damage",
+      "States",
+      "Weapons1",
+      "Weapons2",
+      "Weapons3",
+      "ButtonSet"].forEach(function(image) {
+        $.queueImageFileForPreload("system", image);
+      });
+    };
+    // Preload all System audio if enabled
+    if ($.settings.preloadSystemAudio) {
+      $dataSystem.sounds.forEach(function(sound) {
+        if (sound.name) $.queueAudioFileForPreload("se", sound.name);
+      })
+    }
+    // User config
     $.queueFilesForPreload($.config.startupPreload);
     $.queueFilesForPreload($.config.startupPreloadPermanent, false);
     // Preload system data
     if ($dataSystem.title1Name) $.queueImageFileForPreload("titles1", $dataSystem.title1Name);
     if ($dataSystem.title2Name) $.queueImageFileForPreload("titles2", $dataSystem.title2Name);
     if ($dataSystem.titleBgm.name) $.queueAudioFileForPreload("bgm", $dataSystem.titleBgm.name);
-    $dataSystem.sounds.forEach(function(sound) {
-      if (sound.name) $.queueAudioFileForPreload("se", sound.name);
-    })
     // Perform
     $.performPreload();
   }
@@ -647,8 +677,8 @@ indexFilename: ".PM_Index",
    */
   $.performPreload = function() {
     if (!$.hasAnyInPreloadQueue()) return $.dispatchEvent(new Event($.events.onPreloadLoad));
-    $.helper.log("info", "====== Starting preload ======")
-    $.helper.log("info", "Total data size queued for preload:", $.helper.toKB($.queue.sizeTotal), "kB");
+    $.helper.log("info", "====== Starting preload", "(" + $.queue.preloadObjects.length,  "files /", $.helper.toKB($.queue.sizeTotal), "kB)", "======")
+    // $.helper.log("debug", "Total data size queued for preload:", $.helper.toKB($.queue.sizeTotal), "kB");
     $.dispatchEvent(new Event($.events.preloadStart));
     $._preloadLooper();
   }
@@ -754,7 +784,7 @@ indexFilename: ".PM_Index",
    */
   $.preloadBattle = function() {
     var dataTroop = $dataTroops[$gameTroop._troopId];
-    $.helper.log("info", "====== Indexing battle scene:", dataTroop.name, "========");
+    $.helper.log("info", "====== Indexing battle:", dataTroop.name, "========");
     // Battlebacks and fallbacks if not defined in map
     if ($dataMap && $dataMap.battleback1Name) {
       $.queueImageFileForPreload("battlebacks1", $dataMap.battleback1Name);
@@ -949,7 +979,7 @@ indexFilename: ".PM_Index",
       // Progress
       preloadObject.addEventListener(PreloadObject.events.onProgress, function(evt) {
         tickLoaded(evt);
-        $.helper.log("info", "Progress", [("   " + $.percentLoaded()).slice(-3), "% (", $.helper.toKB($.sizeLoaded()), " / ", $.helper.toKB($.sizeTotal()), " kB)"].join(""));
+        $.helper.log("debug", "Progress", [("   " + $.percentLoaded()).slice(-3), "% (", $.helper.toKB($.sizeLoaded()), " / ", $.helper.toKB($.sizeTotal()), " kB)"].join(""));
         // Fire off progress event
         $.dispatchEvent(new Event($.events.onPreloadProgress));
       });
@@ -1168,7 +1198,7 @@ indexFilename: ".PM_Index",
     this.__isPreloaded = false; // Needed for compatibility and waiting for DataManager
     $.addEventListener($.events.onIndexLoad, function() {
       Scene_Boot_prototype_create.call(this);
-      $.performBootPreload();
+      $.preloadBoot();
     }.bind(this), true);
     $.addEventListener($.events.onPreloadLoad, function() {
       this.__isPreloaded = true;
@@ -1176,7 +1206,7 @@ indexFilename: ".PM_Index",
     $.loadIndexFile();
   };
   /**
-   * Overwrite as performBootPreload() handles this now by user settings
+   * Overwrite as preloadBoot() handles this now by user settings
    */
   Scene_Boot.prototype.loadSystemImages = function() {
     return;
