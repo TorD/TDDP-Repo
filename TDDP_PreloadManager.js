@@ -1284,18 +1284,6 @@ indexFilename: ".PM_Index",
   DataManager.isMapLoaded = function() {
       return DataManager_isMapLoaded.call(this) && this._isPreloadComplete;
   };
-  // Scene_Battle.prototype.isReady = function() {
-  //   console.log("WA");
-  //   return false;
-  // }
-  // var BattleManager_startBattle = BattleManager.startBattle;
-  // BattleManager.startBattle = function() {
-  //     console.log("WOOP");
-  // };
-  // var BattleManager_setup = BattleManager.setup;
-  // BattleManager.setup = function() {
-  //   console.log("Woop");
-  // }
   //=============================================================================
   // AudioManager extension
   //=============================================================================
