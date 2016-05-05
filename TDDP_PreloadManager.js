@@ -79,12 +79,12 @@ indexFilename: ".PM_Index",
   // Static
   $.settings.logLevels = ["error", "warn", "info", "debug"];
   // Dynamic from plugin settings
-  $.settings.parameters = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
+  $.settings.parameters     = $plugins.filter(function(p){return p.description.contains("id:TDDP_PreloadManager")})[0].parameters;
   $.settings.imageCacheLimit = parseInt($.settings.parameters['Image Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
   $.settings.audioCacheLimit = parseInt($.settings.parameters['Audio Cache Limit'], 10) * 1000 * 1000; // Convert to bytes
   $.settings.printDebug      = Boolean($.settings.parameters['Print Debug to Console'] === 'true' || false);
   $.settings.logLevel        = $.settings.logLevels.indexOf(String($.settings.parameters['Print Debug Level']));
-  $.settings.simulateLatency    = parseInt($.settings.parameters['Simulate Latency'], 10);
+  $.settings.simulateLatency = parseInt($.settings.parameters['Simulate Latency'], 10);
   //=============================================================================
   // asEventDispatcher functional mixin
   //=============================================================================
@@ -100,12 +100,16 @@ indexFilename: ".PM_Index",
        * @param eventHandler {Function}
        * @return {Integer} The listener id
        */
-      this.addEventListener = function(type, eventHandler) {
-        var listener = Object();
-        listener.type = type;
-        listener.eventHandler = eventHandler;
-        this.eventListeners.push(listener);
-        return this.eventListeners.length - 1;
+      this.addEventListener = function(type, eventHandler, onlyOnce) {
+        var eventListener = Object();
+        eventListener.type = type;
+        eventListener.onlyOnce = onlyOnce;
+        eventListener.eventHandler = eventHandler;
+
+        this.eventListeners.push(eventListener);
+        eventListener.id = this.eventListeners.length - 1;
+
+        return eventListener.id;
       }
       /**
        * Remove a registered event listener tied to an event type and handler
@@ -126,9 +130,10 @@ indexFilename: ".PM_Index",
       this.dispatchEvent = function(event) {
         this.eventListeners.filter(function(eventListener) {
           return eventListener.type == event.type;
-        }).forEach(function(eventListener) {
+        }.bind(this)).forEach(function(eventListener) {
           eventListener.eventHandler(event);
-        });
+          if (eventListener.onlyOnce) this.eventListeners.splice(eventListener.id, 1);
+        }.bind(this));
       }
     }
   };
@@ -517,7 +522,7 @@ indexFilename: ".PM_Index",
    * @static
    */
   $.performBootPreload = function() {
-    if (!$dataSystem) return setTimeout($.performBootPreload.bind(this), 1);
+    if (!$dataSystem) return setTimeout($.performBootPreload.bind(this), 5);
     $.helper.log("info", "====== Preloading startup files ======");
     $.queueFilesForPreload($.config.startupPreload);
     $.queueFilesForPreload($.config.startupPreloadPermanent, false);
@@ -1160,12 +1165,14 @@ indexFilename: ".PM_Index",
    */
   var Scene_Boot_prototype_create = Scene_Boot.prototype.create;
   Scene_Boot.prototype.create = function() {
-    var listenerId = null;
-    listenerId = $.addEventListener($.events.onIndexLoad, function() {
+    this.__isPreloaded = false; // Needed for compatibility and waiting for DataManager
+    $.addEventListener($.events.onIndexLoad, function() {
       Scene_Boot_prototype_create.call(this);
-      $.removeEventListener(listenerId);
       $.performBootPreload();
-    }.bind(this));
+    }.bind(this), true);
+    $.addEventListener($.events.onPreloadLoad, function() {
+      this.__isPreloaded = true;
+    }.bind(this), true);
     $.loadIndexFile();
   };
   /**
@@ -1174,6 +1181,13 @@ indexFilename: ".PM_Index",
   Scene_Boot.prototype.loadSystemImages = function() {
     return;
   };
+  /**
+   * Extend to also check if preloading is completed.
+   */
+  var Scene_Boot_prototype_isReady = Scene_Boot.prototype.isReady;
+  Scene_Boot.prototype.isReady = function() {
+    return this.__isPreloaded && Scene_Boot_prototype_isReady.call(this);
+  }
   //=============================================================================
   // Scene_Base extensions
   //=============================================================================
@@ -1197,7 +1211,7 @@ indexFilename: ".PM_Index",
   //=============================================================================
   var Scene_Battle_prototype_create = Scene_Battle.prototype.create;
   Scene_Battle.prototype.create = function() {
-    this.__isPreloaded = false;
+    this.__isPreloaded = false; // Needed for compatibility and waiting for DataManager
     $.addEventListener($.events.onPreloadLoad, function() {
       this.__isPreloaded = true;
       Scene_Battle_prototype_create.call(this);
