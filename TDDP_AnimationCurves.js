@@ -678,8 +678,6 @@ var TDDP_AnimationCurves = {
 	Game_Interpreter.prototype.pluginCommand = function(command, args) {
 		origin.Game_Interpreter.pluginCommand.call(this, command, args);
 
-		console.log(pluginCommand)
-
 		if (command === pluginCommand) _handleCommand(args);
 	}
 
@@ -855,15 +853,14 @@ var TDDP_AnimationCurves = {
 
 			container.addChild(sprite);
 		})
-
-		/**
-		 * Enable demo hotkey if game is in test mode
-		 */
-		if (Utils.isOptionValid('test')) {
-			document.addEventListener('keydown', function(event) {
-				if (event.keyCode == demoHotkey) { demo() }
-			})
-		}
+	}
+	/**
+	 * Enable demo hotkey if game is in test mode
+	 */
+	if (Utils.isOptionValid('test')) {
+		document.addEventListener('keydown', function(event) {
+			if (event.keyCode == demoHotkey) { demo() }
+		})
 	}
 
 })(TDDP_AnimationCurves);
