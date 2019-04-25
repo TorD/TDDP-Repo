@@ -1,5 +1,5 @@
 var Imported = Imported || {};
-Imported.TDDP_AnimationCurves = "1.0.3b";
+Imported.TDDP_AnimationCurves = "1.0.3";
 
 /*:
 @author Tor Damian Design / Galenmereth
