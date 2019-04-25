@@ -613,54 +613,43 @@ var TDDP_AnimationCurves = {
 	}
 
 	/**
-	 * Update movement of a Game_Picture instance using animation curve functions
+	 * @callback ExecutableAnimFunction
+	 * @param {number} time Current time
+	 * @param {number} totalDuration
+	 */
+
+	/**
+	 * Update movement of a Game_Picture instance using wrapped animation curve functions
 	 * **this** is a *Game_Picture* instance
 	 * @param {number} totalDuration
-	 * @param {EasingFunctionFactory} easingFunction
-	 * @param {number} x The original x position
-	 * @param {number} y The original y position
-	 * @param {number} scaleX The original scaleX value
-	 * @param {number} scaleY The original scaleY value
-	 * @param {number} opacity The original opacity value
+	 * @param {ExecutableAnimFunction[]} executableMoveFunctions
 	 */
-	var _updateMoveCurves = function(totalDuration, easingFunctions, x, y, scaleX, scaleY, opacity) {
-		if (this._duration <= 0) return;
+	var _updateMoveCurves = function(totalDuration, executableMoveFunctions) {
+		if (this._duration < 0) return;
 		
 		var time = totalDuration - this._duration;
 
-		if (this._x != this._targetX) this._x = easingFunctions('x', time, x, this._targetX - x, totalDuration);
-		if (this._y != this._targetY) this._y = easingFunctions('y', time, y, this._targetY - y, totalDuration);
-		if (scaleX != this._targetScaleX) this._scaleX = easingFunctions('scaleX', time, scaleX, this._targetScaleX - scaleX, totalDuration);
-		if (scaleY != this._targetScaleY) this._scaleY = easingFunctions('scaleY', time, scaleY, this._targetScaleY - scaleY, totalDuration);
-		if (opacity != this._targetOpacity) this._opacity = easingFunctions('opacity', time, opacity, this._targetOpacity - opacity, totalDuration);
+		executableMoveFunctions.forEach(function(func) {
+			func(time, totalDuration);
+		})
 
 		this._duration--;
 	}
 
 	/**
-	 * @const {string[]}
-	 */
-	var toneKeys = ['red', 'green', 'blue', 'gray']
-
-	/**
 	 * Update the tone of a Game_Picture instance using animation curve functions
 	 * **this** is a *Game_Picture* instance
 	 * @param {number} totalDuration 
-	 * @param {EasingFunctionFactory} easingFunctions
-	 * @param {number[]} toneValues The original tone values
+	 * @param {ExecutableAnimFunction[]} executableTintFunctions
 	 */
-	var _updateToneCurves = function(totalDuration, easingFunctions, toneValues) {
-		if (this._toneDuration <= 0) return;
+	var _updateToneCurves = function(totalDuration, executableTintFunctions) {
+		if (this._toneDuration < 0) return;
 
 		var time = totalDuration - this._toneDuration;
 
-		this._tone.forEach(function(tone, index, tones) {
-			var key = toneKeys[index];
-			var toneOrigin = toneValues[index];
-			var toneTarget = this._toneTarget[index];
-
-			this._tone[index] = easingFunctions(key, time, toneOrigin, toneTarget - toneOrigin, totalDuration);
-		}.bind(this));
+		executableTintFunctions.forEach(function(func) {
+			func(time, totalDuration);
+		})
 
 		this._toneDuration--;
 	}
@@ -696,25 +685,56 @@ var TDDP_AnimationCurves = {
 	 * @param {number} originMode The picture ID origin - 0 = upper left, 1 = center
 	 * @param {number} targetX
 	 * @param {number} targetY
-	 * @param {number} scaleX
-	 * @param {number} scaleY
-	 * @param {number} opacity
+	 * @param {number} targetScaleX
+	 * @param {number} targetScaleY
+	 * @param {number} targetOpacity
 	 * @param {number} blendMode
 	 * @param {number} duration In frames
 	 */
-	Game_Picture.prototype.move = function(originMode, targetX, targetY, scaleX, scaleY, opacity, blendMode, duration) {
-		origin.Game_Picture.move.call(this, originMode, targetX, targetY, scaleX, scaleY, opacity, blendMode, duration);
+	Game_Picture.prototype.move = function(originMode, targetX, targetY, targetScaleX, targetScaleY, targetOpacity, blendMode, duration) {
+		origin.Game_Picture.move.call(this, originMode, targetX, targetY, targetScaleX, targetScaleY, targetOpacity, blendMode, duration);
 
 		var easingFunctions = _pluckEasingFunctions();
 
+		/** @type {ExecutableAnimFunction[]} */
+		var executableMoveFunctions = [];
+
+		// Preconfiguring these anonymous functions means we avoid doing unnecessary if/else checks during each update steps.
+		// This improves performance at the cost of an arguably negligible memory footprint.
+
+		if (targetX != this._x) executableMoveFunctions.push(function(x, time, totalDuration) {
+			this._x = easingFunctions('x', time, x, targetX - x, totalDuration);
+		}.bind(this, this._x))
+
+		if (targetY != this._y) executableMoveFunctions.push(function(y, time, totalDuration) {
+			this._y = easingFunctions('y', time, y, targetY - y, totalDuration);
+		}.bind(this, this._y))
+
+		if (targetScaleX != this._scaleX) executableMoveFunctions.push(function(scaleX, time, totalDuration) {
+			this._scaleX = easingFunctions('scaleX', time, scaleX, targetScaleX - scaleX, totalDuration);
+		}.bind(this, this._scaleX))
+
+		if (targetScaleY != this._scaleY) executableMoveFunctions.push(function(scaleY, time, totalDuration) {
+			this._scaleY = easingFunctions('scaleX', time, scaleY, targetScaleY - scaleY, totalDuration);
+		}.bind(this, this._scaleY))	
+
+		if (targetOpacity != this._opacity) executableMoveFunctions.push(function(opacity, time, totalDuration) {
+			this._opacity = easingFunctions('opacity', time, opacity, targetOpacity - opacity, totalDuration);
+		}.bind(this, this._opacity))
+
 		if (easingFunctions) {
-			this.updateMove = _updateMoveCurves.bind(this, duration, easingFunctions, this._x, this._y, this._scaleX, this._scaleY, this._opacity);
+			this.updateMove = _updateMoveCurves.bind(this, duration, executableMoveFunctions);
 		}
 		else {
 			this.updateMove = Game_Picture.prototype.updateMove.bind(this);
 		}
 
 	}
+
+	/**
+	 * @const {string[]}
+	 */
+	var toneKeys = ['red', 'green', 'blue', 'gray']
 
 	/**
 	 * @param {number[]} tone
@@ -725,8 +745,23 @@ var TDDP_AnimationCurves = {
 
 		var easingFunctions = _pluckEasingFunctions();
 
+		/** @type {ExecutableAnimFunction[]} */
+		var executableTintFunctions = [];
+
+		// As with Game_Picture.prototype.move, we preconfigure executable functions here for greater performance
+		tone.forEach(function(toneTarget, index) {
+			var toneKey = toneKeys[index];
+			var toneOrigin = this._tone[index];
+
+			if (toneTarget != this._tone[index]) {
+				executableTintFunctions.push(function(time, totalDuration) {
+					this._tone[index] = easingFunctions(toneKey, time, toneOrigin, toneTarget - toneOrigin, totalDuration);
+				}.bind(this))
+			}
+		}.bind(this))
+
 		if (easingFunctions) {
-			this.updateTone = _updateToneCurves.bind(this, duration, easingFunctions, this._tone.slice(0));
+			this.updateTone = _updateToneCurves.bind(this, duration, executableTintFunctions);
 		}
 		else {
 			this.updateTone = Game_Picture.prototype.updateTone.bind(this);
@@ -830,13 +865,21 @@ var TDDP_AnimationCurves = {
 
 			sprite.addChild(text);
 
-			var ball = new PIXI.Graphics()
+			var ball1 = new PIXI.Graphics()
 				.beginFill(0xee3333, 0.8)
 				.drawCircle(0, 0, 5)
 				.endFill()
 				.setTransform(innerPadding, height - innerPadding);
 			
-			sprite.addChild(ball);
+			sprite.addChild(ball1);
+
+			var ball2 = new PIXI.Graphics()
+				.beginFill(0x08080ff, 0.8)
+				.drawCircle(0, 0, 5)
+				.endFill()
+				.setTransform(innerPadding, height - innerPadding);
+			
+			sprite.addChild(ball2);
 
 			sprite.on('pointerover', function() {
 				var time = 0;
@@ -845,7 +888,14 @@ var TDDP_AnimationCurves = {
 					if (time >= duration) surface.ticker.remove(animator);
 					var bx = $.easingFunctions.Linear(time, innerPadding, width - (innerPadding * 2), duration);
 					var by = easingFunction(time, height - innerPadding, -(height - (innerPadding * 2)), duration);
-					ball.setTransform(bx, by);
+					
+					ball1.setTransform(bx, by);
+
+					bx = easingFunction(time, innerPadding, width - (innerPadding * 2), duration);
+					by = height - innerPadding;
+					
+					ball2.setTransform(bx, by);
+
 					time++;
 				}
 				surface.ticker.add(animator);
