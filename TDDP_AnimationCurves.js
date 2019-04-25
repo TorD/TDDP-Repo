@@ -1,9 +1,9 @@
 var Imported = Imported || {};
-Imported.TDDP_AnimationCurves = "1.0.1b";
+Imported.TDDP_AnimationCurves = "1.0.2b";
 
 /*:
 @author Tor Damian Design / Galenmereth
-@plugindesc 1.0.1b Apply animation curves (easing functions) to Move Picture commands using simple Plugin Commands
+@plugindesc 1.0.2b Apply animation curves (easing functions) to Move Picture commands using simple Plugin Commands
 @help
 How it works
 ------------------------------------------------------------------------------
@@ -439,7 +439,7 @@ var TDDP_AnimationCurves = {
 	// Publicly accessible methods and variables (within namespace)
 	//=============================================================================
 	/**
-	 * The easing function to use for the next Move Picture command
+	 * The easing function to use for the next Move Picture or MoveTint event
 	 * @const {{Object.<string, EasingFunction>}}
 	 * @example
 	 * nextEasingFunctions['x'] => EasingFunction
@@ -866,7 +866,7 @@ var TDDP_AnimationCurves = {
 			sprite.addChild(text);
 
 			var ball1 = new PIXI.Graphics()
-				.beginFill(0xee3333, 0.8)
+				.beginFill(0x08080ff, 0.8)
 				.drawCircle(0, 0, 5)
 				.endFill()
 				.setTransform(innerPadding, height - innerPadding);
@@ -874,7 +874,7 @@ var TDDP_AnimationCurves = {
 			sprite.addChild(ball1);
 
 			var ball2 = new PIXI.Graphics()
-				.beginFill(0x08080ff, 0.8)
+				.beginFill(0xee3333, 0.8)
 				.drawCircle(0, 0, 5)
 				.endFill()
 				.setTransform(innerPadding, height - innerPadding);
