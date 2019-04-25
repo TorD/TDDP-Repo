@@ -1,9 +1,9 @@
 var Imported = Imported || {};
-Imported.TDDP_AnimationCurves = "1.0.2b";
+Imported.TDDP_AnimationCurves = "1.0.3b";
 
 /*:
 @author Tor Damian Design / Galenmereth
-@plugindesc 1.0.2b Apply animation curves (easing functions) to Move Picture commands using simple Plugin Commands
+@plugindesc 1.0.3b Apply animation curves (easing functions) to Move Picture commands using simple Plugin Commands
 @help
 How it works
 ------------------------------------------------------------------------------
@@ -79,36 +79,17 @@ These correspond with the color sliders in the Tint Picture event window.
 
 Supported animation curve functions
 ------------------------------------------------------------------------------
-QuadIn
-QuadOut
-QuadInOut
-CubicIn
-CubicOut
-CubicInOut
-QuartIn
-QuartOut,
-QuartInOut
-QuintIn
-QuintOut
-QuintInOut
-SineIn
-SineOut
-SineInOut
-ExpoIn,
-ExpoOut
-ExpoInOut
-CircIn
-CircOut
-CircInOut
-ElasticIn
-ElasticOut,
-ElasticInOut
-BackIn
-BackOut
-BackInOut
-BounceIn
-BounceOut
-BounceInOut
+QuadIn      QuadOut      QuadInOut
+CubicIn     CubicOut     CubicInOut
+QuartIn     QuartOut     QuartInOut
+QuintIn     QuintOut     QuintInOut
+SineIn      SineOut      SineInOut
+ExpoIn      ExpoOut      ExpoInOut
+CircIn      CircOut      CircInOut
+ElasticIn   ElasticOut   ElasticInOut
+BackIn      BackOut      BackInOut
+BounceIn    BounceOut    BounceInOut
+
 Linear (MV default)
 
 Key codes
