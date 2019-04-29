@@ -74,10 +74,12 @@ Opacity            | opacity / op              | Current value
 Wait               | wait                      | False
 Duration           | duration / d              | 60
 - - - - - - - - - -|- - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-Curve              | curve / c (note: Requires TDDP_AnimationCurves)
+Curve              | curve / c                 | Linear
 
 Shorthands are shorter property names you can use if you find typing the whole
 property name cumbersome.
+
+NOTE: The "curve" property requires TDDP_AnimationCurves plugin.
 
 TDDP_AnimationCurves integration
 ------------------------------------------------------------------------------
