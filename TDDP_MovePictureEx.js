@@ -241,8 +241,9 @@ var TDDP_MovePictureEx = {};
 
 		// Resolve relative property values
 		_relativeProperties.forEach(function(prop) {
-			if (params[prop][0] == '+') params[prop] = picture[prop]() + Number(params[prop].slice(1));
-			if (params[prop][0] == '-') params[prop] = picture[prop]() - Number(params[prop].slice(1));
+			if (params[prop][0] == '+') return params[prop] = picture[prop]() + Number(params[prop].slice(1));
+			if (params[prop][0] == '-') return params[prop] = picture[prop]() - Number(params[prop].slice(1));
+			params[prop] = Number(params[prop]);
 		})
 
 		// Convert blend mode to integer value if string
