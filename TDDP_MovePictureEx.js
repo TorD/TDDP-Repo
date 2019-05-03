@@ -1,9 +1,9 @@
 var Imported = Imported || {};
-Imported.TDDP_MovePictureEx = "1.0.0";
+Imported.TDDP_MovePictureEx = "1.0.1";
 
 /*:
 @author Tor Damian Design / Galenmereth
-@plugindesc 1.0.0 Plugin Command to use variables and relative values with Move Picture
+@plugindesc 1.0.1 Plugin Command to use variables and relative values with Move Picture
 @help
 How it works
 ------------------------------------------------------------------------------
@@ -101,6 +101,13 @@ read.
 You can download TDDP_AnimationCurves here:
 https://forums.rpgmakerweb.com/index.php?threads/animation-curves.108388/
 
+Changelog
+------------------------------------------------------------------------------
+Date       | Version | Description
+- - - - - -|- - - - -|- - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+05/03/2019 | 1.0.1   | Fix issue with unscoped origin var causing crashes with
+           |         | my other plugins.
+
 License
 ------------------------------------------------------------------------------
 In short: Completely free, including for commercial use. Please consider
@@ -146,7 +153,7 @@ var TDDP_MovePictureEx = {};
 	//=============================================================================
 	// Set up general variables
 	//=============================================================================
-	origin = {};
+	var origin = {};
 	//=============================================================================
 	// Game_Interpreter - register plugin command
 	//=============================================================================
