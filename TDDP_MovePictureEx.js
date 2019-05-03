@@ -105,7 +105,7 @@ Changelog
 ------------------------------------------------------------------------------
 Date       | Version | Description
 - - - - - -|- - - - -|- - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-05/03/2019 | 1.0.1   | Fix issue with unscoped origin var causing crashes with
+03/05/2019 | 1.0.1   | Fix issue with unscoped origin var causing crashes with
            |         | my other plugins.
 
 License
