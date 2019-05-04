@@ -1,5 +1,5 @@
 var Imported = Imported || {};
-Imported.TDDP_WaitEx = "1.0.0";
+Imported.TDDP_WaitEx = "1.0.1";
 
 /*:
 @author Tor Damian Design / Galenmereth
@@ -33,12 +33,16 @@ verbosity. For example:
 
 Plugin Command: Wait 1minute 25seconds
 
+Frames is the default value, so if you simply want to wait for a variable's
+amount of frames, you can write this:
+
+Plugin Command: Wait v1
 
 Available units of time
 ------------------------------------------------------------------------------
 Unit         | Valid keys       | Example usage
 - - - - - - -|- - - - - - - - - | - - - - - - - - - - - - - - - - - - - - - - 
-Frames       | f, frames        | 5f, 5frames
+Frames       | f, frames, blank | 5f, 5frames, 5
 Minutes      | m, min, minutes  | 2m, 2min, 2minutes
 Seconds      | s, sec, seconds  | 8s, 8sec, 8seconds
 Milliseconds | ms, milliseconds | 300ms, 300milliseconds
@@ -46,6 +50,13 @@ Milliseconds | ms, milliseconds | 300ms, 300milliseconds
 Note: Keep in mind that ~16 milliseconds will pass for each internal "tick"
 in MV's engine, so wait times that aren't multiples of 16 when using milliseconds
 will not be entirely precise.
+
+
+Changelog
+------------------------------------------------------------------------------
+Date       | Version | Description
+- - - - - -|- - - - -|- - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+04/05/2019 | 1.0.1   | Add support for no time unit, defaulting to frames
 
 
 License
@@ -119,6 +130,9 @@ var TDDP_WaitEx = {};
 			case "ms":
 			case "milliseconds":
 				return num / 16.666666666666668;
+			
+			default:
+				return num;
 		}
 	}
 
@@ -130,7 +144,7 @@ var TDDP_WaitEx = {};
 	 */
 	function parseArgsToFrames(args) {
 		var framesTotal = 0;
-		var regex = /(v?)(\d+)(\D+)/i;
+		var regex = /(v?)(\d+)(\D*)/i;
 
 		args.forEach(function(str) {
 			var match = regex.exec(str);
