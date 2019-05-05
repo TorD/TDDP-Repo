@@ -3,7 +3,7 @@ Imported.TDDP_WaitEx = "1.0.1";
 
 /*:
 @author Tor Damian Design / Galenmereth
-@plugindesc 1.0.0 Use minutes, seconds, milliseconds and variables, alone or combined, for Wait events using a simple Plugin Command syntax.
+@plugindesc 1.0.1 Use minutes, seconds, milliseconds and variables, alone or combined, for Wait events using a simple Plugin Command syntax.
 @help
 How it works
 ------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ will not be entirely precise.
 Changelog
 ------------------------------------------------------------------------------
 Date       | Version | Description
-- - - - - -|- - - - -|- - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+- - - - - -|- - - - -|- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 04/05/2019 | 1.0.1   | Add support for no time unit, defaulting to frames
 
 
