@@ -3,11 +3,11 @@
 //=============================================================================
 
 var Imported = Imported || {};
-Imported.TDDP_MouseSystemEx = "1.8.2";
+Imported.TDDP_MouseSystemEx = "1.8.2.1";
 
 //=============================================================================
 /*:
- * @plugindesc 1.8.2 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
+ * @plugindesc 1.8.2.1 Custom mouse cursors, highlight menu items on hover, custom event mouse interaction and much more! See Help.                      id:TDDP_MouseSystemEx
  *
  * @author Tor Damian Design / Galenmereth
  *
@@ -342,12 +342,19 @@ var TDDP_MouseSystemEx = {};
     $._precacheCustomCursors = function() {
         if (StorageManager.isLocalMode() && Utils.isOptionValid('test')) {
             var fs = require('fs');
+            var path;
             // Find that relative local path, using MV's own methods
-            var path = window.location.pathname.replace(/\/[^\/]*$/, '/' + this.customCursorPath);
-            if (path.match(/^\/([A-Z]\:)/)) {
-                path = path.slice(1);
+            if (Utils.RPGMAKER_VERSION >= '1.6.0') {
+                var path_js = require('path');
+                path = path_js.join(path_js.dirname(process.mainModule.filename), this.customCursorPath);
             }
-            path = decodeURIComponent(path);
+            else {
+                path = window.location.pathname.replace(/\/[^\/]*$/, '/' + this.customCursorPath);
+                if (path.match(/^\/([A-Z]\:)/)) {
+                    path = path.slice(1);
+                }
+                path = decodeURIComponent(path);
+            }
             // Check if cursors dir exists, make if not
             if (!fs.existsSync(path)) {
                 alert('TDDP MouseSystemEx\nThe chosen cursor folder "' + this.customCursorPath + '" has been created for you. Please put any custom cursor image files in this folder.');
