@@ -104,9 +104,7 @@ F12: 123
 
 License
 ------------------------------------------------------------------------------
-In short: Completely free, including for commercial use. Please consider
-donating for further development of plugins and other material if you find
-this plugin useful. See https://mvplugins.tordamian.com
+In short: Completely free, including for commercial use.
 
 MIT License
 
