@@ -9,4 +9,4 @@ In the future I'll never host documentation this way again.
 
 ## Terms of use / License
 
-All plugins are now MIT licensed. I have updated each and every one with the new terms.
+All plugins are now MIT licensed. I have updated each one with the new terms present.
